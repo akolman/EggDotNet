@@ -9,15 +9,19 @@ The [EGG file format](https://en.wikipedia.org/wiki/EGG_(file_format)) is an arc
 
 ### Support checklist
 - [x] EGG format
-- [ ] ALZ format
+- [ ] ALZ format (see [issue #1](https://github.com/akolman/EggDotNet/issues/1))
 - [x] Deflate compression
 - [x] BZip2 compression
-- [ ] AZO compression
-- [ ] LZMA compression
+- [ ] AZO compression (see [issue #2](https://github.com/akolman/EggDotNet/issues/2))
+- [ ] LZMA compression (see [issue #4](https://github.com/akolman/EggDotNet/issues/4))
 - [x] Split archives
-- [ ] Solid archives
+- [ ] Solid archives (see [issue #3](https://github.com/akolman/EggDotNet/issues/3))
 - [ ] Encrypted headers
 - [x] Encrypted files
+- [ ] Non-UTF8 filenames (e.g. shiftJIS)
+- [ ] Encrypted filenames
+- [x] Windows filesystem attributes
+- [ ] POSIX filesystem attributes (see [issue #5](https://github.com/akolman/EggDotNet/issues/5))
 - [x] File comments    
 
 ## Usage
