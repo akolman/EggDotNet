@@ -4,7 +4,7 @@
 
 namespace EggDotNet.Compression.Lz
 {
-	public class OutWindow
+	internal class OutWindow
 	{
 		byte[]? _buffer = null;
 		uint _pos;

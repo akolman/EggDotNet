@@ -1,5 +1,3 @@
-// ICoder.h
-
 using System;
 
 namespace EggDotNet.Compression.Lzma
@@ -20,7 +18,7 @@ namespace EggDotNet.Compression.Lzma
 		public InvalidParamException(): base("Invalid Parameter") { }
 	}
 
-	public interface ICodeProgress
+	internal interface ICodeProgress
 	{
 		/// <summary>
 		/// Callback progress.
@@ -34,7 +32,7 @@ namespace EggDotNet.Compression.Lzma
 		void SetProgress(Int64 inSize, Int64 outSize);
 	};
 
-	public interface ICoder
+	internal interface ICoder
 	{
 		/// <summary>
 		/// Codes streams.
@@ -54,9 +52,6 @@ namespace EggDotNet.Compression.Lzma
 		/// <param name="progress">
 		/// callback progress reference.
 		/// </param>
-		/// <exception cref="SevenZip.DataErrorException">
-		/// if input stream is not valid
-		/// </exception>
 		void Code(System.IO.Stream inStream, System.IO.Stream outStream,
 			Int64 inSize, Int64 outSize, ICodeProgress progress);
 	};
@@ -75,7 +70,7 @@ namespace EggDotNet.Compression.Lzma
 	/// <summary>
 	/// Provides the fields that represent properties idenitifiers for compressing.
 	/// </summary>
-	public enum CoderPropID
+	internal enum CoderPropID
 	{
 		/// <summary>
 		/// Specifies default property.
@@ -98,15 +93,15 @@ namespace EggDotNet.Compression.Lzma
 		/// </summary>
 		BlockSize,
 		/// <summary>
-		/// Specifies number of postion state bits for LZMA (0 <= x <= 4).
+		/// Specifies number of postion state bits for LZMA (0 &lt;= x &lt;= 4).
 		/// </summary>
 		PosStateBits,
 		/// <summary>
-		/// Specifies number of literal context bits for LZMA (0 <= x <= 8).
+		/// Specifies number of literal context bits for LZMA (0 &lt;= x &lt;= 8).
 		/// </summary>
 		LitContextBits,
 		/// <summary>
-		/// Specifies number of literal position bits for LZMA (0 <= x <= 4).
+		/// Specifies number of literal position bits for LZMA (0 &lt;= x &lt;= 4).
 		/// </summary>
 		LitPosBits,
 		/// <summary>
@@ -140,17 +135,17 @@ namespace EggDotNet.Compression.Lzma
 	};
 
 
-	public interface ISetCoderProperties
+	internal interface ISetCoderProperties
 	{
 		void SetCoderProperties(CoderPropID[] propIDs, object[] properties);
 	};
 
-	public interface IWriteCoderProperties
+	internal interface IWriteCoderProperties
 	{
 		void WriteCoderProperties(System.IO.Stream outStream);
 	}
 
-	public interface ISetDecoderProperties
+	internal interface ISetDecoderProperties
 	{
 		void SetDecoderProperties(byte[] properties);
 	}

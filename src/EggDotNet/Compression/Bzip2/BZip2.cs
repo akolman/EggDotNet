@@ -8,7 +8,7 @@ namespace EggDotNet.Compression.Bzip2
 	/// <summary>
 	/// An example class to demonstrate compression and decompression of BZip2 streams.
 	/// </summary>
-	public static class BZip2
+	internal static class BZip2
 	{
 		/// <summary>
 		/// Decompress the <paramref name="inStream">input</paramref> writing
@@ -27,11 +27,9 @@ namespace EggDotNet.Compression.Bzip2
 
 			try
 			{
-				using (BZip2InputStream bzipInput = new BZip2InputStream(inStream))
-				{
-					bzipInput.IsStreamOwner = isStreamOwner;
-					Copy(bzipInput, outStream, new byte[4096]);
-				}
+				using BZip2InputStream bzipInput = new BZip2InputStream(inStream);
+				bzipInput.IsStreamOwner = isStreamOwner;
+				Copy(bzipInput, outStream, new byte[4096]);
 			}
 			finally
 			{
@@ -62,11 +60,9 @@ namespace EggDotNet.Compression.Bzip2
 
 			try
 			{
-				using (BZip2OutputStream bzipOutput = new BZip2OutputStream(outStream, level))
-				{
-					bzipOutput.IsStreamOwner = isStreamOwner;
-					Copy(inStream, bzipOutput, new byte[4096]);
-				}
+				using BZip2OutputStream bzipOutput = new BZip2OutputStream(outStream, level);
+				bzipOutput.IsStreamOwner = isStreamOwner;
+				Copy(inStream, bzipOutput, new byte[4096]);
 			}
 			finally
 			{

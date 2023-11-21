@@ -42,7 +42,7 @@ namespace EggDotNet.Compression.Bzip2
 	/// memory consumed by the lookup tables. (Slicing-by-16 requires a 16KB table,
 	/// which is still small enough to fit in most processors' L1 cache.)
 	/// </remarks>
-	public sealed class BZip2Crc : IChecksum
+	internal sealed class BZip2Crc : IChecksum
 	{
 		#region Instance Fields
 

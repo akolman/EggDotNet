@@ -14,6 +14,9 @@ namespace EggDotNet
 		internal int Id { get; set; }
 		internal long PositionInStream { get; set; }
 
+		/// <summary>
+		/// Gets the parent <see cref="EggArchive"/> for this entry.
+		/// </summary>
 		public EggArchive Archive { get; internal set; }
 
 		/// <summary>
@@ -26,6 +29,9 @@ namespace EggDotNet
 		/// </summary>
 		public string? FullName { get; internal set; }
 
+		/// <summary>
+		/// Gets the Crc32 checksum for this entry.
+		/// </summary>
 		public uint Crc32 { get; internal set; }
 
 		/// <summary>

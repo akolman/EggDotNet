@@ -9,7 +9,7 @@ namespace EggDotNet.Compression.Bzip2
 	/// An output stream that compresses into the BZip2 format
 	/// including file header chars into another stream.
 	/// </summary>
-	public class BZip2OutputStream : Stream
+	internal class BZip2OutputStream : Stream
 	{
 		#region Constants
 
