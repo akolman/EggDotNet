@@ -10,16 +10,16 @@ namespace EggDotNet.Format.Egg
 		public EncryptionMethod EncryptionMethod { get; private set; }
 		public short Size { get; private set; }
 
-		public byte[] AesHeader { get; private set; }
+		public byte[] Param1 { get; private set; }
 
-		public byte[] AesFooter { get; private set; }
+		public byte[] Param2 { get; private set; }
 
 		public EncryptHeader(EncryptionMethod encryptionMethod, short size, byte[] aesHeader, byte[] aesFooter)
 		{
 			EncryptionMethod = encryptionMethod;
 			Size = size;
-			AesHeader = aesHeader;
-			AesFooter = aesFooter;
+			Param1 = aesHeader;
+			Param2 = aesFooter;
 		}
 
 		public static EncryptHeader Parse(Stream stream)
@@ -42,7 +42,9 @@ namespace EggDotNet.Format.Egg
 			var encMethod = (EncryptionMethod)encMethodVal;
 			if (encMethod == EncryptionMethod.AES128)
 			{
-				throw new System.NotImplementedException("Only AES256");
+				stream.ReadN(10, out byte[] aesHeader);
+				stream.ReadN(10, out byte[] aesFooter);
+				return new EncryptHeader(encMethod, size, aesHeader, aesFooter);
 			}
 			else if(encMethod == EncryptionMethod.AES256)
 			{
@@ -50,9 +52,15 @@ namespace EggDotNet.Format.Egg
 				stream.ReadN(10, out byte[] aesFooter);
 				return new EncryptHeader(encMethod, size, aesHeader, aesFooter);
 			}
+			else if (encMethod == EncryptionMethod.Standard)
+			{
+				stream.ReadN(12, out byte[]  standardHeader);
+				stream.ReadN(4, out byte[] pwData);
+				return new EncryptHeader(encMethod, size, standardHeader, pwData);
+			}
 			else
 			{
-				throw new System.NotImplementedException("Only AES256");
+				throw new System.NotImplementedException("Not implemented");
 			}
 
 		}

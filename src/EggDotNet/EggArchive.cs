@@ -16,6 +16,8 @@ namespace EggDotNet
 		private readonly List<EggArchiveEntry> _entries;
 		private readonly IEggFileFormat format;
 
+		public string? Comment { get; internal set; }
+
 		/// <summary>
 		/// Gets a collection of all <see cref="EggArchiveEntry"/> entries in this EggArchive.
 		/// </summary>
@@ -35,6 +37,7 @@ namespace EggDotNet
 		/// Caller owns the stream.
 		/// </summary>
 		/// <param name="sourceStream">The input egg stream.</param>
+		/// <exception cref="Exception.UnknownEggEggception"/>
 		public EggArchive(Stream sourceStream)
 			: this(sourceStream, false, null)
 		{	
@@ -45,6 +48,7 @@ namespace EggDotNet
 		/// </summary>
 		/// <param name="sourceStream">The input egg stream</param>
 		/// <param name="ownStream">A flag indicating whether the caller owns the stream (false) or the EggArchive (true)</param>
+		/// <exception cref="Exception.UnknownEggEggception"/>
 		public EggArchive(Stream sourceStream, bool ownStream)
 			: this(sourceStream, ownStream, null)
 		{
@@ -55,6 +59,7 @@ namespace EggDotNet
 		/// </summary>
 		/// <param name="stream">The input egg stream</param>
 		/// <param name="streamCallback">A callback that will be called to retrieve volumes of a multi-part archive.</param>
+		/// <exception cref="Exception.UnknownEggEggception"/>
 		public EggArchive(Stream stream, Func<Stream, IEnumerable<Stream>> streamCallback)
 			: this(stream, false, streamCallback)
 		{
@@ -66,12 +71,13 @@ namespace EggDotNet
 		/// <param name="stream">The input egg stream.</param>
 		/// <param name="ownStream">A flag indicating whether the caller owns the stream (false) or the EggArchive (true)</param>
 		/// <param name="streamCallback">A callback that will be called to retrieve volumes of a multi-part archive.</param>
-		public EggArchive(Stream stream, bool ownStream, Func<Stream, IEnumerable<Stream>>? streamCallback)
+		/// <exception cref="Exception.UnknownEggEggception"/>
+		public EggArchive(Stream stream, bool ownStream = false, Func<Stream, IEnumerable<Stream>>? streamCallback = null, Func<string>? passwordCallback = null)
 		{
 			streamCallback ??= DefaultStreamCallbacks.GetStreamCallback(stream);
 
-			this.format = EggFileFormatFactory.Create(stream);
-			this.format.ParseHeaders(stream, ownStream, streamCallback);
+			this.format = EggFileFormatFactory.Create(stream, streamCallback, passwordCallback);
+			this.format.ParseHeaders(stream, ownStream);
 			_entries = this.format.Scan(this);		
 		}
 

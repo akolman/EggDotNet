@@ -3,13 +3,15 @@ using System.IO;
 
 namespace EggDotNet.SpecialStreams
 {
+#pragma warning disable CA2215
+
 	internal sealed class SubStream : Stream
 	{
 		private readonly Stream _superStream;
 		private readonly long _endPosition;
 		private readonly long _startPosition;
 		private long _expectedSuperPosition;
-		private bool _isDisposed = false;
+		private bool _isDisposed;
 
 		public override bool CanRead => _superStream.CanRead && !_isDisposed;
 

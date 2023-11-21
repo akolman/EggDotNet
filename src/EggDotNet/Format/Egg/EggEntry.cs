@@ -27,7 +27,7 @@ namespace EggDotNet.Format.Egg
 		public uint Crc { get; private set; }
 
 
-		public static ICollection<EggEntry> Parse(Stream stream)
+		public static List<EggEntry> Parse(Stream stream, EggArchive archive)
 		{
 			var entries = new List<EggEntry>();
 
@@ -45,6 +45,13 @@ namespace EggDotNet.Format.Egg
 				BuildBlocks(entry, stream);
 
 				entries.Add(entry);
+
+				if (stream.Position >= stream.Length)
+				{
+					break;
+				}
+
+				BuildRemaining(stream, archive);
 			}
 
 			return entries;
@@ -102,6 +109,22 @@ namespace EggDotNet.Format.Egg
 					entry.CompressionMethod = blockHeader.CompressionMethod;
 					entry.Crc = blockHeader.Crc32;
 					stream.Seek(entry.CompressedSize, SeekOrigin.Current);
+					break;
+				}
+			}
+		}
+
+		private static void BuildRemaining(Stream stream, EggArchive archive)
+		{
+			while (stream.ReadInt(out int nextHeader))
+			{
+				if (nextHeader == CommentHeader.COMMENT_HEADER_MAGIC)
+				{
+					var comment = CommentHeader.Parse(stream);
+					archive.Comment = comment.CommentText;
+				}
+				else if (nextHeader == FileHeader.FILE_END_HEADER)
+				{
 					break;
 				}
 			}

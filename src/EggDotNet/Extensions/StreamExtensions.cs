@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace EggDotNet.Extensions
 {
@@ -49,8 +47,11 @@ namespace EggDotNet.Extensions
 		public static bool ReadN(this Stream stream, int chars, out byte[] buffer)
 		{
 			buffer = new byte[chars];
-			var fullRead = stream.Read(buffer, 0, chars) == chars;
-			return fullRead;
+#if NETSTANDARD2_0
+			return (stream.Read(buffer, 0, chars) == chars);
+#elif NETSTANDARD2_1_OR_GREATER
+			return (stream.Read(buffer) == chars);
+#endif
 		}
 	}
 }

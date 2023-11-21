@@ -32,40 +32,45 @@ namespace EggDotNet.Format.Egg
 
 		public static FilenameHeader Parse(Stream stream)
 		{
+			var nameEncoder = Encoding.UTF8;
+
 			var bitFlagByte = stream.ReadByte();
 			if (bitFlagByte == -1)
 			{
-				throw new BadDataException("Filename header flag couldn't be read");
+				throw new BadDataEggception("Filename header flag couldn't be read");
 			}
 
 			var bitFlag = (FilenameFlags)bitFlagByte;
 
 			if (bitFlag.HasFlag(FilenameFlags.Encrypt))
 			{
-				throw new BadDataException("Encrypted filenames not supported");
+				throw new BadDataEggception("Encrypted filenames not supported");
 			}
 
 			if (!stream.ReadShort(out short filenameSize))
 			{
-				throw new BadDataException("Filename size couldn't be read");
+				throw new BadDataEggception("Filename size couldn't be read");
+			}
+
+			if (bitFlag.HasFlag(FilenameFlags.UseAreaCode))
+			{
+				stream.ReadShort(out short locale);
+				try
+				{
+					nameEncoder = Encoding.GetEncoding(locale);
+				}
+				catch(System.Exception ex)
+				{
+					throw new UnsupportedLocalEggception(locale, ex); 
+				}
 			}
 
 			if (!stream.ReadN(filenameSize, out byte[] filenameBuffer))
 			{
-				throw new BadDataException("Filename header corrupt");
+				throw new BadDataEggception("Filename header corrupt");
 			}
 
-			string? filename;
-			if (bitFlag.HasFlag(FilenameFlags.UseAreaCode))
-			{
-				throw new NotImplementedException("Only UTF-8 entry name supported at this time");
-			}
-			else
-			{
-				filename = Encoding.UTF8.GetString(filenameBuffer);
-			}
-
-			return new FilenameHeader(filename);
+			return new FilenameHeader(nameEncoder.GetString(filenameBuffer));
 		}
 	}
 }

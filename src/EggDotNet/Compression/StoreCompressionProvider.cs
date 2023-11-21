@@ -2,11 +2,11 @@
 
 namespace EggDotNet.Compression
 {
-	internal class StoreCompressionProvider : IStreamCompressionProvider
+	internal sealed class StoreCompressionProvider : IStreamCompressionProvider
 	{
-		public Stream GetDecompressStream(Stream subStream)
+		public Stream GetDecompressStream(Stream stream)
 		{
-			return subStream;
+			return stream;
 		}
 	}
 }

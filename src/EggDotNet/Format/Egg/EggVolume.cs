@@ -1,13 +1,16 @@
-﻿using System;
+﻿using EggDotNet.Exception;
+using System;
 using System.IO;
 
 namespace EggDotNet.Format.Egg
 {
+#pragma warning disable CA1852
+
 	/// <summary>
 	/// Represents a single/individual Egg volume (file).
 	/// EggVolume will be the final holder for a stream.
 	/// </summary>
-    internal class EggVolume : IDisposable
+	internal class EggVolume : IDisposable
     {
 		private bool disposedValue;
 
@@ -42,7 +45,7 @@ namespace EggDotNet.Format.Egg
 			var eggHeader = Header.Parse(stream);
 			if (eggHeader.Version != 256)
 			{
-				throw new System.Exception("Invalid version");
+				throw new UnknownEggEggception(eggHeader.Version);
 			}
 
 			return new EggVolume(stream, ownStream, eggHeader);

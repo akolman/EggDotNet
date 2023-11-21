@@ -42,17 +42,17 @@ namespace EggDotNet.Format.Egg
 
 			if (!stream.ReadShort(out short version))
 			{
-				throw new BadDataException("Failed reading version from header");
+				throw new BadDataEggception("Failed reading version from header");
 			}
 
 			if (!stream.ReadInt(out int headerId))
 			{
-				throw new BadDataException("Failed reading ID from header");
+				throw new BadDataEggception("Failed reading ID from header");
 			}
 
 			if (!stream.ReadInt(out int reserved))
 			{
-				throw new BadDataException("Failed reading from header");
+				throw new BadDataEggception("Failed reading from header");
 			}
 
 			SplitHeader? splitHeader = null;

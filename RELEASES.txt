@@ -1,0 +1,13 @@
+0.0.1-initial (2023-11-20)
+Initial release with following features:
++EGG extraction
++AES decryption
++Split archive
++BZip and Deflate compression
+=======================================================================
+0.0.2-beta (2023-11-21)
+Fixes and added features
++Fixed issue with AES128
++Added support for non-UTF8 filenames
++Added support for global comments
++Added ZIP encryption

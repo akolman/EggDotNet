@@ -1,39 +1,43 @@
 ﻿using EggDotNet.Compression;
 using EggDotNet.Encryption;
-using EggDotNet.Extensions;
+using EggDotNet.Exception;
 using EggDotNet.SpecialStreams;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace EggDotNet.Format.Egg
 {
+#pragma warning disable CA1852
+
 	internal class EggFormat : IEggFileFormat
 	{
-		private ICollection<EggVolume>? _volumes;
-		private ICollection<EggEntry>? _entriesCache;
+		private readonly Func<Stream, IEnumerable<Stream>>? _streamCallback;
+		private readonly Func<string>? _pwCallback;
+		private List<EggVolume>? _volumes;
+		private List<EggEntry>? _entriesCache;
 		private bool disposedValue;
 
-		internal EggFormat()
+		internal EggFormat(Func<Stream, IEnumerable<Stream>>? streamCallback, Func<string>? pwCallback)
 		{
+			_streamCallback = streamCallback;
+			_pwCallback = pwCallback;
 		}
 
-		public void ParseHeaders(Stream stream, bool ownStream, Func<Stream, IEnumerable<Stream>>? streamCallback)
+		public void ParseHeaders(Stream stream, bool ownStream)
 		{
 			var initialVolume = EggVolume.Parse(stream, ownStream);
 			_volumes = new List<EggVolume>() { initialVolume };
 
 			if (initialVolume.IsSplit)
 			{
-				if (streamCallback == null)
+				if (_streamCallback == null)
 				{
 					throw new InvalidOperationException("Stream callback not set");
 				}
 
-				var streams = streamCallback.Invoke(stream);
+				var streams = _streamCallback.Invoke(stream);
 
 				foreach (var extStream in streams)
 				{
@@ -80,7 +84,7 @@ namespace EggDotNet.Format.Egg
 		{
 			using var st = PrepareStream();
 			
-			_entriesCache = EggEntry.Parse(st);
+			_entriesCache = EggEntry.Parse(st, archive);
 
 			var ret = new List<EggArchiveEntry>();
 			foreach (var entry in _entriesCache)
@@ -102,34 +106,18 @@ namespace EggDotNet.Format.Egg
 			return ret;
 		}
 
-		private Stream GetDecompressionStream(Stream stream, EggEntry entry)
+		private static Stream GetDecompressionStream(Stream stream, EggEntry entry)
 		{
-			IStreamCompressionProvider? compressor = null;
-			switch (entry.CompressionMethod)
+			IStreamCompressionProvider? compressor;
+			compressor = entry.CompressionMethod switch
 			{
-				case CompressionMethod.Store:
-					compressor = new StoreCompressionProvider();
-					break;
-				case CompressionMethod.Deflate:
-					compressor = new DeflateCompressionProvider();
-					break;
-				case CompressionMethod.Bzip2:
-					compressor = new BZip2CompressionProvider();
-					break;
-				case CompressionMethod.Azo:
-					throw new NotImplementedException("AZO not implemented");
-				case CompressionMethod.Lzma:
-					compressor = new LzmaCompressionProvider();
-					break;
-				default:
-					break;
-			}
-
-			if (compressor == null)
-			{
-				throw new System.Exception("Compression not supported");
-			}
-
+				CompressionMethod.Store => new StoreCompressionProvider(),
+				CompressionMethod.Deflate => new DeflateCompressionProvider(),
+				CompressionMethod.Bzip2 => new BZip2CompressionProvider(),
+				CompressionMethod.Azo => throw new NotImplementedException("AZO not implemented"),
+				CompressionMethod.Lzma => new LzmaCompressionProvider(),
+				_ => throw new UnknownCompressionEggception(),
+			};
 			return compressor.GetDecompressStream(stream);
 		}
 
@@ -141,17 +129,24 @@ namespace EggDotNet.Format.Egg
 
 			if (eggEntry.EncryptHeader != null)
 			{
+				var pwCb = _pwCallback ?? DefaultStreamCallbacks.GetPasswordCallback();
+
 				while (true)
 				{
-					var pw = DefaultStreamCallbacks.GetPasswordCallback().Invoke();
+					var pw = pwCb.Invoke();
 					if (eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.Standard)
 					{
-						throw new NotImplementedException("ZIP encryption not yet supported");
+						var s = new ZipStreamDecryptionProvider(eggEntry.EncryptHeader.Param1, eggEntry.EncryptHeader.Param2, pw);
+						if (s.PasswordValid)
+						{
+							subSt = s.GetDecryptionStream(subSt);
+							break;
+						}
 					}
 					else
 					{
 						var width = eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.AES256 ? 256 : 128;
-						var s = new AesStreamDecryptionProvider(width, eggEntry.EncryptHeader.AesHeader, eggEntry.EncryptHeader.AesFooter, pw);
+						var s = new AesStreamDecryptionProvider(width, eggEntry.EncryptHeader.Param1, eggEntry.EncryptHeader.Param2, pw);
 						if (s.PasswordValid)
 						{
 							subSt = s.GetDecryptionStream(subSt);
