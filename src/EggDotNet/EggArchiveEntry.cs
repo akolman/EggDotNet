@@ -28,6 +28,9 @@ namespace EggDotNet
 
 		public uint Crc32 { get; internal set; }
 
+		/// <summary>
+		/// Gets a flag indicating whether the entry is encrypted.
+		/// </summary>
 		public bool IsEncrypted { get; internal set; }
 
 		/// <summary>
@@ -56,6 +59,10 @@ namespace EggDotNet
 			Archive = archive;
 		}
 
+		/// <summary>
+		/// Produces a stream to the entry.
+		/// </summary>
+		/// <returns>A Stream to the entry.</returns>
 		public Stream Open()
 		{
 			return _format.GetStreamForEntry(this);
