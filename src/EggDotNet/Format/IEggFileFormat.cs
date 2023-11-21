@@ -8,7 +8,7 @@ namespace EggDotNet.Format
 {
 	internal interface IEggFileFormat : IDisposable
 	{
-		void ParseHeaders(Stream stream, bool ownStream, Func<Stream, IEnumerable<Stream>>? streamCallback);
+		void ParseHeaders(Stream stream, bool ownStream);
 
 		public Stream GetStreamForEntry(EggArchiveEntry entry);
 

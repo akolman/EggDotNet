@@ -715,7 +715,15 @@ namespace EggDotNet.Encryption
 		public AesStreamDecryptionProvider(int bits, byte[] header, byte[] footer, string password)
 		{
 			_footer = footer;
-			_crypto = EggAesCrypto.ReadFromStream(password, bits, header.Take(16).ToArray(), header.Skip(16).Take(2).ToArray());
+			if (256 ==  bits)
+			{
+				_crypto = EggAesCrypto.ReadFromStream(password, bits, header.Take(16).ToArray(), header.Skip(16).Take(2).ToArray());
+			}
+			else
+			{
+				_crypto = EggAesCrypto.ReadFromStream(password, bits, header.Take(8).ToArray(), header.Skip(8).Take(2).ToArray());
+			}
+
 		}
 
 		public bool PasswordValid => _crypto.PasswordValid;

@@ -42,7 +42,9 @@ namespace EggDotNet.Format.Egg
 			var encMethod = (EncryptionMethod)encMethodVal;
 			if (encMethod == EncryptionMethod.AES128)
 			{
-				throw new System.NotImplementedException("Only AES256");
+				stream.ReadN(10, out byte[] aesHeader);
+				stream.ReadN(10, out byte[] aesFooter);
+				return new EncryptHeader(encMethod, size, aesHeader, aesFooter);
 			}
 			else if(encMethod == EncryptionMethod.AES256)
 			{

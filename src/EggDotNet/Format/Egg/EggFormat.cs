@@ -13,27 +13,31 @@ namespace EggDotNet.Format.Egg
 {
 	internal class EggFormat : IEggFileFormat
 	{
+		private readonly Func<Stream, IEnumerable<Stream>>? _streamCallback;
+		private readonly Func<string>? _pwCallback;
 		private ICollection<EggVolume>? _volumes;
 		private ICollection<EggEntry>? _entriesCache;
 		private bool disposedValue;
 
-		internal EggFormat()
+		internal EggFormat(Func<Stream, IEnumerable<Stream>>? streamCallback, Func<string>? pwCallback)
 		{
+			_streamCallback = streamCallback;
+			_pwCallback = pwCallback;
 		}
 
-		public void ParseHeaders(Stream stream, bool ownStream, Func<Stream, IEnumerable<Stream>>? streamCallback)
+		public void ParseHeaders(Stream stream, bool ownStream)
 		{
 			var initialVolume = EggVolume.Parse(stream, ownStream);
 			_volumes = new List<EggVolume>() { initialVolume };
 
 			if (initialVolume.IsSplit)
 			{
-				if (streamCallback == null)
+				if (_streamCallback == null)
 				{
 					throw new InvalidOperationException("Stream callback not set");
 				}
 
-				var streams = streamCallback.Invoke(stream);
+				var streams = _streamCallback.Invoke(stream);
 
 				foreach (var extStream in streams)
 				{
@@ -141,9 +145,11 @@ namespace EggDotNet.Format.Egg
 
 			if (eggEntry.EncryptHeader != null)
 			{
+				var pwCb = _pwCallback ?? DefaultStreamCallbacks.GetPasswordCallback();
+
 				while (true)
 				{
-					var pw = DefaultStreamCallbacks.GetPasswordCallback().Invoke();
+					var pw = pwCb.Invoke();
 					if (eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.Standard)
 					{
 						throw new NotImplementedException("ZIP encryption not yet supported");

@@ -66,14 +66,16 @@ namespace EggDotNet
 		/// <param name="stream">The input egg stream.</param>
 		/// <param name="ownStream">A flag indicating whether the caller owns the stream (false) or the EggArchive (true)</param>
 		/// <param name="streamCallback">A callback that will be called to retrieve volumes of a multi-part archive.</param>
-		public EggArchive(Stream stream, bool ownStream, Func<Stream, IEnumerable<Stream>>? streamCallback)
+		public EggArchive(Stream stream, bool ownStream, Func<Stream, IEnumerable<Stream>>? streamCallback = null, Func<string>? passwordCallback = null)
 		{
 			streamCallback ??= DefaultStreamCallbacks.GetStreamCallback(stream);
 
-			this.format = EggFileFormatFactory.Create(stream);
-			this.format.ParseHeaders(stream, ownStream, streamCallback);
+			this.format = EggFileFormatFactory.Create(stream, streamCallback, passwordCallback);
+			this.format.ParseHeaders(stream, ownStream);
 			_entries = this.format.Scan(this);		
 		}
+
+
 
 		/// <inheritdoc/>
 		public void Dispose()

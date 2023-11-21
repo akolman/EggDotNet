@@ -19,5 +19,35 @@ namespace EggDotNet.Tests
 			Assert.StartsWith("Lorem ipsum dolor sit amet", text);
 			Assert.EndsWith("gravida.", text);
 		}
+
+		[Fact]
+		public void Test_Basic_Deflate_Aes128()
+		{
+			using var fs = new FileStream("../../../test_files/test128.egg", FileMode.Open, FileAccess.Read);
+			using var archive = new EggArchive(fs, false, null, () => "password12345!");
+			var onlyEntry = archive.Entries.Single();
+			Assert.Equal("test.txt", onlyEntry.Name);
+
+			using var onlyEntryStream = onlyEntry.Open();
+			using var sReader = new StreamReader(onlyEntryStream);
+			var text = sReader.ReadToEnd();
+
+			Assert.Equal("Hello there my name is Andrew.", text);
+		}
+
+		[Fact]
+		public void Test_Basic_Deflate_Aes256()
+		{
+			using var fs = new FileStream("../../../test_files/test256.egg", FileMode.Open, FileAccess.Read);
+			using var archive = new EggArchive(fs, false, null, () => "password12345!");
+			var onlyEntry = archive.Entries.Single();
+			Assert.Equal("test.txt", onlyEntry.Name);
+
+			using var onlyEntryStream = onlyEntry.Open();
+			using var sReader = new StreamReader(onlyEntryStream);
+			var text = sReader.ReadToEnd();
+
+			Assert.Equal("Hello there my name is Andrew.", text);
+		}
 	}
 }
