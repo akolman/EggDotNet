@@ -13,8 +13,8 @@ namespace EggDotNet.Format.Egg
 {
 	internal class EggFormat : IEggFileFormat
 	{
-		private ICollection<EggVolume> _volumes;
-		private ICollection<EggEntry> _entriesCache;
+		private ICollection<EggVolume>? _volumes;
+		private ICollection<EggEntry>? _entriesCache;
 		private bool disposedValue;
 
 		internal EggFormat()
@@ -51,7 +51,7 @@ namespace EggDotNet.Format.Egg
 		private Stream PrepareStream()
 		{
 			Stream? st = null;
-			if (_volumes.Count > 1)
+			if (_volumes != null && _volumes.Count > 1)
 			{
 				var subStreams = new List<SubStream>(_volumes.Count);
 				var curVol = _volumes.Single(v => v.Header.SplitHeader!.PreviousFileId == 0);
@@ -76,7 +76,7 @@ namespace EggDotNet.Format.Egg
 			return st;
 		}
 
-		public List<EggArchiveEntry> Scan()
+		public List<EggArchiveEntry> Scan(EggArchive archive)
 		{
 			using var st = PrepareStream();
 			
@@ -85,13 +85,18 @@ namespace EggDotNet.Format.Egg
 			var ret = new List<EggArchiveEntry>();
 			foreach (var entry in _entriesCache)
 			{
-				ret.Add(new EggArchiveEntry(this)
+				ret.Add(new EggArchiveEntry(this, archive)
 				{
 					FullName = entry.Name,
 					PositionInStream = entry.Position,
 					CompressedLength = entry.CompressedSize,
 					UncompressedLength = entry.UncompressedSize,
-					LastWriteTime = entry.LastModifiedTime
+					LastWriteTime = entry.LastModifiedTime,
+					Comment = entry.Comment,
+					IsEncrypted = entry.EncryptHeader != null,
+					Archive = archive,
+					Id = entry.Id,
+					Crc32 = entry.Crc
 				});
 			}
 			return ret;
@@ -99,69 +104,78 @@ namespace EggDotNet.Format.Egg
 
 		private Stream GetDecompressionStream(Stream stream, EggEntry entry)
 		{
-			var compMethod = entry.CompressionMethod;
-			if (compMethod == CompressionMethod.Store)
+			IStreamCompressionProvider? compressor = null;
+			switch (entry.CompressionMethod)
 			{
-				var store = new StoreCompression();
-				return store.GetDecompressStream(stream);
+				case CompressionMethod.Store:
+					compressor = new StoreCompressionProvider();
+					break;
+				case CompressionMethod.Deflate:
+					compressor = new DeflateCompressionProvider();
+					break;
+				case CompressionMethod.Bzip2:
+					compressor = new BZip2CompressionProvider();
+					break;
+				case CompressionMethod.Azo:
+					throw new NotImplementedException("AZO not implemented");
+				case CompressionMethod.Lzma:
+					compressor = new LzmaCompressionProvider();
+					break;
+				default:
+					break;
 			}
-			else if (compMethod == CompressionMethod.Deflate)
+
+			if (compressor == null)
 			{
-				var deflate = new DeflateCompression();
-				return deflate.GetDecompressStream(stream);
+				throw new System.Exception("Compression not supported");
 			}
-			else if (compMethod == CompressionMethod.Bzip2)
-			{
-				var bzip2 = new BZip2Compression();
-				return bzip2.GetDecompressStream(stream);
-			}
-			else
-			{
-				throw new NotImplementedException("Compression method not implemented");
-			}
+
+			return compressor.GetDecompressStream(stream);
 		}
 
 		public Stream GetStreamForEntry(EggArchiveEntry entry)
 		{
 			var st = PrepareStream();
 			Stream subSt = new SubStream(st, entry.PositionInStream, entry.PositionInStream + entry.CompressedLength);
+			var eggEntry = _entriesCache.Single(e => e.Id == entry.Id);
 
-			if (_entriesCache.First().EncryptHeader != null)
+			if (eggEntry.EncryptHeader != null)
 			{
 				while (true)
 				{
 					var pw = DefaultStreamCallbacks.GetPasswordCallback().Invoke();
-					var s = new Aes256Decryption(256, _entriesCache.First().EncryptHeader.AesHeader, _entriesCache.First().EncryptHeader.AesFooter, pw);
-					if (s.PasswordValid)
+					if (eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.Standard)
 					{
-						subSt = s.GetDecryptionStream(subSt);
-						break;
+						throw new NotImplementedException("ZIP encryption not yet supported");
+					}
+					else
+					{
+						var width = eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.AES256 ? 256 : 128;
+						var s = new AesStreamDecryptionProvider(width, eggEntry.EncryptHeader.AesHeader, eggEntry.EncryptHeader.AesFooter, pw);
+						if (s.PasswordValid)
+						{
+							subSt = s.GetDecryptionStream(subSt);
+							break;
+						}
 					}
 				}
 			}
 
-			var decompst = GetDecompressionStream(subSt, _entriesCache.Where(e => e.Name == entry.Name).Single());
-
-
-
-
-			return decompst;
+			return GetDecompressionStream(subSt, eggEntry);
 		}
 
 		protected virtual void Dispose(bool disposing)
 		{
-			if (!disposedValue)
+			if (!disposedValue && disposing)
 			{
-				if (disposing)
+				if (_volumes != null)
 				{
-					foreach(var volume in _volumes)
+					foreach (var volume in _volumes)
 					{
 						volume.Dispose();
 					}
 				}
 
-				// TODO: free unmanaged resources (unmanaged objects) and override finalizer
-				// TODO: set large fields to null
 				disposedValue = true;
 			}
 		}

@@ -4,7 +4,7 @@ using EggDotNet.SpecialStreams;
 
 namespace EggDotNet.Compression
 {
-	internal class DeflateCompression : IStreamCompression
+	internal class DeflateCompressionProvider : IStreamCompressionProvider
 	{
 		public Stream GetDecompressStream(Stream subStream)
 		{

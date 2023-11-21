@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EggDotNet.Exception
+﻿namespace EggDotNet.Exception
 {
+	/// <summary>
+	/// Represents an <see cref="Exception"/> thrown from EggDotNet.
+	/// </summary>
 	public class Eggception : System.Exception
 	{
-		public Eggception(string message)
+		internal Eggception(string message)
 			: base(message)
 		{
-
 		}
 	}
 }

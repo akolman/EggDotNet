@@ -1,3 +1,8 @@
-BZip2 compression from SharpZipLib: https://github.com/icsharpcode/SharpZipLib
+BZip2 compression provided by SharpZipLib: https://github.com/icsharpcode/SharpZipLib (Aug 2023)
+=====================================================================================
 
-https://github.com/garysharp/Disco/blob/master/Resources/Libraries/DotNetZip/Source/Zip/ZipCrypto.cs
+AES CTR decryption from SharpCompress: https://github.com/adamhathcock/sharpcompress
+=====================================================================================
+
+LZMA compression provided by 7-zip: https://7-zip.org/sdk.html (23.01)
+=====================================================================================

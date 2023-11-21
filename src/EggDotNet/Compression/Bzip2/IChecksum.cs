@@ -11,7 +11,7 @@ namespace EggDotNet.Compression.Bzip2
 	/// <code>getValue</code>. The complete checksum object can also be reset
 	/// so it can be used again with new data.
 	/// </summary>
-	public interface IChecksum
+	internal interface IChecksum
 	{
 		/// <summary>
 		/// Resets the data checksum as if no update was ever called.

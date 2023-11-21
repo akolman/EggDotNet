@@ -19,9 +19,9 @@ namespace EggDotNet.Format.Egg
 
 		public long BlockDataPosition { get; private set; }
 
-		public int Crc32 { get; private set; }
+		public uint Crc32 { get; private set; }
 
-		private BlockHeader(CompressionMethod compressionMethod, int compressedSize, int uncompressedSize, long blockDataPosition, int crc32)
+		private BlockHeader(CompressionMethod compressionMethod, int compressedSize, int uncompressedSize, long blockDataPosition, uint crc32)
 		{
 			CompressionMethod = compressionMethod;
 			CompressedSize = compressedSize;
@@ -47,7 +47,7 @@ namespace EggDotNet.Format.Egg
 				throw new BadDataException("Failed to read block compressed size");
 			}
 
-			if (!stream.ReadInt(out int crc))
+			if (!stream.ReadUInt(out uint crc))
 			{
 				throw new BadDataException("Failed to read block checksum");
 			}

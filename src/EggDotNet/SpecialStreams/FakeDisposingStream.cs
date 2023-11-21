@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 
+#pragma warning disable CA2213, CA2215
 namespace EggDotNet.SpecialStreams
 {
 	internal sealed class FakeDisposingStream : Stream
@@ -51,7 +49,7 @@ namespace EggDotNet.SpecialStreams
 
 		protected override void Dispose(bool disposing)
 		{
-			
+
 		}
 	}
 }

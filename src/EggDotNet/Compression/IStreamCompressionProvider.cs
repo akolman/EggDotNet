@@ -3,7 +3,7 @@ using System.IO;
 
 namespace EggDotNet.Compression
 {
-	internal interface IStreamCompression
+	internal interface IStreamCompressionProvider
 	{
 		Stream GetDecompressStream(Stream subStream);
 	}

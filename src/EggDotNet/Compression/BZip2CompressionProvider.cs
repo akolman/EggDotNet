@@ -7,7 +7,7 @@ using System.Text;
 
 namespace EggDotNet.Compression
 {
-	internal class BZip2Compression : IStreamCompression
+	internal class BZip2CompressionProvider : IStreamCompressionProvider
 	{
 		public Stream GetDecompressStream(Stream subStream)
 		{

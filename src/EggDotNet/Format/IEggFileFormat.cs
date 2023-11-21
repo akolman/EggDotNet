@@ -12,6 +12,12 @@ namespace EggDotNet.Format
 
 		public Stream GetStreamForEntry(EggArchiveEntry entry);
 
-		List<EggArchiveEntry> Scan();
+		/// <summary>
+		/// Scans the current format and provides a list of EggArchiveEntries.  EggArchive instance is required so
+		/// that it can be attached to each EggArchiveEntry.
+		/// </summary>
+		/// <param name="archive"></param>
+		/// <returns></returns>
+		List<EggArchiveEntry> Scan(EggArchive archive);
 	}
 }

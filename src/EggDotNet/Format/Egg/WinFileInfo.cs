@@ -1,8 +1,6 @@
 ﻿using EggDotNet.Extensions;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace EggDotNet.Format.Egg
 {
@@ -18,7 +16,7 @@ namespace EggDotNet.Format.Egg
 		{
 			_ = stream.ReadByte();
 
-			_ = stream.ReadShort(out short size);
+			_ = stream.ReadShort(out short _);
 
 			if (!stream.ReadLong(out long lastModTime))
 			{

@@ -14,6 +14,14 @@ namespace EggDotNet.Extensions
 			return valRead > -1;
 		}
 
+		public static bool ReadUInt(this Stream stream, out uint value)
+		{
+			var buffer = new byte[4];
+			var fullRead = stream.Read(buffer, 0, 4) == 4;
+			value = BitConverter.ToUInt32(buffer, 0);
+			return fullRead;
+		}
+
 		public static bool ReadInt(this Stream stream, out int value)
 		{
 			var buffer = new byte[4];

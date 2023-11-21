@@ -5,7 +5,7 @@ using System.Text;
 
 namespace EggDotNet.Encryption
 {
-	internal interface IStreamDecryption
+	internal interface IStreamDecryptionProvider
 	{
 		bool PasswordValid { get; }
 

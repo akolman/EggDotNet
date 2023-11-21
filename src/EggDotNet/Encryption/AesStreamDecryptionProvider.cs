@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices.ComTypes;
 using System.Security.Cryptography;
-using System.Text;
 
+#pragma warning disable 
 
 namespace EggDotNet.Encryption
 {
@@ -15,7 +12,6 @@ namespace EggDotNet.Encryption
 		Encrypt,
 		Decrypt
 	}
-
 
 	/// <summary>
 	///   This is a helper class supporting WinZip AES encryption.
@@ -51,18 +47,17 @@ namespace EggDotNet.Encryption
 
 		public static EggAesCrypto ReadFromStream(string password, int KeyStrengthInBits, byte[] salt, byte[] pwV)
 		{
+			EggAesCrypto c = new EggAesCrypto(password, KeyStrengthInBits)
+			{
+				_Salt = salt,
+				_providedPv = pwV
+			};
 
-			EggAesCrypto c = new EggAesCrypto(password, KeyStrengthInBits);
+			c.PasswordVerificationStored = (Int16)(c._providedPv[0] + c._providedPv[1] * KeyStrengthInBits);
 
-			int saltSizeInBytes = c._KeyStrengthInBytes / 2;
-			c._Salt = salt;
-			c._providedPv = pwV;
-
-
-			c.PasswordVerificationStored = (Int16)(c._providedPv[0] + c._providedPv[1] * 256);
 			if (password != null)
 			{
-				c.PasswordVerificationGenerated = (Int16)(c.GeneratedPV[0] + c.GeneratedPV[1] * 256);
+				c.PasswordVerificationGenerated = (Int16)(c.GeneratedPV[0] + c.GeneratedPV[1] * KeyStrengthInBits);
 			}
 
 			return c;
@@ -260,11 +255,13 @@ namespace EggDotNet.Encryption
 
 			_mac = new HMACSHA1(_params.MacIv);
 
-			_aesCipher = new System.Security.Cryptography.RijndaelManaged();
-			_aesCipher.BlockSize = 128;
-			_aesCipher.KeySize = keySizeInBits;  // 128, 192, 256
-			_aesCipher.Mode = CipherMode.ECB;
-			_aesCipher.Padding = PaddingMode.None;
+			_aesCipher = new RijndaelManaged
+			{
+				BlockSize = 128,
+				KeySize = keySizeInBits,  // 128, 192, 256
+				Mode = CipherMode.ECB,
+				Padding = PaddingMode.None
+			};
 
 			byte[] iv = new byte[BLOCK_SIZE_IN_BYTES]; // all zeroes
 
@@ -704,14 +701,18 @@ namespace EggDotNet.Encryption
 			throw new NotImplementedException();
 		}
 
+#pragma warning disable IDE0052 // Remove unread private members
 		private readonly object _outputLock = new Object();
+#pragma warning restore IDE0052 // Remove unread private members
 	}
 
-	internal class Aes256Decryption : IStreamDecryption
+	internal class AesStreamDecryptionProvider : IStreamDecryptionProvider
 	{
+#pragma warning disable IDE0052 // Remove unread private members
 		private readonly byte[] _footer;
+#pragma warning restore IDE0052 // Remove unread private members
 		private readonly EggAesCrypto _crypto;
-		public Aes256Decryption(int bits, byte[] header, byte[] footer, string password)
+		public AesStreamDecryptionProvider(int bits, byte[] header, byte[] footer, string password)
 		{
 			_footer = footer;
 			_crypto = EggAesCrypto.ReadFromStream(password, bits, header.Take(16).ToArray(), header.Skip(16).Take(2).ToArray());
