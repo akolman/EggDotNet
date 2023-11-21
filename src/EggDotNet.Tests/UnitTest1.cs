@@ -49,5 +49,14 @@ namespace EggDotNet.Tests
 
 			Assert.Equal("Hello there my name is Andrew.", text);
 		}
+
+		[Fact]
+		public void Test_Large()
+		{
+			using var archive = new EggArchive("../../../test_files/zeros.egg");
+			var singleEntry = archive.Entries.Single();
+			Assert.Equal(338, singleEntry.CompressedLength);
+			Assert.Equal(197_540_460, singleEntry.UncompressedLength);
+		}
 	}
 }
