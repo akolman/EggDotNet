@@ -8,7 +8,7 @@ namespace EggDotNet.Format.Egg
     internal class EggVolume : IDisposable
     {
         internal Stream _stream;
-        private bool _ownStream;
+        private readonly bool _ownStream;
 		private bool disposedValue;
 
 		public Header Header { get; private set; }

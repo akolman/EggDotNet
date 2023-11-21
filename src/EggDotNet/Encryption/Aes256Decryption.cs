@@ -219,9 +219,9 @@ namespace EggDotNet.Encryption
 	//
 	internal class EggAesCipherStream : Stream
 	{
-		private EggAesCrypto _params;
-		private System.IO.Stream _s;
-		private CryptoMode _mode;
+		private readonly EggAesCrypto _params;
+		private readonly System.IO.Stream _s;
+		private readonly CryptoMode _mode;
 		private int _nonce;
 		private bool _finalBlock;
 
@@ -232,14 +232,14 @@ namespace EggDotNet.Encryption
 
 		private const int BLOCK_SIZE_IN_BYTES = 16;
 
-		private byte[] counter = new byte[BLOCK_SIZE_IN_BYTES];
+		private readonly byte[] counter = new byte[BLOCK_SIZE_IN_BYTES];
 		private byte[] counterOut = new byte[BLOCK_SIZE_IN_BYTES];
 
-		private long _length;
+		private readonly long _length;
 		private long _totalBytesXferred;
-		private byte[] _PendingWriteBlock;
+		private readonly byte[] _PendingWriteBlock;
 		private int _pendingCount;
-		private byte[] _iobuf;
+		private readonly byte[] _iobuf;
 
 		internal EggAesCipherStream(System.IO.Stream s, EggAesCrypto cryptoParams, long length, CryptoMode mode)
 			: base()
@@ -704,7 +704,7 @@ namespace EggDotNet.Encryption
 			throw new NotImplementedException();
 		}
 
-		private object _outputLock = new Object();
+		private readonly object _outputLock = new Object();
 	}
 
 	internal class Aes256Decryption : IStreamDecryption
