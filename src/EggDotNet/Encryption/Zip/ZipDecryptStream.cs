@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace EggDotNet.Encryption.Zip
 {
-	internal class ZipDecryptStream : Stream
+	internal sealed class ZipDecryptStream : Stream
 	{
 		public static uint[] gcrcTable = { 0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA, 0x076DC419, 0x706AF48F, 0xE963A535,
 		0x9E6495A3, 0x0EDB8832, 0x79DCB8A4, 0xE0D5E91E, 0x97D2D988, 0x09B64C2B, 0x7EB17CBD, 0xE7B82D07, 0x90BF1D91,
@@ -44,15 +44,14 @@ namespace EggDotNet.Encryption.Zip
 
 		public override long Length => throw new NotImplementedException();
 
-		private readonly Stream _input;
+		private Stream? _input;
 
-		private readonly byte[] footer;
+		private readonly byte[] _footer;
 		private readonly byte verifyByte;
 
-		public ZipDecryptStream(Stream input, string password, byte[] header, byte[] footer)
+		public ZipDecryptStream( string password, byte[] header, byte[] footer)
 		{
 			InitKeys(password);
-			_input = input;
 			uint r = 0;
 			foreach (var b in header)
 			{
@@ -60,12 +59,16 @@ namespace EggDotNet.Encryption.Zip
 				UpdateKeys(r);
 			}
 
-
+			_footer = footer;
 			verifyByte = (byte)r;
-
 		}
 
-		public bool PasswordValid => verifyByte == footer.Last();
+		public void AttachStream(Stream stream)
+		{
+			_input = stream;
+		}
+
+		public bool PasswordValid => verifyByte == _footer.Last();
 
 		private void InitKeys(string password)
 		{
@@ -105,7 +108,7 @@ namespace EggDotNet.Encryption.Zip
 
 		public override int Read(byte[] buffer, int offset, int count)
 		{
-			var bytesRead = _input.Read(buffer, offset, count);
+			var bytesRead = _input!.Read(buffer, offset, count);
 			for(var i=0; i<bytesRead; i++)
 			{
 				buffer[i] = (byte)(buffer[i] ^ DecryptByte());
