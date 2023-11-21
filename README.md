@@ -16,7 +16,7 @@ The [EGG file format](https://en.wikipedia.org/wiki/EGG_(file_format)) is an arc
 - [x] Split archives
 - [ ] Solid archives (see [issue #3](https://github.com/akolman/EggDotNet/issues/3))
 - [ ] Encrypted headers
-- [x] Encrypted files (AES128 and AES256 only - see [issue #6](https://github.com/akolman/EggDotNet/issues/3) for Zip2.0 support)
+- [x] Encrypted files
 - [x] Non-UTF8 filenames (e.g. shiftJIS)
 - [ ] Encrypted filenames
 - [x] Windows filesystem attributes
