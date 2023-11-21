@@ -1,5 +1,8 @@
 ﻿namespace EggDotNet.Exception
 {
+	/// <summary>
+	/// Exception indicating that the provided data is not EGG data, or is an unknown version.
+	/// </summary>
 	public class UnknownEggEggception : Eggception
 	{
 		internal UnknownEggEggception() 

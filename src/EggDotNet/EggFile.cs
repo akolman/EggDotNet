@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using EggDotNet.Extensions;
+using System.IO;
 
 namespace EggDotNet
 {
@@ -18,17 +19,7 @@ namespace EggDotNet
 
 			foreach(var archiveEntry in  eggArchive.Entries)
 			{
-				using var entryStream = archiveEntry.Open();
-				var path = Path.Combine(destinationDirectory, archiveEntry.FullName);
-
-				using var foStream = new FileStream(path, FileMode.Create, FileAccess.Write);
-				entryStream.CopyTo(foStream);
-				foStream.Flush();
-				foStream.Close();
-				if (archiveEntry.LastWriteTime.HasValue)
-				{
-					File.SetLastWriteTime(path, archiveEntry.LastWriteTime.Value);
-				}
+				archiveEntry.ExtractToDirectory(destinationDirectory);
 			}
 		}
 

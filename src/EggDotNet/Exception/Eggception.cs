@@ -15,7 +15,6 @@ namespace EggDotNet.Exception
 		internal Eggception(string message, System.Exception innerException)
 			: base(message, innerException)
 		{
-
 		}
 	}
 }

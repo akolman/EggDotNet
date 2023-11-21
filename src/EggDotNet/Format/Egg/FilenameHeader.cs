@@ -32,6 +32,8 @@ namespace EggDotNet.Format.Egg
 
 		public static FilenameHeader Parse(Stream stream)
 		{
+			var nameEncoder = Encoding.UTF8;
+
 			var bitFlagByte = stream.ReadByte();
 			if (bitFlagByte == -1)
 			{
@@ -50,22 +52,25 @@ namespace EggDotNet.Format.Egg
 				throw new BadDataEggception("Filename size couldn't be read");
 			}
 
+			if (bitFlag.HasFlag(FilenameFlags.UseAreaCode))
+			{
+				stream.ReadShort(out short locale);
+				try
+				{
+					nameEncoder = Encoding.GetEncoding(locale);
+				}
+				catch(System.Exception ex)
+				{
+					throw new UnsupportedLocalEggception(locale, ex); 
+				}
+			}
+
 			if (!stream.ReadN(filenameSize, out byte[] filenameBuffer))
 			{
 				throw new BadDataEggception("Filename header corrupt");
 			}
 
-			string? filename;
-			if (bitFlag.HasFlag(FilenameFlags.UseAreaCode))
-			{
-				throw new NotImplementedException("Only UTF-8 entry name supported at this time");
-			}
-			else
-			{
-				filename = Encoding.UTF8.GetString(filenameBuffer);
-			}
-
-			return new FilenameHeader(filename);
+			return new FilenameHeader(nameEncoder.GetString(filenameBuffer));
 		}
 	}
 }
