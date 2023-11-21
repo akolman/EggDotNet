@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EggDotNet.Exception
+﻿namespace EggDotNet.Exception
 {
 	internal class BadDataException : Eggception
 	{
