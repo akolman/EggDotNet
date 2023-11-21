@@ -1,9 +1,6 @@
 ﻿using EggDotNet.Exception;
 using EggDotNet.Extensions;
-using EggDotNet.Format;
 using EggDotNet.Format.Egg;
-using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace EggDotNet.Format

@@ -7,7 +7,7 @@ using System.Text;
 
 namespace EggDotNet.Format.Egg
 {
-	internal class FilenameHeader //: ExtraField2
+	internal sealed class FilenameHeader //: ExtraField2
 	{
 		[Flags]
 		public enum FilenameFlags

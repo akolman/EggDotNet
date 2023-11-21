@@ -1,12 +1,9 @@
 ﻿using EggDotNet.Extensions;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace EggDotNet.Format.Egg
 {
-	internal class EncryptHeader
+	internal sealed class EncryptHeader
 	{
 		public static readonly int EGG_ENCRYPT_HEADER_MAGIC = 0x08D1470F;
 

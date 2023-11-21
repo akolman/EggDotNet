@@ -39,7 +39,7 @@ namespace EggDotNet.Encryption
 		private byte[] _keyBytes;
 		private Int16 PasswordVerificationStored;
 		private Int16 PasswordVerificationGenerated;
-		private int Rfc2898KeygenIterations = 1000;
+		private const int Rfc2898KeygenIterations = 1000;
 		private string _Password;
 		private bool _cryptoGenerated;
 
@@ -709,8 +709,8 @@ namespace EggDotNet.Encryption
 
 	internal class Aes256Decryption : IStreamDecryption
 	{
-		private byte[] _footer;
-		private EggAesCrypto _crypto;
+		private readonly byte[] _footer;
+		private readonly EggAesCrypto _crypto;
 		public Aes256Decryption(int bits, byte[] header, byte[] footer, string password)
 		{
 			_footer = footer;

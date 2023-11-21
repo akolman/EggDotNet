@@ -35,12 +35,18 @@ namespace EggDotNet
 				using var foStream = new FileStream(path, FileMode.Create, FileAccess.Write);
 				entryStream.CopyTo(foStream);
 				foStream.Flush();
-
-
+				foStream.Close();
+				if (archiveEntry.LastWriteTime.HasValue)
+				{
+					File.SetLastWriteTime(path, archiveEntry.LastWriteTime.Value);
+				}
 			}
-
-
 		}
 
+		public static void ExtractToDirectory(string sourceArchiveName, string destinationDirectory)
+		{
+			using var inputStream = new FileStream(sourceArchiveName, FileMode.Open, FileAccess.Read, FileShare.Read);
+			ExtractToDirectory(inputStream, destinationDirectory);
+		}
 	}
 }

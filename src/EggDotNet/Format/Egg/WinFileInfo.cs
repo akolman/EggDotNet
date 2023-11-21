@@ -6,14 +6,13 @@ using System.Text;
 
 namespace EggDotNet.Format.Egg
 {
-	internal class WinFileInfo //: ExtraField2
+	internal sealed class WinFileInfo //: ExtraField2
 	{
 		public const int WIN_FILE_INFO_MAGIC_HEADER = 0x2C86950B;
 
-		private const long MODDATE_EPOCH_TICKS = 504911232000000000;
-
-
 		public DateTime LastModified { get; private set; }
+
+		public WindowsFileAttributes WindowsFileAttributes { get; private set; }
 
 		public static WinFileInfo Parse(Stream stream)
 		{
@@ -26,11 +25,9 @@ namespace EggDotNet.Format.Egg
 
 			}
 
-			var modDate = new DateTime(lastModTime + MODDATE_EPOCH_TICKS);
+			var attributes =  (WindowsFileAttributes)stream.ReadByte();
 
-			var attributes = stream.ReadByte();
-
-			return new WinFileInfo() { LastModified = modDate };
+			return new WinFileInfo() { LastModified = Utilities.FromEggTime(lastModTime), WindowsFileAttributes = attributes };
 		}
 	}
 }

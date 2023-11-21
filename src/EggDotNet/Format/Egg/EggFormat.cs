@@ -97,9 +97,9 @@ namespace EggDotNet.Format.Egg
 			return ret;
 		}
 
-		private Stream GetDecompressionStream(Stream stream)
+		private Stream GetDecompressionStream(Stream stream, EggEntry entry)
 		{
-			var compMethod = _entriesCache.First().CompressionMethod;
+			var compMethod = entry.CompressionMethod;
 			if (compMethod == CompressionMethod.Store)
 			{
 				var store = new StoreCompression();
@@ -140,7 +140,7 @@ namespace EggDotNet.Format.Egg
 				}
 			}
 
-			var decompst = GetDecompressionStream(subSt);
+			var decompst = GetDecompressionStream(subSt, _entriesCache.Where(e => e.Name == entry.Name).Single());
 
 
 

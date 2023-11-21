@@ -8,7 +8,7 @@ using System.Text;
 
 namespace EggDotNet.Format.Egg
 {
-	internal class Header
+	internal sealed class Header
 	{
 		public static readonly int EGG_HEADER_MAGIC = 0x41474745;
 
@@ -52,7 +52,6 @@ namespace EggDotNet.Format.Egg
 			}
 
 			SplitHeader? splitHeader = null;
-			EncryptHeader? encryptHeader = null;
 			while (stream.ReadInt(out int nextHeaderOrEnd) && nextHeaderOrEnd != EGG_HEADER_END_MAGIC)
 			{
 				if (nextHeaderOrEnd == SplitHeader.SPLIT_HEADER_MAGIC)

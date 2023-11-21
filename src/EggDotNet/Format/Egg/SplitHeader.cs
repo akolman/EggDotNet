@@ -6,7 +6,7 @@ using System.Text;
 
 namespace EggDotNet.Format.Egg
 {
-	internal class SplitHeader
+	internal sealed class SplitHeader
 	{
 		public const int SPLIT_HEADER_MAGIC = 0x24F5A262;
 

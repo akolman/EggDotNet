@@ -4,7 +4,7 @@ using System.IO;
 
 namespace EggDotNet.Format.Egg
 {
-	internal class FileHeader
+	internal sealed class FileHeader
 	{
 		public const int FILE_HEADER_MAGIC = 0x0A8590E3;
 
