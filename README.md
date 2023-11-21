@@ -1,7 +1,7 @@
 # EggDotNet
 ## An unarchiving library for the Egg file format.
 
-Not intended for production use at this time as testing is currently limited.
+Not intended for production use at this time as functionality is incomplete and testing is currently limited.
 
 ### What is Egg?
 The [EGG file format](https://en.wikipedia.org/wiki/EGG_(file_format)) is an archive/compression format developed by [ESTSoft](https://en.wikipedia.org/wiki/ESTsoft).  Unless you live in South Korea you probably haven't heard of it.
