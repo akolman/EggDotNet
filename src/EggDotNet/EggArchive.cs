@@ -16,6 +16,8 @@ namespace EggDotNet
 		private readonly List<EggArchiveEntry> _entries;
 		private readonly IEggFileFormat format;
 
+		public string? Comment { get; internal set; }
+
 		/// <summary>
 		/// Gets a collection of all <see cref="EggArchiveEntry"/> entries in this EggArchive.
 		/// </summary>
