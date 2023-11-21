@@ -5,6 +5,6 @@ namespace EggDotNet.Compression
 {
 	internal interface IStreamCompressionProvider
 	{
-		Stream GetDecompressStream(Stream subStream);
+		Stream GetDecompressStream(Stream stream);
 	}
 }

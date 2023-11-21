@@ -5,9 +5,9 @@ using System.Text;
 
 namespace EggDotNet.Compression
 {
-	internal class LzmaCompressionProvider : IStreamCompressionProvider
+	internal sealed class LzmaCompressionProvider : IStreamCompressionProvider
 	{
-		public Stream GetDecompressStream(Stream subStream)
+		public Stream GetDecompressStream(Stream stream)
 		{
 			throw new NotImplementedException("LZMA not implemented");
 		}

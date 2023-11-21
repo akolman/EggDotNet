@@ -5,7 +5,7 @@ namespace EggDotNet.SpecialStreams
 {
 	internal sealed class FakeDisposingStream : Stream
 	{
-		private Stream _stream;
+		private readonly Stream _stream;
 
 		public override bool CanRead => _stream.CanRead;
 

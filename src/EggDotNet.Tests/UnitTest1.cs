@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using EggDotNet.Exception;
 
 namespace EggDotNet.Tests
 {
@@ -57,6 +58,18 @@ namespace EggDotNet.Tests
 			var singleEntry = archive.Entries.Single();
 			Assert.Equal(338, singleEntry.CompressedLength);
 			Assert.Equal(197_540_460, singleEntry.UncompressedLength);
+		}
+
+		[Fact]
+		public void Test_Invalid_File_Throws()
+		{
+			var fileData = new byte[] { 1, 2, 3, 4, 5 };
+			using var inputStream = new MemoryStream(fileData);
+
+			Assert.Throws<UnknownEggEggception>(() =>
+			{
+				using var archive = new EggArchive(inputStream);
+			});
 		}
 	}
 }

@@ -1,4 +1,5 @@
-﻿using EggDotNet.Extensions;
+﻿using EggDotNet.Exception;
+using EggDotNet.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,7 +7,7 @@ using System.Text;
 
 namespace EggDotNet.Format.Egg
 {
-	internal class CommentHeader
+	internal sealed class CommentHeader
 	{
 		public const int COMMENT_HEADER_MAGIC = 0x04C63672;
 
@@ -23,17 +24,15 @@ namespace EggDotNet.Format.Egg
 
 			if (!stream.ReadShort(out short size))
 			{
-
+				throw new BadDataEggception("Failed to read comment size");
 			}
 
 			if (!stream.ReadN(size, out byte[] commentData))
 			{
-
+				Console.Error.WriteLine("Failed to read all contents of comment");
 			}
 
-			var comment = System.Text.Encoding.UTF8.GetString(commentData);
-
-			return new CommentHeader(comment);
+			return new CommentHeader(Encoding.UTF8.GetString(commentData));
 		}
 
 	}

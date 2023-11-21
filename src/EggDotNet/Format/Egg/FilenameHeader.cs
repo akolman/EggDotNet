@@ -35,24 +35,24 @@ namespace EggDotNet.Format.Egg
 			var bitFlagByte = stream.ReadByte();
 			if (bitFlagByte == -1)
 			{
-				throw new BadDataException("Filename header flag couldn't be read");
+				throw new BadDataEggception("Filename header flag couldn't be read");
 			}
 
 			var bitFlag = (FilenameFlags)bitFlagByte;
 
 			if (bitFlag.HasFlag(FilenameFlags.Encrypt))
 			{
-				throw new BadDataException("Encrypted filenames not supported");
+				throw new BadDataEggception("Encrypted filenames not supported");
 			}
 
 			if (!stream.ReadShort(out short filenameSize))
 			{
-				throw new BadDataException("Filename size couldn't be read");
+				throw new BadDataEggception("Filename size couldn't be read");
 			}
 
 			if (!stream.ReadN(filenameSize, out byte[] filenameBuffer))
 			{
-				throw new BadDataException("Filename header corrupt");
+				throw new BadDataEggception("Filename header corrupt");
 			}
 
 			string? filename;

@@ -5,7 +5,7 @@ namespace EggDotNet.Compression.Lzma
 	/// <summary>
 	/// The exception that is thrown when an error in input stream occurs during decoding.
 	/// </summary>
-	class DataErrorException : ApplicationException
+	sealed class DataErrorException : ApplicationException
 	{
 		public DataErrorException(): base("Data Error") { }
 	}
@@ -13,7 +13,7 @@ namespace EggDotNet.Compression.Lzma
 	/// <summary>
 	/// The exception that is thrown when the value of an argument is outside the allowable range.
 	/// </summary>
-	class InvalidParamException : ApplicationException
+	sealed class InvalidParamException : ApplicationException
 	{
 		public InvalidParamException(): base("Invalid Parameter") { }
 	}

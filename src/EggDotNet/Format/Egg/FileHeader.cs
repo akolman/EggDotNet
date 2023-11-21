@@ -24,12 +24,12 @@ namespace EggDotNet.Format.Egg
 		{
 			if (!stream.ReadInt(out int fileId))
 			{
-				throw new BadDataException("Failed reading ID from file header");
+				throw new BadDataEggception("Failed reading ID from file header");
 			}
-
+			
 			if (!stream.ReadLong(out long fileLength))
 			{
-				throw new BadDataException("Failed reading file length from file header");
+				throw new BadDataEggception("Failed reading file length from file header");
 			}
 
 			return new FileHeader(fileId, fileLength);

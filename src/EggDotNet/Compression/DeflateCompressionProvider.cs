@@ -1,14 +1,13 @@
 ﻿using System.IO.Compression;
 using System.IO;
-using EggDotNet.SpecialStreams;
 
 namespace EggDotNet.Compression
 {
-	internal class DeflateCompressionProvider : IStreamCompressionProvider
+	internal sealed class DeflateCompressionProvider : IStreamCompressionProvider
 	{
-		public Stream GetDecompressStream(Stream subStream)
+		public Stream GetDecompressStream(Stream stream)
 		{
-			var st = new DeflateStream(subStream, CompressionMode.Decompress, true);
+			var st = new DeflateStream(stream, CompressionMode.Decompress, true);
 			return st;
 		}
 	}

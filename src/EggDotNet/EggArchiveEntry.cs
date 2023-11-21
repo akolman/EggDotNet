@@ -52,7 +52,7 @@ namespace EggDotNet
 		/// <summary>
 		/// Gets the last write time of the file.
 		/// </summary>
-		public DateTime? LastWriteTime { get; internal set; } = null;
+		public DateTime? LastWriteTime { get; internal set; }
 
 		/// <summary>
 		/// Gets the comment of the file.

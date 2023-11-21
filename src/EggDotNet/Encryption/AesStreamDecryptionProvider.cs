@@ -13,17 +13,6 @@ namespace EggDotNet.Encryption
 		Decrypt
 	}
 
-	/// <summary>
-	///   This is a helper class supporting WinZip AES encryption.
-	///   This class is intended for use only by the DotNetZip library.
-	/// </summary>
-	///
-	/// <remarks>
-	///   Most uses of the DotNetZip library will not involve direct calls into
-	///   the WinZipAesCrypto class.  Instead, the WinZipAesCrypto class is
-	///   instantiated and used by the ZipEntry() class when WinZip AES
-	///   encryption or decryption on an entry is employed.
-	/// </remarks>
 	internal class EggAesCrypto
 	{
 		internal byte[] _Salt;
@@ -74,7 +63,6 @@ namespace EggDotNet.Encryption
 			}
 		}
 
-
 		public byte[] Salt
 		{
 			get
@@ -82,7 +70,6 @@ namespace EggDotNet.Encryption
 				return _Salt;
 			}
 		}
-
 
 		private int _KeyStrengthInBytes
 		{
@@ -122,7 +109,6 @@ namespace EggDotNet.Encryption
 
 		private void _GenerateCryptoBytes()
 		{
-
 			System.Security.Cryptography.Rfc2898DeriveBytes rfc2898 =
 				new System.Security.Cryptography.Rfc2898DeriveBytes(_Password, Salt, Rfc2898KeygenIterations);
 
@@ -141,7 +127,6 @@ namespace EggDotNet.Encryption
 				return _keyBytes;
 			}
 		}
-
 
 		public byte[] MacIv
 		{
@@ -181,37 +166,6 @@ namespace EggDotNet.Encryption
 
 	}
 
-	/// <summary>
-	///   A stream that encrypts as it writes, or decrypts as it reads.  The
-	///   Crypto is AES in CTR (counter) mode, which is compatible with the AES
-	///   encryption employed by WinZip 12.0.
-	/// </summary>
-	/// <remarks>
-	///   <para>
-	///     The AES/CTR encryption protocol used by WinZip works like this:
-	///
-	///       - start with a counter, initialized to zero.
-	///
-	///       - to encrypt, take the data by 16-byte blocks. For each block:
-	///         - apply the transform to the counter
-	///         - increement the counter
-	///         - XOR the result of the transform with the plaintext to
-	///           get the ciphertext.
-	///         - compute the mac on the encrypted bytes
-	///       - when finished with all blocks, store the computed MAC.
-	///
-	///       - to decrypt, take the data by 16-byte blocks. For each block:
-	///         - compute the mac on the encrypted bytes,
-	///         - apply the transform to the counter
-	///         - increement the counter
-	///         - XOR the result of the transform with the ciphertext to
-	///           get the plaintext.
-	///       - when finished with all blocks, compare the computed MAC against
-	///         the stored MAC
-	///
-	///   </para>
-	/// </remarks>
-	//
 	internal class EggAesCipherStream : Stream
 	{
 		private readonly EggAesCrypto _params;
@@ -294,7 +248,6 @@ namespace EggDotNet.Encryption
 			_mac.TransformBlock(buffer, offset, BLOCK_SIZE_IN_BYTES, null, 0);
 		}
 
-
 		private void WriteTransformBlocks(byte[] buffer, int offset, int count)
 		{
 			int posn = offset;
@@ -306,7 +259,6 @@ namespace EggDotNet.Encryption
 				posn += BLOCK_SIZE_IN_BYTES;
 			}
 		}
-
 
 		private void WriteTransformFinalBlock()
 		{
@@ -363,8 +315,6 @@ namespace EggDotNet.Encryption
 			return bytesToRead;
 		}
 
-
-
 		private void ReadTransformBlocks(byte[] buffer, int offset, int count)
 		{
 			int posn = offset;
@@ -376,8 +326,6 @@ namespace EggDotNet.Encryption
 				posn += n;
 			}
 		}
-
-
 
 		public override int Read(byte[] buffer, int offset, int count)
 		{
@@ -397,7 +345,6 @@ namespace EggDotNet.Encryption
 			if (buffer.Length < offset + count)
 				throw new ArgumentException("The buffer is too small");
 
-
 			int bytesToRead = count;
 
 			if (_totalBytesXferred >= _length)
@@ -415,8 +362,6 @@ namespace EggDotNet.Encryption
 			_totalBytesXferred += n;
 			return n;
 		}
-
-
 
 		/// <summary>
 		/// Returns the final HMAC-SHA1-80 for the data that was encrypted.
@@ -444,7 +389,6 @@ namespace EggDotNet.Encryption
 			}
 		}
 
-
 		public override void Write(byte[] buffer, int offset, int count)
 		{
 			if (_finalBlock)
@@ -468,47 +412,6 @@ namespace EggDotNet.Encryption
 			if (count == 0)
 				return;
 
-			// For proper AES encryption, an AES encryptor application calls
-			// TransformBlock repeatedly for all 16-byte blocks except the
-			// last. For the last block, it then calls TransformFinalBlock().
-			//
-			// This class is a stream that encrypts via Write().  But, it's not
-			// possible to recognize which are the "last" bytes from within the call
-			// to Write(). The caller can call Write() several times in succession,
-			// with varying buffers. This class only "knows" that the last bytes
-			// have been written when the app calls Close().
-			//
-			// Therefore, this class buffers writes: After completion every Write(),
-			// a 16-byte "pending" block (_PendingWriteBlock) must hold between 1
-			// and 16 bytes, which will be used in TransformFinalBlock if the app
-			// calls Close() immediately thereafter. Also, every write must
-			// transform any pending bytes, before transforming the data passed in
-			// to the current call.
-			//
-			// In operation, after the first call to Write() and before the call to
-			// Close(), one full or partial block of bytes is always available,
-			// pending.  At time of Close(), this class calls
-			// WriteTransformFinalBlock() to flush the pending bytes.
-			//
-			// This approach works whether the caller writes in odd-sized batches,
-			// for example 5000 bytes, or in batches that are neat multiples of the
-			// blocksize (16).
-			//
-			// Logicaly, what we do is this:
-			//
-			//  1. if there are fewer than 16 bytes (pending + current), then
-			//     just copy them into th pending buffer and return.
-			//
-			//  2. there are more than 16 bytes to write. So, take the leading slice
-			//     of bytes from the current buffer, enough to fill the pending
-			//     buffer. Transform the pending block, and write it out.
-			//
-			//  3. Take the trailing slice of bytes (a full block or a partial block),
-			//     and copy it to the pending block for next time.
-			//
-			//  4. transform and write all the other blocks, the middle slice.
-			//
-
 			// There are 16 or fewer bytes, so just buffer the bytes.
 			if (count + _pendingCount <= BLOCK_SIZE_IN_BYTES)
 			{
@@ -519,24 +422,11 @@ namespace EggDotNet.Encryption
 								 count);
 				_pendingCount += count;
 
-				// At this point, _PendingWriteBlock contains up to
-				// BLOCK_SIZE_IN_BYTES bytes, and _pendingCount ranges from 0 to
-				// BLOCK_SIZE_IN_BYTES. We don't want to xform+write them yet,
-				// because this may have been the last block.  The last block gets
-				// written at Close().
 				return;
 			}
 
-			// We know there are at least 17 bytes, counting those in the current
-			// buffer, along with the (possibly empty) pending block.
-
 			int bytesRemaining = count;
 			int curOffset = offset;
-
-			// workitem 12815
-			//
-			// xform chunkwise ... Cannot transform in place using the original
-			// buffer because that is user-maintained.
 
 			if (_pendingCount != 0)
 			{
@@ -566,14 +456,6 @@ namespace EggDotNet.Encryption
 				_totalBytesXferred += BLOCK_SIZE_IN_BYTES;
 				_pendingCount = 0;
 			}
-
-			// At this point _PendingWriteBlock is empty, and bytesRemaining is
-			// always greater than 0.
-
-			// Now, xform N blocks, where N = floor((bytesRemaining-1)/16).  If
-			// writing 32 bytes, then xform 1 block, and stage the remaining 16.  If
-			// writing 10037 bytes, xform 627 blocks of 16 bytes, then stage the
-			// remaining 5 bytes.
 
 			int blocksToXform = (bytesRemaining - 1) / BLOCK_SIZE_IN_BYTES;
 			_pendingCount = bytesRemaining - (blocksToXform * BLOCK_SIZE_IN_BYTES);
@@ -610,8 +492,6 @@ namespace EggDotNet.Encryption
 			}
 		}
 
-
-
 		/// <summary>
 		///   Close the stream.
 		/// </summary>
@@ -630,7 +510,6 @@ namespace EggDotNet.Encryption
 			_s.Close();
 		}
 
-
 		/// <summary>
 		/// Returns true if the stream can be read.
 		/// </summary>
@@ -642,7 +521,6 @@ namespace EggDotNet.Encryption
 				return true;
 			}
 		}
-
 
 		/// <summary>
 		/// Always returns false.

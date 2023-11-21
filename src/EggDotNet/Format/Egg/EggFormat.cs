@@ -1,22 +1,22 @@
 ﻿using EggDotNet.Compression;
 using EggDotNet.Encryption;
-using EggDotNet.Extensions;
+using EggDotNet.Exception;
 using EggDotNet.SpecialStreams;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace EggDotNet.Format.Egg
 {
+#pragma warning disable CA1852
+
 	internal class EggFormat : IEggFileFormat
 	{
 		private readonly Func<Stream, IEnumerable<Stream>>? _streamCallback;
 		private readonly Func<string>? _pwCallback;
-		private ICollection<EggVolume>? _volumes;
-		private ICollection<EggEntry>? _entriesCache;
+		private List<EggVolume>? _volumes;
+		private List<EggEntry>? _entriesCache;
 		private bool disposedValue;
 
 		internal EggFormat(Func<Stream, IEnumerable<Stream>>? streamCallback, Func<string>? pwCallback)
@@ -106,34 +106,18 @@ namespace EggDotNet.Format.Egg
 			return ret;
 		}
 
-		private Stream GetDecompressionStream(Stream stream, EggEntry entry)
+		private static Stream GetDecompressionStream(Stream stream, EggEntry entry)
 		{
-			IStreamCompressionProvider? compressor = null;
-			switch (entry.CompressionMethod)
+			IStreamCompressionProvider? compressor;
+			compressor = entry.CompressionMethod switch
 			{
-				case CompressionMethod.Store:
-					compressor = new StoreCompressionProvider();
-					break;
-				case CompressionMethod.Deflate:
-					compressor = new DeflateCompressionProvider();
-					break;
-				case CompressionMethod.Bzip2:
-					compressor = new BZip2CompressionProvider();
-					break;
-				case CompressionMethod.Azo:
-					throw new NotImplementedException("AZO not implemented");
-				case CompressionMethod.Lzma:
-					compressor = new LzmaCompressionProvider();
-					break;
-				default:
-					break;
-			}
-
-			if (compressor == null)
-			{
-				throw new System.Exception("Compression not supported");
-			}
-
+				CompressionMethod.Store => new StoreCompressionProvider(),
+				CompressionMethod.Deflate => new DeflateCompressionProvider(),
+				CompressionMethod.Bzip2 => new BZip2CompressionProvider(),
+				CompressionMethod.Azo => throw new NotImplementedException("AZO not implemented"),
+				CompressionMethod.Lzma => new LzmaCompressionProvider(),
+				_ => throw new UnknownCompressionEggception(),
+			};
 			return compressor.GetDecompressStream(stream);
 		}
 
