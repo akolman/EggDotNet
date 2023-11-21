@@ -1,0 +1,3 @@
+BZip2 compression from SharpZipLib: https://github.com/icsharpcode/SharpZipLib
+
+https://github.com/garysharp/Disco/blob/master/Resources/Libraries/DotNetZip/Source/Zip/ZipCrypto.cs
