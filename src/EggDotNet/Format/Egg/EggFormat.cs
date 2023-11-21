@@ -136,12 +136,17 @@ namespace EggDotNet.Format.Egg
 					var pw = pwCb.Invoke();
 					if (eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.Standard)
 					{
-						throw new NotImplementedException("ZIP encryption not yet supported");
+						var s = new ZipStreamDecryptionProvider(eggEntry.EncryptHeader.Param1, eggEntry.EncryptHeader.Param2, pw);
+						if (s.PasswordValid)
+						{
+							subSt = s.GetDecryptionStream(subSt);
+							break;
+						}
 					}
 					else
 					{
 						var width = eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.AES256 ? 256 : 128;
-						var s = new AesStreamDecryptionProvider(width, eggEntry.EncryptHeader.AesHeader, eggEntry.EncryptHeader.AesFooter, pw);
+						var s = new AesStreamDecryptionProvider(width, eggEntry.EncryptHeader.Param1, eggEntry.EncryptHeader.Param2, pw);
 						if (s.PasswordValid)
 						{
 							subSt = s.GetDecryptionStream(subSt);
