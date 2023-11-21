@@ -1,28 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 
 namespace EggDotNet
 {
-	public enum CompressionMethod : byte
-	{
-		Store = 0,
-		Deflate = 1,
-		Bzip2 = 2,
-		Azo = 3,
-		Lzma = 4
-	}
-
-	public enum EncryptionMethod : byte
-	{
-		Standard = 0,
-		AES128 = 1,
-		AES256 = 2
-	}
-
+	/// <summary>
+	/// Static class used to handle extraction of egg archives.
+	/// </summary>
 	public static class EggFile
 	{
+		/// <summary>
+		/// Extracts an EGG archive from a source Stream to a destination directory.
+		/// </summary>
+		/// <param name="sourceStream">The source EGG stream.</param>
+		/// <param name="destinationDirectory">The destination directory path to place files.</param>
 		public static void ExtractToDirectory(Stream sourceStream, string destinationDirectory)
 		{
 			using var eggArchive = new EggArchive(sourceStream, false);
@@ -43,6 +32,11 @@ namespace EggDotNet
 			}
 		}
 
+		/// <summary>
+		/// Extracts an EGG archive file specified by a source path to a destination directory.
+		/// </summary>
+		/// <param name="sourceArchiveName">The source EGG file path.</param>
+		/// <param name="destinationDirectory">The desination directory path to place files.</param>
 		public static void ExtractToDirectory(string sourceArchiveName, string destinationDirectory)
 		{
 			using var inputStream = new FileStream(sourceArchiveName, FileMode.Open, FileAccess.Read, FileShare.Read);

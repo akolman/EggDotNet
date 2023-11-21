@@ -1,6 +1,11 @@
-# EggDotNet
-## An unarchiving library for the Egg file format
 
+# EggDotNet
+## An unarchiving library for the Egg file format.
+
+Not intended for production use at this time as testing is currently limited.
+
+### What is Egg?
+The [EGG file format](https://en.wikipedia.org/wiki/EGG_(file_format)) is an archive/compression file format popular in South Korea, developed by [ESTSoft](https://en.wikipedia.org/wiki/ESTsoft). 
 
 ### Support checklist
 - [x] EGG format
@@ -14,3 +19,13 @@
 - [ ] Encrypted headers
 - [x] Encrypted files
 - [x] File comments    
+
+## Usage
+
+### Open an EGG archive from a `Stream`
+
+```
+using var inputArchiveStream = new FileStream("archive.egg");
+using var archive = new EggArchive(inputArchiveStream);
+using var firstEntryStream = archive.Entries.First().Open();
+```

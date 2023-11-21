@@ -1,8 +1,5 @@
 ﻿using EggDotNet.Extensions;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace EggDotNet.Format.Egg
 {
@@ -10,9 +7,9 @@ namespace EggDotNet.Format.Egg
 	{
 		public const int SPLIT_HEADER_MAGIC = 0x24F5A262;
 
-		public int NextFileId { get; private set; }
-
 		public int PreviousFileId { get; private set; }
+
+		public int NextFileId { get; private set; }
 
 		private SplitHeader(int previousFileId, int nextFileId)
 		{
@@ -22,9 +19,9 @@ namespace EggDotNet.Format.Egg
 
 		public static SplitHeader Parse(Stream stream)
 		{
-			var bitFlag = stream.ReadByte();
+			_ = stream.ReadByte();
 
-			stream.ReadShort(out short size);
+			stream.ReadShort(out short _);
 
 			stream.ReadInt(out int prevFileId);
 

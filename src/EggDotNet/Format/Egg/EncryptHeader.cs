@@ -5,7 +5,7 @@ namespace EggDotNet.Format.Egg
 {
 	internal sealed class EncryptHeader
 	{
-		public static readonly int EGG_ENCRYPT_HEADER_MAGIC = 0x08D1470F;
+		public const int EGG_ENCRYPT_HEADER_MAGIC = 0x08D1470F;
 
 		public EncryptionMethod EncryptionMethod { get; private set; }
 		public short Size { get; private set; }

@@ -1,18 +1,34 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace EggDotNet.Format.Egg
 {
+	/// <summary>
+	/// Represents a single/individual Egg volume (file).
+	/// EggVolume will be the final holder for a stream.
+	/// </summary>
     internal class EggVolume : IDisposable
     {
-        internal Stream _stream;
-        private readonly bool _ownStream;
 		private bool disposedValue;
 
+		private readonly Stream _stream;
+        private readonly bool _ownStream;
+
+		/// <summary>
+		/// Gets the <see cref="Egg.Header"/> associated with this volume.
+		/// </summary>
 		public Header Header { get; private set; }
+
+		/// <summary>
+		/// Gets a flag indicating whether this volume is part of a split archive.
+		/// </summary>
 		public bool IsSplit => Header.SplitHeader != null;
+
+		/// <summary>
+		/// Gets the stream held by this volume.
+		/// </summary>
+		/// <returns></returns>
+		public Stream GetStream() => _stream;
 
 		private EggVolume(Stream stream, bool ownStream, Header header)
 		{
@@ -23,10 +39,20 @@ namespace EggDotNet.Format.Egg
 
 		public static EggVolume Parse(Stream stream, bool ownStream)
         {
-            return new EggVolume(stream, ownStream, Header.Parse(stream));
+			var eggHeader = Header.Parse(stream);
+			if (eggHeader.Version != 256)
+			{
+				throw new System.Exception("Invalid version");
+			}
+
+			return new EggVolume(stream, ownStream, eggHeader);
         }
 
-		public Stream GetStream() => _stream;
+		public void Dispose()
+		{
+			Dispose(disposing: true);
+			GC.SuppressFinalize(this);
+		}
 
 		protected virtual void Dispose(bool disposing)
 		{
@@ -42,12 +68,6 @@ namespace EggDotNet.Format.Egg
 
 				disposedValue = true;
 			}
-		}
-
-		public void Dispose()
-		{
-			Dispose(disposing: true);
-			GC.SuppressFinalize(this);
 		}
 	}
 }

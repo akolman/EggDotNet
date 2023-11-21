@@ -3,14 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices.ComTypes;
-using System.Text;
 
 namespace EggDotNet.Format.Egg
 {
 	internal sealed class EggEntry
 	{
-		public string Name { get; private set; }
+		public int Id { get; private set; }
+		public string? Name { get; private set; }
 		public long Position { get; private set; }
 
 		public long UncompressedSize { get; private set; }
@@ -21,9 +20,11 @@ namespace EggDotNet.Format.Egg
 
 		public DateTime? LastModifiedTime { get; private set; }
 
-		public EncryptHeader EncryptHeader { get; private set; }
+		public EncryptHeader? EncryptHeader { get; private set; }
 
 		public string? Comment { get; private set; }
+
+		public uint Crc { get; private set; }
 
 
 		public static ICollection<EggEntry> Parse(Stream stream)
@@ -52,35 +53,37 @@ namespace EggDotNet.Format.Egg
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static void BuildHeaders(EggEntry entry, Stream stream)
 		{
-			while (stream.ReadInt(out int nextHeader))
+			var foundEnd = false;
+			while (!foundEnd && stream.ReadInt(out int nextHeader))
 			{
-				if (nextHeader == FileHeader.FILE_HEADER_MAGIC)
+				switch(nextHeader)
 				{
-					var fileHeader = FileHeader.Parse(stream);
-				}
-				else if (nextHeader == FilenameHeader.FILENAME_HEADER_MAGIC)
-				{
-					var filename = FilenameHeader.Parse(stream);
-					entry.Name = filename.FileName;
-				}
-				else if (nextHeader == WinFileInfo.WIN_FILE_INFO_MAGIC_HEADER)
-				{
-					var winFileInfo = WinFileInfo.Parse(stream);
-					entry.LastModifiedTime = winFileInfo.LastModified;
-				}
-				else if (nextHeader == EncryptHeader.EGG_ENCRYPT_HEADER_MAGIC)
-				{
-					var encryptHeader = EncryptHeader.Parse(stream);
-					entry.EncryptHeader = encryptHeader;
-				}
-				else if (nextHeader == CommentHeader.COMMENT_HEADER_MAGIC)
-				{
-					var comment = CommentHeader.Parse(stream);
-					entry.Comment = comment.CommentText;
-				}
-				else if (nextHeader == FileHeader.FILE_END_HEADER)
-				{
-					break;
+					case FileHeader.FILE_HEADER_MAGIC:
+						var fileHeader = FileHeader.Parse(stream);
+						entry.Id = fileHeader.FileId;
+						break;
+					case FilenameHeader.FILENAME_HEADER_MAGIC:
+						var filename = FilenameHeader.Parse(stream);
+						entry.Name = filename.FileNameFull;
+						break;
+					case WinFileInfo.WIN_FILE_INFO_MAGIC_HEADER:
+						var winFileInfo = WinFileInfo.Parse(stream);
+						entry.LastModifiedTime = winFileInfo.LastModified;
+						break;
+					case EncryptHeader.EGG_ENCRYPT_HEADER_MAGIC:
+						var encryptHeader = EncryptHeader.Parse(stream);
+						entry.EncryptHeader = encryptHeader;
+						break;
+					case CommentHeader.COMMENT_HEADER_MAGIC:
+						var comment = CommentHeader.Parse(stream);
+						entry.Comment = comment.CommentText;
+						break;
+					case FileHeader.FILE_END_HEADER:
+						foundEnd = true;
+						break;
+					default:
+						foundEnd = true;
+						break;
 				}
 			}
 		}
@@ -97,6 +100,7 @@ namespace EggDotNet.Format.Egg
 					entry.CompressedSize = blockHeader.CompressedSize;
 					entry.UncompressedSize = blockHeader.UncompressedSize;
 					entry.CompressionMethod = blockHeader.CompressionMethod;
+					entry.Crc = blockHeader.Crc32;
 					stream.Seek(entry.CompressedSize, SeekOrigin.Current);
 					break;
 				}

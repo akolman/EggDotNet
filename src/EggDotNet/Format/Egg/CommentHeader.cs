@@ -19,7 +19,7 @@ namespace EggDotNet.Format.Egg
 
 		public static CommentHeader Parse(Stream stream)
 		{
-			var bitFlag = stream.ReadByte();
+			_ = stream.ReadByte();
 
 			if (!stream.ReadShort(out short size))
 			{

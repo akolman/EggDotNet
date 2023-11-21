@@ -3,6 +3,8 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
 namespace EggDotNet.Encryption
 {
 	internal enum CryptoMode
@@ -45,18 +47,17 @@ namespace EggDotNet.Encryption
 
 		public static EggAesCrypto ReadFromStream(string password, int KeyStrengthInBits, byte[] salt, byte[] pwV)
 		{
+			EggAesCrypto c = new EggAesCrypto(password, KeyStrengthInBits)
+			{
+				_Salt = salt,
+				_providedPv = pwV
+			};
 
-			EggAesCrypto c = new EggAesCrypto(password, KeyStrengthInBits);
+			c.PasswordVerificationStored = (Int16)(c._providedPv[0] + c._providedPv[1] * KeyStrengthInBits);
 
-			int saltSizeInBytes = c._KeyStrengthInBytes / 2;
-			c._Salt = salt;
-			c._providedPv = pwV;
-
-
-			c.PasswordVerificationStored = (Int16)(c._providedPv[0] + c._providedPv[1] * 256);
 			if (password != null)
 			{
-				c.PasswordVerificationGenerated = (Int16)(c.GeneratedPV[0] + c.GeneratedPV[1] * 256);
+				c.PasswordVerificationGenerated = (Int16)(c.GeneratedPV[0] + c.GeneratedPV[1] * KeyStrengthInBits);
 			}
 
 			return c;
@@ -700,14 +701,18 @@ namespace EggDotNet.Encryption
 			throw new NotImplementedException();
 		}
 
+#pragma warning disable IDE0052 // Remove unread private members
 		private readonly object _outputLock = new Object();
+#pragma warning restore IDE0052 // Remove unread private members
 	}
 
-	internal class Aes256Decryption : IStreamDecryption
+	internal class AesStreamDecryptionProvider : IStreamDecryptionProvider
 	{
+#pragma warning disable IDE0052 // Remove unread private members
 		private readonly byte[] _footer;
+#pragma warning restore IDE0052 // Remove unread private members
 		private readonly EggAesCrypto _crypto;
-		public Aes256Decryption(int bits, byte[] header, byte[] footer, string password)
+		public AesStreamDecryptionProvider(int bits, byte[] header, byte[] footer, string password)
 		{
 			_footer = footer;
 			_crypto = EggAesCrypto.ReadFromStream(password, bits, header.Take(16).ToArray(), header.Skip(16).Take(2).ToArray());
