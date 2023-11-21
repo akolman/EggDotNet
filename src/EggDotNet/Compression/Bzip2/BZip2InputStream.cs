@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
+#pragma warning disable
+
 namespace EggDotNet.Compression.Bzip2
 {
 	/// <summary>

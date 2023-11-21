@@ -104,17 +104,22 @@ namespace EggDotNet.Format.Egg
 
 		private Stream GetDecompressionStream(Stream stream, EggEntry entry)
 		{
-			IStreamCompression? compressor = null;
+			IStreamCompressionProvider? compressor = null;
 			switch (entry.CompressionMethod)
 			{
 				case CompressionMethod.Store:
-					compressor = new StoreCompression();
+					compressor = new StoreCompressionProvider();
 					break;
 				case CompressionMethod.Deflate:
-					compressor = new DeflateCompression();
+					compressor = new DeflateCompressionProvider();
 					break;
 				case CompressionMethod.Bzip2:
-					compressor = new BZip2Compression();
+					compressor = new BZip2CompressionProvider();
+					break;
+				case CompressionMethod.Azo:
+					throw new NotImplementedException("AZO not implemented");
+				case CompressionMethod.Lzma:
+					compressor = new LzmaCompressionProvider();
 					break;
 				default:
 					break;

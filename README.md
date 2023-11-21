@@ -29,3 +29,5 @@ using var inputArchiveStream = new FileStream("archive.egg");
 using var archive = new EggArchive(inputArchiveStream);
 using var firstEntryStream = archive.Entries.First().Open();
 ```
+
+Pure C# and completely managed with no dependencies.  Compatible with netstandard2.0 and netstandard2.1.
