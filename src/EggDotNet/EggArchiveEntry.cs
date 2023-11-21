@@ -22,6 +22,8 @@ namespace EggDotNet
 
 		public DateTime? LastWriteTime { get; internal set; } = null;
 
+		public string? Comment { get; internal set; }
+
 		internal EggArchiveEntry(IEggFileFormat format)
 		{
 			_format = format;

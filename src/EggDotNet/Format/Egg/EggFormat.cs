@@ -91,7 +91,8 @@ namespace EggDotNet.Format.Egg
 					PositionInStream = entry.Position,
 					CompressedLength = entry.CompressedSize,
 					UncompressedLength = entry.UncompressedSize,
-					LastWriteTime = entry.LastModifiedTime
+					LastWriteTime = entry.LastModifiedTime,
+					Comment = entry.Comment,
 				});
 			}
 			return ret;

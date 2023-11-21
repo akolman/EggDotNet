@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices.ComTypes;
 using System.Security.Cryptography;
-using System.Text;
-
 
 namespace EggDotNet.Encryption
 {
@@ -15,7 +10,6 @@ namespace EggDotNet.Encryption
 		Encrypt,
 		Decrypt
 	}
-
 
 	/// <summary>
 	///   This is a helper class supporting WinZip AES encryption.
@@ -260,11 +254,13 @@ namespace EggDotNet.Encryption
 
 			_mac = new HMACSHA1(_params.MacIv);
 
-			_aesCipher = new System.Security.Cryptography.RijndaelManaged();
-			_aesCipher.BlockSize = 128;
-			_aesCipher.KeySize = keySizeInBits;  // 128, 192, 256
-			_aesCipher.Mode = CipherMode.ECB;
-			_aesCipher.Padding = PaddingMode.None;
+			_aesCipher = new RijndaelManaged
+			{
+				BlockSize = 128,
+				KeySize = keySizeInBits,  // 128, 192, 256
+				Mode = CipherMode.ECB,
+				Padding = PaddingMode.None
+			};
 
 			byte[] iv = new byte[BLOCK_SIZE_IN_BYTES]; // all zeroes
 

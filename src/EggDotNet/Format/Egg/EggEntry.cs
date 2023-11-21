@@ -23,13 +23,14 @@ namespace EggDotNet.Format.Egg
 
 		public EncryptHeader EncryptHeader { get; private set; }
 
+		public string? Comment { get; private set; }
+
 
 		public static ICollection<EggEntry> Parse(Stream stream)
 		{
-			var foundEnd = false;
 			var entries = new List<EggEntry>();
 
-			while(!foundEnd)
+			while(true)
 			{
 				var entry = new EggEntry();
 
@@ -37,7 +38,6 @@ namespace EggDotNet.Format.Egg
 
 				if (stream.Position >= stream.Length)
 				{
-					foundEnd = true;
 					break;
 				}
 
@@ -72,6 +72,11 @@ namespace EggDotNet.Format.Egg
 				{
 					var encryptHeader = EncryptHeader.Parse(stream);
 					entry.EncryptHeader = encryptHeader;
+				}
+				else if (nextHeader == CommentHeader.COMMENT_HEADER_MAGIC)
+				{
+					var comment = CommentHeader.Parse(stream);
+					entry.Comment = comment.CommentText;
 				}
 				else if (nextHeader == FileHeader.FILE_END_HEADER)
 				{

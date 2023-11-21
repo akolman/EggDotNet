@@ -12,4 +12,5 @@
 - [x] Split archives
 - [ ] Solid archives
 - [ ] Encrypted headers
-- [x] Encrypted files    
+- [x] Encrypted files
+- [x] File comments    
