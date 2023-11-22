@@ -27,7 +27,7 @@ namespace EggDotNet.Format.Egg
 		public uint Crc { get; private set; }
 
 
-		public static List<EggEntry> Parse(Stream stream, EggArchive archive)
+		public static List<EggEntry> ParseEntries(Stream stream, EggArchive archive)
 		{
 			var entries = new List<EggEntry>();
 

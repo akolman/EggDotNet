@@ -84,7 +84,7 @@ namespace EggDotNet.Format.Egg
 		{
 			using var st = PrepareStream();
 			
-			_entriesCache = EggEntry.Parse(st, archive);
+			_entriesCache = EggEntry.ParseEntries(st, archive);
 
 			var ret = new List<EggArchiveEntry>();
 			foreach (var entry in _entriesCache)

@@ -1,6 +1,6 @@
 ﻿using EggDotNet.Exception;
 using EggDotNet.Extensions;
-using EggDotNet.Format.Egg;
+using EggDotNet.Format;
 using System.Collections.Generic;
 using System;
 using System.IO;
@@ -18,9 +18,10 @@ namespace EggDotNet.Format
 
 			return header switch
 			{
-				var _ when header == Egg.Header.EGG_HEADER_MAGIC => new EggFormat(streamCallback, pwCallback),
+				var _ when header == Egg.Header.EGG_HEADER_MAGIC => new Egg.EggFormat(streamCallback, pwCallback),
+				var _ when header == Alz.Header.ALZ_HEADER_MAGIC => new Alz.AlzFormat(),
 				_ => throw new UnknownEggEggception()
-			};
+			}; ; ;
 		}
 	}
 }
