@@ -8,7 +8,7 @@ The [EGG file format](https://en.wikipedia.org/wiki/EGG_(file_format)) is an arc
 
 ### Support checklist
 - [x] EGG format
-- [ ] ALZ format (see [issue #1](https://github.com/akolman/EggDotNet/issues/1))
+- [x] ALZ format (*with limitations*)
 - [x] Deflate compression
 - [x] BZip2 compression
 - [ ] AZO compression (see [issue #2](https://github.com/akolman/EggDotNet/issues/2))
