@@ -1,11 +1,8 @@
 ﻿using EggDotNet.Compression;
-using EggDotNet.Format.Egg;
 using EggDotNet.SpecialStreams;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace EggDotNet.Format.Alz
 {
@@ -13,11 +10,7 @@ namespace EggDotNet.Format.Alz
 	{
 		private List<AlzVolume>? _volumes;
 		private List<AlzEntry>? _entriesCache;
-
-		public void Dispose()
-		{
-
-		}
+		private bool disposedValue;
 
 		public Stream GetStreamForEntry(EggArchiveEntry entry)
 		{
@@ -25,12 +18,16 @@ namespace EggDotNet.Format.Alz
 			Stream subSt = new SubStream(st, entry.PositionInStream, entry.PositionInStream + entry.CompressedLength);
 			var eggEntry = _entriesCache.Single(e => e.Id == entry.Id);
 
-			return new DeflateCompressionProvider().GetDecompressStream(subSt);
+			IStreamCompressionProvider? streamProvider = (eggEntry.CompressionMethod == CompressionMethod.Deflate) ?
+				 new DeflateCompressionProvider()
+				 : new StoreCompressionProvider();
+
+            return streamProvider.GetDecompressStream(subSt);
 		}
 
 		public void ParseHeaders(Stream stream, bool ownStream)
 		{
-			var initialVolume = AlzVolume.Parse(stream);
+			var initialVolume = AlzVolume.Parse(stream, ownStream);
 			_volumes = new List<AlzVolume>() { initialVolume };
 		}
 
@@ -66,6 +63,33 @@ namespace EggDotNet.Format.Alz
 				});
 			}
 			return ret;
+		}
+
+		private void Dispose(bool disposing)
+		{
+			if (!disposedValue)
+			{
+				if (disposing)
+				{
+					if (_volumes != null)
+					{
+						foreach (var volume in _volumes)
+						{
+							volume.Dispose();
+						}
+					}
+				}
+
+				disposedValue = true;
+			}
+		}
+
+
+
+		public void Dispose()
+		{
+			Dispose(disposing: true);
+			System.GC.SuppressFinalize(this);
 		}
 	}
 }

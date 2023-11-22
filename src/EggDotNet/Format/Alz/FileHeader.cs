@@ -10,9 +10,13 @@ namespace EggDotNet.Format.Alz
 	{
 		public const int ALZ_FILE_HEADER_START_MAGIC = 0x015A4C42;
 
+		public const int ALZ_FILE_HEADER_END_MAGIC = 0x025A4C43;
+
 		public long CompressedSize { get; private set; }
 
 		public long UncompressedSize { get; private set; }
+
+		public CompressionMethod CompressionMethod { get; private set; } = CompressionMethod.Store;
 
 		public string? Name { get; private set; }
 
@@ -39,14 +43,13 @@ namespace EggDotNet.Format.Alz
 			stream.ReadShort(out short filenameLen);
 			stream.Seek(5, SeekOrigin.Current);
 
-			
 			stream.ReadShort(out short bitFlags);
 
 			if (bitFlags != 0)
 			{
 #pragma warning disable IDE0059
 				stream.ReadShort(out short compMethodVal);
-
+				header.CompressionMethod = compMethodVal == 2 ? CompressionMethod.Deflate : CompressionMethod.Store;
 				stream.ReadInt(out int crc);
 				var rfs = GetReadFileSize(bitFlags);
 				stream.ReadN(rfs, out var fsBuf);

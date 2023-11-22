@@ -20,18 +20,23 @@ namespace EggDotNet.Format.Alz
 		{
 			var entries = new List<AlzEntry>();
 
-			while (true)
+			while (stream.ReadInt(out int nextHeader))
 			{
 				var entry = new AlzEntry();
 
-				if (stream.ReadInt(out int nextHeader) && nextHeader == FileHeader.ALZ_FILE_HEADER_START_MAGIC)
+				if (nextHeader == FileHeader.ALZ_FILE_HEADER_START_MAGIC)
 				{
 					var fileHeader = FileHeader.Parse(stream);
 					entry.CompressedSize = fileHeader.CompressedSize;
 					entry.UncompressedSize = fileHeader.UncompressedSize;
+					entry.CompressionMethod = fileHeader.CompressionMethod;
 					entry.Name = fileHeader.Name;
 					entry.Position = fileHeader.StartPosition;
 					entries.Add(entry);
+					stream.Seek(entry.CompressedSize, SeekOrigin.Current);
+				}
+				else if (nextHeader == FileHeader.ALZ_FILE_HEADER_END_MAGIC)
+				{
 					break;
 				}
 
