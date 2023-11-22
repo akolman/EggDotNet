@@ -13,5 +13,6 @@ Fixes and added features
 +Added ZIP encryption
 =======================================================================
 0.0.3-beta (2023-11-22)
-Added features
+Fixes and added features
 +Added ALZ support, with limitations - for example, no split ALZs.
++Fixed bug preventing extraction
