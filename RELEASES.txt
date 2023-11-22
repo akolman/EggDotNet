@@ -11,3 +11,7 @@ Fixes and added features
 +Added support for non-UTF8 filenames
 +Added support for global comments
 +Added ZIP encryption
+=======================================================================
+0.0.3-beta (2023-11-22)
+Added features
++Added ALZ support, with limitations - for example, no split ALZs.
