@@ -35,7 +35,7 @@ namespace EggDotNet.Format.Egg
 			{
 				var entry = new EggEntry();
 
-				BuildHeaders(entry, stream);
+				BuildHeaders(entry, archive, stream);
 
 				if (stream.Position >= stream.Length)
 				{
@@ -45,22 +45,16 @@ namespace EggDotNet.Format.Egg
 				BuildBlocks(entry, stream);
 
 				entries.Add(entry);
-
-				if (stream.Position >= stream.Length)
-				{
-					break;
-				}
-
-				BuildRemaining(stream, archive);
 			}
 
 			return entries;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static void BuildHeaders(EggEntry entry, Stream stream)
+		private static void BuildHeaders(EggEntry entry, EggArchive archive, Stream stream)
 		{
 			var foundEnd = false;
+			var insideFileheader = false;
 			while (!foundEnd && stream.ReadInt(out int nextHeader))
 			{
 				switch(nextHeader)
@@ -68,6 +62,7 @@ namespace EggDotNet.Format.Egg
 					case FileHeader.FILE_HEADER_MAGIC:
 						var fileHeader = FileHeader.Parse(stream);
 						entry.Id = fileHeader.FileId;
+						insideFileheader = true;
 						break;
 					case FilenameHeader.FILENAME_HEADER_MAGIC:
 						var filename = FilenameHeader.Parse(stream);
@@ -83,7 +78,10 @@ namespace EggDotNet.Format.Egg
 						break;
 					case CommentHeader.COMMENT_HEADER_MAGIC:
 						var comment = CommentHeader.Parse(stream);
-						entry.Comment = comment.CommentText;
+						if (insideFileheader)
+							entry.Comment = comment.CommentText;
+						else
+							archive.Comment = comment.CommentText;
 						break;
 					case FileHeader.FILE_END_HEADER:
 						foundEnd = true;
@@ -114,20 +112,5 @@ namespace EggDotNet.Format.Egg
 			}
 		}
 
-		private static void BuildRemaining(Stream stream, EggArchive archive)
-		{
-			while (stream.ReadInt(out int nextHeader))
-			{
-				if (nextHeader == CommentHeader.COMMENT_HEADER_MAGIC)
-				{
-					var comment = CommentHeader.Parse(stream);
-					archive.Comment = comment.CommentText;
-				}
-				else if (nextHeader == FileHeader.FILE_END_HEADER)
-				{
-					break;
-				}
-			}
-		}
 	}
 }
