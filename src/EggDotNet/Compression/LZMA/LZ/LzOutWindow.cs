@@ -5,7 +5,7 @@ using System.IO;
 
 namespace EggDotNet.Compression.LZMA.LZ
 {
-	internal class OutWindow
+	internal sealed class OutWindow
 	{
 		private byte[] _buffer;
 		private int _windowSize;
@@ -147,7 +147,7 @@ namespace EggDotNet.Compression.LZMA.LZ
 				var numReadBytes = stream.Read(_buffer, _pos, curSize);
 				if (numReadBytes == 0)
 				{
-					throw new System.Exception();
+					throw new DataErrorException();
 				}
 				size -= numReadBytes;
 				_pos += numReadBytes;

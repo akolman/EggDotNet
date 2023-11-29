@@ -7,7 +7,7 @@ namespace EggDotNet.Compression.LZMA
 	/// <summary>
 	/// The exception that is thrown when an error in input stream occurs during decoding.
 	/// </summary>
-	internal class DataErrorException : System.Exception
+	internal sealed class DataErrorException : System.Exception
 	{
 		public DataErrorException()
 			: base("Data Error") { }
@@ -16,13 +16,13 @@ namespace EggDotNet.Compression.LZMA
 	/// <summary>
 	/// The exception that is thrown when the value of an argument is outside the allowable range.
 	/// </summary>
-	internal class InvalidParamException : System.Exception
+	internal sealed class InvalidParamException : System.Exception
 	{
 		public InvalidParamException()
 			: base("Invalid Parameter") { }
 	}
 
-	public interface ICodeProgress
+	internal interface ICodeProgress
 	{
 		/// <summary>
 		/// Callback progress.

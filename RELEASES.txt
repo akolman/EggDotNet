@@ -16,3 +16,6 @@ Fixes and added features
 Fixes and added features
 +Added ALZ support, with limitations - for example, no split ALZs.
 +Fixed bug preventing extraction
+=======================================================================
+0.0.4-beta (2023-11-29)
++Added LZMA support.

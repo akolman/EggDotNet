@@ -3,7 +3,7 @@ using System;
 namespace EggDotNet.Compression.LZMA
 {
 
-	public class LzmaEncoderProperties
+	internal sealed class LzmaEncoderProperties
 	{
 		public static LzmaEncoderProperties Default { get; } = new();
 

@@ -9,7 +9,7 @@ using EggDotNet.Compression.LZMA.RangeCoder;
 #pragma warning disable
 namespace EggDotNet.Compression.LZMA
 {
-	public class Decoder : ICoder, ISetDecoderProperties // ,System.IO.Stream
+	internal class Decoder : ICoder, ISetDecoderProperties // ,System.IO.Stream
 	{
 		private class LenDecoder
 		{

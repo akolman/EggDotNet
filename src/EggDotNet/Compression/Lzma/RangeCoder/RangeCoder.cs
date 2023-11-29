@@ -5,7 +5,7 @@ using System.IO;
 namespace EggDotNet.Compression.LZMA.RangeCoder
 {
 
-	internal class Encoder
+	internal sealed class Encoder
 	{
 		public const uint K_TOP_VALUE = (1 << 24);
 
@@ -113,7 +113,7 @@ namespace EggDotNet.Compression.LZMA.RangeCoder
 		// (long)Stream.GetProcessedSize();
 	}
 
-	internal class Decoder
+	internal sealed class Decoder
 	{
 		public const uint K_TOP_VALUE = (1 << 24);
 		public uint _range;
