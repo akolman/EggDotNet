@@ -18,6 +18,16 @@
 		/// <summary>
 		/// AES256 encryption.
 		/// </summary>
-		AES256 = 2
+		AES256 = 2,
+
+		/// <summary>
+		/// LEA128 encryption.
+		/// </summary>
+		LEA128 = 5,
+
+		/// <summary>
+		/// LEA256 encryption.
+		/// </summary>
+		LEA256 = 6
 	}
 }

@@ -142,10 +142,15 @@ namespace EggDotNet.Format.Egg
 				{
 					s = new ZipStreamDecryptionProvider(eggEntry.EncryptHeader.Param1, eggEntry.EncryptHeader.Param2, pw);
 				}
-				else
+				else if (eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.AES128 
+					|| eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.AES256)
 				{
 					var width = eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.AES256 ? 256 : 128;
 					s = new AesStreamDecryptionProvider(width, eggEntry.EncryptHeader.Param1, eggEntry.EncryptHeader.Param2, pw);
+				}
+				else
+				{
+					throw new NotImplementedException("Encryption method not supported");
 				}
 
 				if (s.PasswordValid)
