@@ -1,24 +1,28 @@
 using System;
+using System.IO;
 
-namespace EggDotNet.Compression.Lzma
+namespace EggDotNet.Compression.LZMA
 {
+
 	/// <summary>
 	/// The exception that is thrown when an error in input stream occurs during decoding.
 	/// </summary>
-	sealed class DataErrorException : ApplicationException
+	internal class DataErrorException : System.Exception
 	{
-		public DataErrorException(): base("Data Error") { }
+		public DataErrorException()
+			: base("Data Error") { }
 	}
 
 	/// <summary>
 	/// The exception that is thrown when the value of an argument is outside the allowable range.
 	/// </summary>
-	sealed class InvalidParamException : ApplicationException
+	internal class InvalidParamException : System.Exception
 	{
-		public InvalidParamException(): base("Invalid Parameter") { }
+		public InvalidParamException()
+			: base("Invalid Parameter") { }
 	}
 
-	internal interface ICodeProgress
+	public interface ICodeProgress
 	{
 		/// <summary>
 		/// Callback progress.
@@ -29,8 +33,8 @@ namespace EggDotNet.Compression.Lzma
 		/// <param name="outSize">
 		/// output size. -1 if unknown.
 		/// </param>
-		void SetProgress(Int64 inSize, Int64 outSize);
-	};
+		void SetProgress(long inSize, long outSize);
+	}
 
 	internal interface ICoder
 	{
@@ -52,101 +56,115 @@ namespace EggDotNet.Compression.Lzma
 		/// <param name="progress">
 		/// callback progress reference.
 		/// </param>
-		void Code(System.IO.Stream inStream, System.IO.Stream outStream,
-			Int64 inSize, Int64 outSize, ICodeProgress progress);
-	};
+		void Code(Stream inStream, Stream outStream, long inSize, long outSize, ICodeProgress progress);
+	}
 
 	/*
 	public interface ICoder2
 	{
 		 void Code(ISequentialInStream []inStreams,
-				const UInt64 []inSizes, 
-				ISequentialOutStream []outStreams, 
+				const UInt64 []inSizes,
+				ISequentialOutStream []outStreams,
 				UInt64 []outSizes,
 				ICodeProgress progress);
 	};
-  */
+	*/
 
 	/// <summary>
 	/// Provides the fields that represent properties idenitifiers for compressing.
 	/// </summary>
-	internal enum CoderPropID
+	internal enum CoderPropId
 	{
 		/// <summary>
 		/// Specifies default property.
 		/// </summary>
 		DefaultProp = 0,
+
 		/// <summary>
 		/// Specifies size of dictionary.
 		/// </summary>
 		DictionarySize,
+
 		/// <summary>
 		/// Specifies size of memory for PPM*.
 		/// </summary>
 		UsedMemorySize,
+
 		/// <summary>
 		/// Specifies order for PPM methods.
 		/// </summary>
 		Order,
+
 		/// <summary>
 		/// Specifies Block Size.
 		/// </summary>
 		BlockSize,
+
 		/// <summary>
-		/// Specifies number of postion state bits for LZMA (0 &lt;= x &lt;= 4).
+		/// Specifies number of postion state bits for LZMA (0 - x - 4).
 		/// </summary>
 		PosStateBits,
+
 		/// <summary>
-		/// Specifies number of literal context bits for LZMA (0 &lt;= x &lt;= 8).
+		/// Specifies number of literal context bits for LZMA (0 - x - 8).
 		/// </summary>
 		LitContextBits,
+
 		/// <summary>
-		/// Specifies number of literal position bits for LZMA (0 &lt;= x &lt;= 4).
+		/// Specifies number of literal position bits for LZMA (0 - x - 4).
 		/// </summary>
 		LitPosBits,
+
 		/// <summary>
 		/// Specifies number of fast bytes for LZ*.
 		/// </summary>
 		NumFastBytes,
+
 		/// <summary>
 		/// Specifies match finder. LZMA: "BT2", "BT4" or "BT4B".
 		/// </summary>
 		MatchFinder,
+
 		/// <summary>
 		/// Specifies the number of match finder cyckes.
 		/// </summary>
 		MatchFinderCycles,
+
 		/// <summary>
 		/// Specifies number of passes.
 		/// </summary>
 		NumPasses,
+
 		/// <summary>
 		/// Specifies number of algorithm.
 		/// </summary>
 		Algorithm,
+
 		/// <summary>
 		/// Specifies the number of threads.
 		/// </summary>
 		NumThreads,
+
 		/// <summary>
 		/// Specifies mode with end marker.
 		/// </summary>
 		EndMarker
-	};
+	}
 
-
+	/*
 	internal interface ISetCoderProperties
 	{
-		void SetCoderProperties(CoderPropID[] propIDs, object[] properties);
-	};
+		void SetCoderProperties(ReadOnlySpan<CoderPropId> propIDs, ReadOnlySpan<object> properties);
+	}*/
 
 	internal interface IWriteCoderProperties
 	{
-		void WriteCoderProperties(System.IO.Stream outStream);
+		void WriteCoderProperties(Stream outStream);
 	}
 
 	internal interface ISetDecoderProperties
 	{
 		void SetDecoderProperties(byte[] properties);
 	}
+
 }

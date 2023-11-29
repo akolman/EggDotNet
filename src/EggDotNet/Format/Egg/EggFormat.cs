@@ -164,7 +164,7 @@ namespace EggDotNet.Format.Egg
 				CompressionMethod.Deflate => new DeflateCompressionProvider(),
 				CompressionMethod.Bzip2 => new BZip2CompressionProvider(),
 				CompressionMethod.Azo => throw new NotImplementedException("AZO not implemented"),
-				CompressionMethod.Lzma => new LzmaCompressionProvider(),
+				CompressionMethod.Lzma => new LzmaCompressionProvider(entry.CompressedSize, entry.UncompressedSize),
 				_ => throw new UnknownCompressionEggception(),
 			};
 			return compressor.GetDecompressStream(stream);

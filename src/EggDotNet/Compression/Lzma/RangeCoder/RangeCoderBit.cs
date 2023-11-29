@@ -1,119 +1,135 @@
-using System;
-
 #pragma warning disable
 
-namespace EggDotNet.Compression.Lzma.RangeCoder
+namespace EggDotNet.Compression.LZMA.RangeCoder
 {
-	struct BitEncoder
+
+	internal struct BitEncoder
 	{
-		public const int kNumBitModelTotalBits = 11;
-		public const uint kBitModelTotal = (1 << kNumBitModelTotalBits);
-		const int kNumMoveBits = 5;
-		const int kNumMoveReducingBits = 2;
-		public const int kNumBitPriceShiftBits = 6;
+		public const int K_NUM_BIT_MODEL_TOTAL_BITS = 11;
+		public const uint K_BIT_MODEL_TOTAL = (1 << K_NUM_BIT_MODEL_TOTAL_BITS);
+		private const int K_NUM_MOVE_BITS = 5;
+		private const int K_NUM_MOVE_REDUCING_BITS = 2;
+		public const int K_NUM_BIT_PRICE_SHIFT_BITS = 6;
 
-		uint Prob;
+		private uint _prob;
 
-		public void Init() { Prob = kBitModelTotal >> 1; }
+		public void Init() => _prob = K_BIT_MODEL_TOTAL >> 1;
 
 		public void UpdateModel(uint symbol)
 		{
 			if (symbol == 0)
-				Prob += (kBitModelTotal - Prob) >> kNumMoveBits;
+			{
+				_prob += (K_BIT_MODEL_TOTAL - _prob) >> K_NUM_MOVE_BITS;
+			}
 			else
-				Prob -= (Prob) >> kNumMoveBits;
+			{
+				_prob -= (_prob) >> K_NUM_MOVE_BITS;
+			}
 		}
 
 		public void Encode(Encoder encoder, uint symbol)
 		{
 			// encoder.EncodeBit(Prob, kNumBitModelTotalBits, symbol);
 			// UpdateModel(symbol);
-			uint newBound = (encoder.Range >> kNumBitModelTotalBits) * Prob;
+			var newBound = (encoder._range >> K_NUM_BIT_MODEL_TOTAL_BITS) * _prob;
 			if (symbol == 0)
 			{
-				encoder.Range = newBound;
-				Prob += (kBitModelTotal - Prob) >> kNumMoveBits;
+				encoder._range = newBound;
+				_prob += (K_BIT_MODEL_TOTAL - _prob) >> K_NUM_MOVE_BITS;
 			}
 			else
 			{
-				encoder.Low += newBound;
-				encoder.Range -= newBound;
-				Prob -= (Prob) >> kNumMoveBits;
+				encoder._low += newBound;
+				encoder._range -= newBound;
+				_prob -= (_prob) >> K_NUM_MOVE_BITS;
 			}
-			if (encoder.Range < Encoder.kTopValue)
+			if (encoder._range < Encoder.K_TOP_VALUE)
 			{
-				encoder.Range <<= 8;
+				encoder._range <<= 8;
 				encoder.ShiftLow();
 			}
 		}
 
-		private static UInt32[] ProbPrices = new UInt32[kBitModelTotal >> kNumMoveReducingBits];
+		private static readonly uint[] PROB_PRICES = new uint[
+			K_BIT_MODEL_TOTAL >> K_NUM_MOVE_REDUCING_BITS
+		];
 
 		static BitEncoder()
 		{
-			const int kNumBits = (kNumBitModelTotalBits - kNumMoveReducingBits);
-			for (int i = kNumBits - 1; i >= 0; i--)
+			const int kNumBits = (K_NUM_BIT_MODEL_TOTAL_BITS - K_NUM_MOVE_REDUCING_BITS);
+			for (var i = kNumBits - 1; i >= 0; i--)
 			{
-				UInt32 start = (UInt32)1 << (kNumBits - i - 1);
-				UInt32 end = (UInt32)1 << (kNumBits - i);
-				for (UInt32 j = start; j < end; j++)
-					ProbPrices[j] = ((UInt32)i << kNumBitPriceShiftBits) +
-						(((end - j) << kNumBitPriceShiftBits) >> (kNumBits - i - 1));
+				var start = (uint)1 << (kNumBits - i - 1);
+				var end = (uint)1 << (kNumBits - i);
+				for (var j = start; j < end; j++)
+				{
+					PROB_PRICES[j] =
+						((uint)i << K_NUM_BIT_PRICE_SHIFT_BITS)
+						+ (((end - j) << K_NUM_BIT_PRICE_SHIFT_BITS) >> (kNumBits - i - 1));
+				}
 			}
 		}
 
-		public uint GetPrice(uint symbol)
-		{
-			return ProbPrices[(((Prob - symbol) ^ ((-(int)symbol))) & (kBitModelTotal - 1)) >> kNumMoveReducingBits];
-		}
-	  public uint GetPrice0() { return ProbPrices[Prob >> kNumMoveReducingBits]; }
-		public uint GetPrice1() { return ProbPrices[(kBitModelTotal - Prob) >> kNumMoveReducingBits]; }
+		public uint GetPrice(uint symbol) =>
+			PROB_PRICES[
+				(((_prob - symbol) ^ ((-(int)symbol))) & (K_BIT_MODEL_TOTAL - 1))
+					>> K_NUM_MOVE_REDUCING_BITS
+			];
+
+		public uint GetPrice0() => PROB_PRICES[_prob >> K_NUM_MOVE_REDUCING_BITS];
+
+		public uint GetPrice1() => PROB_PRICES[(K_BIT_MODEL_TOTAL - _prob) >> K_NUM_MOVE_REDUCING_BITS];
 	}
 
-	struct BitDecoder
+	internal struct BitDecoder
 	{
-		public const int kNumBitModelTotalBits = 11;
-		public const uint kBitModelTotal = (1 << kNumBitModelTotalBits);
-		const int kNumMoveBits = 5;
+		public const int K_NUM_BIT_MODEL_TOTAL_BITS = 11;
+		public const uint K_BIT_MODEL_TOTAL = (1 << K_NUM_BIT_MODEL_TOTAL_BITS);
+		private const int K_NUM_MOVE_BITS = 5;
 
-		uint Prob;
+		private uint _prob;
 
 		public void UpdateModel(int numMoveBits, uint symbol)
 		{
 			if (symbol == 0)
-				Prob += (kBitModelTotal - Prob) >> numMoveBits;
+			{
+				_prob += (K_BIT_MODEL_TOTAL - _prob) >> numMoveBits;
+			}
 			else
-				Prob -= (Prob) >> numMoveBits;
+			{
+				_prob -= (_prob) >> numMoveBits;
+			}
 		}
 
-		public void Init() { Prob = kBitModelTotal >> 1; }
+		public void Init() => _prob = K_BIT_MODEL_TOTAL >> 1;
 
-		public uint Decode(RangeCoder.Decoder rangeDecoder)
+		public uint Decode(Decoder rangeDecoder)
 		{
-			uint newBound = (uint)(rangeDecoder.Range >> kNumBitModelTotalBits) * (uint)Prob;
-			if (rangeDecoder.Code < newBound)
+			var newBound = (rangeDecoder._range >> K_NUM_BIT_MODEL_TOTAL_BITS) * _prob;
+			if (rangeDecoder._code < newBound)
 			{
-				rangeDecoder.Range = newBound;
-				Prob += (kBitModelTotal - Prob) >> kNumMoveBits;
-				if (rangeDecoder.Range < Decoder.kTopValue)
+				rangeDecoder._range = newBound;
+				_prob += (K_BIT_MODEL_TOTAL - _prob) >> K_NUM_MOVE_BITS;
+				if (rangeDecoder._range < Decoder.K_TOP_VALUE)
 				{
-					rangeDecoder.Code = (rangeDecoder.Code << 8) | (byte)rangeDecoder.Stream.ReadByte();
-					rangeDecoder.Range <<= 8;
+					rangeDecoder._code =
+						(rangeDecoder._code << 8) | (byte)rangeDecoder._stream.ReadByte();
+					rangeDecoder._range <<= 8;
+					rangeDecoder._total++;
 				}
 				return 0;
 			}
-			else
+			rangeDecoder._range -= newBound;
+			rangeDecoder._code -= newBound;
+			_prob -= (_prob) >> K_NUM_MOVE_BITS;
+			if (rangeDecoder._range < Decoder.K_TOP_VALUE)
 			{
-				rangeDecoder.Range -= newBound;
-				rangeDecoder.Code -= newBound;
-				Prob -= (Prob) >> kNumMoveBits;
-				if (rangeDecoder.Range < Decoder.kTopValue)
-				{
-					rangeDecoder.Code = (rangeDecoder.Code << 8) | (byte)rangeDecoder.Stream.ReadByte();
-					rangeDecoder.Range <<= 8;
-				}
-				return 1;
+				rangeDecoder._code = (rangeDecoder._code << 8) | (byte)rangeDecoder._stream.ReadByte();
+				rangeDecoder._range <<= 8;
+				rangeDecoder._total++;
 			}
+			return 1;
 		}
 	}
+
 }
