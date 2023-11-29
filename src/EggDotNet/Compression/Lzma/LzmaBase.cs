@@ -38,8 +38,8 @@ namespace EggDotNet.Compression.LZMA
 			public void UpdateRep() => _index = (uint)(_index < 7 ? 8 : 11);
 
 			public void UpdateShortRep() => _index = (uint)(_index < 7 ? 9 : 11);
-
-			public readonly bool IsCharState() => _index < 7;
+#pragma warning disable IDE0251 //wtf? removing.
+			public bool IsCharState() => _index < 7;
 		}
 
 		public const int K_NUM_POS_SLOT_BITS = 6;
