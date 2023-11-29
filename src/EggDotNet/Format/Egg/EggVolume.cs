@@ -27,6 +27,8 @@ namespace EggDotNet.Format.Egg
 		/// </summary>
 		public bool IsSplit => Header.SplitHeader != null;
 
+		public bool IsSolid => Header.SolidHeader != null;
+
 		/// <summary>
 		/// Gets the stream held by this volume.
 		/// </summary>

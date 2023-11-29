@@ -58,7 +58,11 @@ namespace EggDotNet.SpecialStreams
 			if (_expectedSuperPosition + count > _endPosition)
 				count = (int)(_endPosition - _expectedSuperPosition);
 
+#if NETSTANDARD2_0
 			int readCount = _superStream.Read(buffer, offset, count);
+#elif NETSTANDARD2_1_OR_GREATER
+			int readCount = _superStream.Read(buffer);
+#endif
 
 			_expectedSuperPosition += readCount;
 

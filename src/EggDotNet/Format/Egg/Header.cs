@@ -25,14 +25,17 @@ namespace EggDotNet.Format.Egg
 
 		public SplitHeader? SplitHeader { get; private set; }
 
+		public SolidHeader? SolidHeader { get; private set; }
+
 		public long HeaderEndPosition { get; private set; }
 
-		private Header(short version, int headerId, int reserved, long headerEnd, SplitHeader? splitHeader)
+		private Header(short version, int headerId, int reserved, long headerEnd, SplitHeader? splitHeader, SolidHeader? solidHeader)
 		{
 			Version = version;
 			HeaderId = headerId;
 			Reserved = reserved;
 			SplitHeader = splitHeader;
+			SolidHeader = solidHeader;
 			HeaderEndPosition = headerEnd;
 		}
 
@@ -56,15 +59,20 @@ namespace EggDotNet.Format.Egg
 			}
 
 			SplitHeader? splitHeader = null;
+			SolidHeader? solidHeader = null;
 			while (stream.ReadInt(out int nextHeaderOrEnd) && nextHeaderOrEnd != EGG_HEADER_END_MAGIC)
 			{
 				if (nextHeaderOrEnd == SplitHeader.SPLIT_HEADER_MAGIC)
 				{
 					splitHeader = SplitHeader.Parse(stream);
-				}	
+				}
+				else if (nextHeaderOrEnd == SolidHeader.SOLID_HEADER_MAGIC)
+				{
+					solidHeader = SolidHeader.Parse(stream);
+				}
 			}
 
-			return new Header(version, headerId, reserved, stream.Position, splitHeader); //won't OF unless corrupt
+			return new Header(version, headerId, reserved, stream.Position, splitHeader, solidHeader); //won't OF unless corrupt
 		}
 	}
 }
