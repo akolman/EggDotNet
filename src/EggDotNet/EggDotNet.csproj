@@ -18,6 +18,9 @@
 	  <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
 	  <EnableNETAnalyzers>True</EnableNETAnalyzers>
 	  <AnalysisLevel>latest-recommended</AnalysisLevel>
+	  <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
+	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
+	  <PackageTags>egg, compression, alz</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

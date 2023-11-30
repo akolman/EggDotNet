@@ -12,15 +12,17 @@ namespace EggDotNet
 	{
 		private readonly IEggFileFormat _format;
 
-		public int Id { get; internal set; }
-
-
 		internal long PositionInStream { get; set; }
 
 		/// <summary>
 		/// Gets the parent <see cref="EggArchive"/> for this entry.
 		/// </summary>
 		public EggArchive Archive { get; internal set; }
+
+		/// <summary>
+		/// Gets the ID of the egg entry.
+		/// </summary>
+		public int Id { get; internal set; }
 
 		/// <summary>
 		/// Gets the name of the egg entry, not including any directory.
@@ -57,6 +59,10 @@ namespace EggDotNet
 		/// </summary>
 		public DateTime? LastWriteTime { get; internal set; }
 
+		/// <summary>
+		/// Gets the external attributes for the entry.
+		/// </summary>
+		/// <remarks>See <see cref="WindowsFileAttributes"/>.</remarks>
 		public long ExternalAttributes {  get; internal set; }
 
 		/// <summary>

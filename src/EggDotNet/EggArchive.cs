@@ -17,6 +17,9 @@ namespace EggDotNet
 		private readonly List<EggArchiveEntry> _entries;
 		private readonly IEggFileFormat format;
 
+		/// <summary>
+		/// Gets the archive-level comment text.
+		/// </summary>
 		public string? Comment { get; internal set; }
 
 		/// <summary>
@@ -63,6 +66,7 @@ namespace EggDotNet
 		/// <param name="stream">The input egg stream.</param>
 		/// <param name="ownStream">A flag indicating whether the caller owns the stream (false) or the EggArchive (true)</param>
 		/// <param name="streamCallback">A callback that will be called to retrieve volumes of a multi-part archive.</param>
+		/// <param name="passwordCallback">A callback that will be called to retrieve a password used for decryption.</param>
 		/// <exception cref="Exception.UnknownEggEggception"/>
 		public EggArchive(Stream stream, bool ownStream = false, Func<Stream, IEnumerable<Stream>>? streamCallback = null, Func<string>? passwordCallback = null)
 		{
@@ -73,11 +77,21 @@ namespace EggDotNet
 			_entries = this.format.Scan(this);		
 		}
 
+		/// <summary>
+		/// Gets an <see cref="EggArchiveEntry"/> by name.
+		/// </summary>
+		/// <param name="entryName">The name of the entry.</param>
+		/// <returns>The entry specified by Name, null if not found.</returns>
 		public EggArchiveEntry? GetEntry(string entryName)
 		{
 			return _entries.SingleOrDefault(e => e.FullName != null && e.FullName.Equals(entryName, StringComparison.OrdinalIgnoreCase));
 		}
 
+		/// <summary>
+		/// Gets an <see cref="EggArchiveEntry"/> by ID.
+		/// </summary>
+		/// <param name="id">The ID of the entry.</param>
+		/// <returns>The entry specifieid by ID, null if not found.</returns>
 		public EggArchiveEntry? GetEntry(int id)
 		{
 			return _entries.SingleOrDefault(e => e.Id.Equals(id));
