@@ -51,15 +51,38 @@ namespace EggDotNet.Format.Egg
 					PositionInStream = entry.Position,
 					CompressedLength = entry.CompressedSize,
 					UncompressedLength = entry.UncompressedSize,
-					LastWriteTime = entry.LastModifiedTime,
+					LastWriteTime = GetLastWriteTime(entry),
 					Comment = entry.Comment,
 					IsEncrypted = entry.EncryptHeader != null,
 					Archive = archive,
 					Id = entry.Id,
-					Crc32 = entry.Crc
+					Crc32 = entry.Crc,
+					ExternalAttributes = GetExternalAttributes(entry)
 				});
 			}
 			return ret;
+		}
+
+		private static DateTime? GetLastWriteTime(EggEntry eggEntry)
+		{
+			if (eggEntry.WinFileInfo != null)
+			{
+				return eggEntry.WinFileInfo.LastModified;
+			}
+
+			return null;
+		}
+
+		private static long GetExternalAttributes(EggEntry entry)
+		{
+			if (entry.WinFileInfo != null)
+			{
+				return (long)entry.WinFileInfo.WindowsFileAttributes;
+			}
+			else
+			{
+				return 0;
+			}
 		}
 
 		private void FetchAndParseSplitVolumes(Stream stream)

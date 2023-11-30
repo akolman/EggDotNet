@@ -10,7 +10,7 @@ namespace EggDotNet.Format.Egg
 
 		public DateTime LastModified { get; private set; }
 
-		public WindowsFileAttributes WindowsFileAttributes { get; private set; }
+		public int WindowsFileAttributes { get; private set; }
 
 		public static WinFileInfo Parse(Stream stream)
 		{
@@ -23,7 +23,7 @@ namespace EggDotNet.Format.Egg
 
 			}
 
-			var attributes =  (WindowsFileAttributes)stream.ReadByte();
+			var attributes = stream.ReadByte();
 
 			return new WinFileInfo() { LastModified = Utilities.FromEggTime(lastModTime), WindowsFileAttributes = attributes };
 		}

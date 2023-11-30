@@ -55,6 +55,8 @@ namespace EggDotNet
 		/// </summary>
 		public DateTime? LastWriteTime { get; internal set; }
 
+		public long ExternalAttributes {  get; internal set; }
+
 		/// <summary>
 		/// Gets the comment of the file.
 		/// </summary>
