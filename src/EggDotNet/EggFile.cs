@@ -33,5 +33,16 @@ namespace EggDotNet
 			using var inputStream = new FileStream(sourceArchiveName, FileMode.Open, FileAccess.Read, FileShare.Read);
 			ExtractToDirectory(inputStream, destinationDirectory);
 		}
+
+		/// <summary>
+		/// Opens an EGG file from a specified path.
+		/// </summary>
+		/// <param name="eggArchivePath">The EGG file path.</param>
+		/// <returns>A new EggArchive instance.</returns>
+		public static EggArchive Open(string eggArchivePath)
+		{
+			var fs = new FileStream(eggArchivePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+			return new EggArchive(fs, true);
+		}
 	}
 }

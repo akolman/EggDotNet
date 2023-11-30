@@ -25,15 +25,6 @@ namespace EggDotNet
 		public ReadOnlyCollection<EggArchiveEntry> Entries => _entries.AsReadOnly();
 
 		/// <summary>
-		/// Constructs a new EggArchive using a file path.
-		/// </summary>
-		/// <param name="eggFilePath">The path to an egg file.</param>
-		public EggArchive(string eggFilePath)
-			: this(new FileStream(eggFilePath, FileMode.Open, FileAccess.Read, FileShare.Read), true, null)
-		{
-		}
-
-		/// <summary>
 		/// Constructs a new EggArchive using a source stream.
 		/// Caller owns the stream.
 		/// </summary>
