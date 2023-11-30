@@ -1,4 +1,5 @@
 ﻿using EggDotNet.Format;
+using EggDotNet.SpecialStreams;
 using System;
 using System.IO;
 
@@ -72,6 +73,19 @@ namespace EggDotNet
 		public Stream Open()
 		{
 			return _format.GetStreamForEntry(this);
+		}
+
+		/// <summary>
+		/// Calculates the CRC32 checksum for this entry.
+		/// </summary>
+		/// <returns>The CRC32 checksum.</returns>
+		public uint ComputeChecksum()
+		{
+			using var st = _format.GetStreamForEntry(this);
+			using var crc = new Crc32Stream(st);
+			var data = new byte[8192];
+			while (crc.Read(data, 0, data.Length) > 0) { };
+			return crc.Crc;
 		}
 	}
 }
