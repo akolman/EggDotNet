@@ -29,9 +29,16 @@ namespace EggDotNet.Tests
 			Assert.Equal(5723, loremEntry.CompressedLength);
 			Assert.Equal(34446, loremEntry.UncompressedLength);
 			using var lstr = loremEntry.Open();
-			var reader = new StreamReader(lstr);
+			using var reader = new StreamReader(lstr);
 			var data = reader.ReadToEnd();
 			Assert.Equal(34446, data.Length);
+		}
+
+		[Fact]
+		public void Test_Global_Comment()
+		{
+			using var archive = EggFile.Open("../../../test_files/globalcomment.egg");
+			Assert.Equal("Global comment", archive.Comment);
 		}
 
 		[Fact]
