@@ -86,16 +86,16 @@ namespace EggDotNet
 		}
 
 		/// <summary>
-		/// Calculates the CRC32 checksum for this entry.
+		/// Verifies the checksum.
 		/// </summary>
-		/// <returns>The CRC32 checksum.</returns>
-		public uint ComputeChecksum()
+		/// <returns>True is checksum matches, false if not.</returns>
+		public bool ChecksumValid()
 		{
 			using var st = _format.GetStreamForEntry(this);
 			using var crc = new Crc32Stream(st);
 			var data = new byte[8192];
 			while (crc.Read(data, 0, data.Length) > 0) { };
-			return crc.Crc;
+			return crc.Crc == Crc32;
 		}
 	}
 }

@@ -54,6 +54,8 @@ namespace EggDotNet.Tests
 			var text = sReader.ReadToEnd();
 
 			Assert.Equal("Hello there my name is Andrew.", text);
+
+			Assert.True(onlyEntry.ChecksumValid());
 		}
 
 		[Fact]
