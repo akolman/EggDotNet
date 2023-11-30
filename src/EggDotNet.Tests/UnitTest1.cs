@@ -22,6 +22,19 @@ namespace EggDotNet.Tests
 		}
 
 		[Fact]
+		public void Test_Lzma()
+		{
+			using var archive = EggFile.Open("../../../test_files/lzma_simple.egg");
+			var loremEntry = archive.GetEntry("lorem_ipsum.txt");
+			Assert.Equal(5723, loremEntry.CompressedLength);
+			Assert.Equal(34446, loremEntry.UncompressedLength);
+			using var lstr = loremEntry.Open();
+			var reader = new StreamReader(lstr);
+			var data = reader.ReadToEnd();
+			Assert.Equal(34446, data.Length);
+		}
+
+		[Fact]
 		public void Test_Basic_Deflate_Aes128()
 		{
 			using var fs = new FileStream("../../../test_files/test128.egg", FileMode.Open, FileAccess.Read);
