@@ -3,6 +3,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace EggDotNet
 {
@@ -79,6 +80,16 @@ namespace EggDotNet
 			this.format = EggFileFormatFactory.Create(stream, streamCallback, passwordCallback);
 			this.format.ParseHeaders(stream, ownStream);
 			_entries = this.format.Scan(this);		
+		}
+
+		public EggArchiveEntry? GetEntry(string entryName)
+		{
+			return _entries.SingleOrDefault(e => e.FullName != null && e.FullName.Equals(entryName, StringComparison.OrdinalIgnoreCase));
+		}
+
+		public EggArchiveEntry? GetEntry(int id)
+		{
+			return _entries.SingleOrDefault(e => e.Id.Equals(id));
 		}
 
 		/// <inheritdoc/>

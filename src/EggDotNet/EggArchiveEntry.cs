@@ -12,7 +12,9 @@ namespace EggDotNet
 	{
 		private readonly IEggFileFormat _format;
 
-		internal int Id { get; set; }
+		public int Id { get; internal set; }
+
+
 		internal long PositionInStream { get; set; }
 
 		/// <summary>
