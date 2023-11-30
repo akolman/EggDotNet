@@ -5,7 +5,7 @@ namespace EggDotNet
 	/// Represents a set of Windows file attributes.
 	/// </summary>
 	[Flags]
-	public enum WindowsFileAttributes
+	public enum WindowsFileAttributes : int
 	{
 		/// <summary>
 		/// No attributes specified.
