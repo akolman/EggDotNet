@@ -9,7 +9,7 @@ namespace EggDotNet.Tests
 		[Description("Validates an archive with 3 files, all in folders, compressed using deflate compression")]
 		public void Test_Basic_Defalte_With_Folders()
 		{
-			using var archive = new EggArchive("../../../test_files/basic_deflate_folders.egg");
+			using var archive = EggFile.Open("../../../test_files/basic_deflate_folders.egg");
 			var firstEntry = archive.Entries.First();
 			Assert.Equal("bliss.jpg", firstEntry.Name);
 
@@ -19,6 +19,26 @@ namespace EggDotNet.Tests
 			Assert.Equal(34446, text.Length);
 			Assert.StartsWith("Lorem ipsum dolor sit amet", text);
 			Assert.EndsWith("gravida.", text);
+		}
+
+		[Fact]
+		public void Test_Lzma()
+		{
+			using var archive = EggFile.Open("../../../test_files/lzma_simple.egg");
+			var loremEntry = archive.GetEntry("lorem_ipsum.txt");
+			Assert.Equal(5723, loremEntry!.CompressedLength);
+			Assert.Equal(34446, loremEntry.UncompressedLength);
+			using var lstr = loremEntry.Open();
+			using var reader = new StreamReader(lstr);
+			var data = reader.ReadToEnd();
+			Assert.Equal(34446, data.Length);
+		}
+
+		[Fact]
+		public void Test_Global_Comment()
+		{
+			using var archive = EggFile.Open("../../../test_files/globalcomment.egg");
+			Assert.Equal("Global comment", archive.Comment);
 		}
 
 		[Fact]
@@ -34,6 +54,8 @@ namespace EggDotNet.Tests
 			var text = sReader.ReadToEnd();
 
 			Assert.Equal("Hello there my name is Andrew.", text);
+
+			Assert.True(onlyEntry.ChecksumValid());
 		}
 
 		[Fact]
@@ -54,7 +76,7 @@ namespace EggDotNet.Tests
 		[Fact]
 		public void Test_Large()
 		{
-			using var archive = new EggArchive("../../../test_files/zeros.egg");
+			using var archive = EggFile.Open("../../../test_files/zeros.egg");
 			var singleEntry = archive.Entries.Single();
 			Assert.Equal(338, singleEntry.CompressedLength);
 			Assert.Equal(197_540_460, singleEntry.UncompressedLength);

@@ -51,15 +51,38 @@ namespace EggDotNet.Format.Egg
 					PositionInStream = entry.Position,
 					CompressedLength = entry.CompressedSize,
 					UncompressedLength = entry.UncompressedSize,
-					LastWriteTime = entry.LastModifiedTime,
+					LastWriteTime = GetLastWriteTime(entry),
 					Comment = entry.Comment,
 					IsEncrypted = entry.EncryptHeader != null,
 					Archive = archive,
 					Id = entry.Id,
-					Crc32 = entry.Crc
+					Crc32 = entry.Crc,
+					ExternalAttributes = GetExternalAttributes(entry)
 				});
 			}
 			return ret;
+		}
+
+		private static DateTime? GetLastWriteTime(EggEntry eggEntry)
+		{
+			if (eggEntry.WinFileInfo != null)
+			{
+				return eggEntry.WinFileInfo.LastModified;
+			}
+
+			return null;
+		}
+
+		private static long GetExternalAttributes(EggEntry entry)
+		{
+			if (entry.WinFileInfo != null)
+			{
+				return (long)entry.WinFileInfo.WindowsFileAttributes;
+			}
+			else
+			{
+				return 0;
+			}
 		}
 
 		private void FetchAndParseSplitVolumes(Stream stream)
@@ -142,10 +165,15 @@ namespace EggDotNet.Format.Egg
 				{
 					s = new ZipStreamDecryptionProvider(eggEntry.EncryptHeader.Param1, eggEntry.EncryptHeader.Param2, pw);
 				}
-				else
+				else if (eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.AES128 
+					|| eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.AES256)
 				{
 					var width = eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.AES256 ? 256 : 128;
 					s = new AesStreamDecryptionProvider(width, eggEntry.EncryptHeader.Param1, eggEntry.EncryptHeader.Param2, pw);
+				}
+				else
+				{
+					throw new NotImplementedException("Encryption method not supported");
 				}
 
 				if (s.PasswordValid)

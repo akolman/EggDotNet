@@ -22,12 +22,9 @@ namespace EggDotNet.Format.Egg
 
 		public string FileNameFull { get; private set; }
 
-		public string FileName { get; private set; }
-
 		public FilenameHeader(string filename)
 		{
 			FileNameFull = filename;
-			FileName = Path.GetFileName(filename);
 		}
 
 		public static FilenameHeader Parse(Stream stream)

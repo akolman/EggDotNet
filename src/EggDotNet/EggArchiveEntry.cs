@@ -1,4 +1,5 @@
 ﻿using EggDotNet.Format;
+using EggDotNet.SpecialStreams;
 using System;
 using System.IO;
 
@@ -11,13 +12,17 @@ namespace EggDotNet
 	{
 		private readonly IEggFileFormat _format;
 
-		internal int Id { get; set; }
 		internal long PositionInStream { get; set; }
 
 		/// <summary>
 		/// Gets the parent <see cref="EggArchive"/> for this entry.
 		/// </summary>
 		public EggArchive Archive { get; internal set; }
+
+		/// <summary>
+		/// Gets the ID of the egg entry.
+		/// </summary>
+		public int Id { get; internal set; }
 
 		/// <summary>
 		/// Gets the name of the egg entry, not including any directory.
@@ -55,6 +60,12 @@ namespace EggDotNet
 		public DateTime? LastWriteTime { get; internal set; }
 
 		/// <summary>
+		/// Gets the external attributes for the entry.
+		/// </summary>
+		/// <remarks>See <see cref="WindowsFileAttributes"/>.</remarks>
+		public long ExternalAttributes {  get; internal set; }
+
+		/// <summary>
 		/// Gets the comment of the file.
 		/// </summary>
 		public string? Comment { get; internal set; }
@@ -72,6 +83,19 @@ namespace EggDotNet
 		public Stream Open()
 		{
 			return _format.GetStreamForEntry(this);
+		}
+
+		/// <summary>
+		/// Verifies the checksum.
+		/// </summary>
+		/// <returns>True is checksum matches, false if not.</returns>
+		public bool ChecksumValid()
+		{
+			using var st = _format.GetStreamForEntry(this);
+			using var crc = new Crc32Stream(st);
+			var data = new byte[8192];
+			while (crc.Read(data, 0, data.Length) > 0) { };
+			return crc.Crc == Crc32;
 		}
 	}
 }

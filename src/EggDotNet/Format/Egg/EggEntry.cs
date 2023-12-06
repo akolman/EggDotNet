@@ -18,7 +18,9 @@ namespace EggDotNet.Format.Egg
 
 		public CompressionMethod CompressionMethod { get; private set; }
 
-		public DateTime? LastModifiedTime { get; private set; }
+		//public DateTime? LastModifiedTime { get; private set; }
+
+		public WinFileInfo? WinFileInfo { get; private set; }
 
 		public EncryptHeader? EncryptHeader { get; private set; }
 
@@ -37,13 +39,13 @@ namespace EggDotNet.Format.Egg
 
 				BuildHeaders(entry, archive, stream);
 
-				if (stream.Position >= stream.Length)
+				if (stream.Position >= stream.Length) break; //sanity check
+
+				if (entry.UncompressedSize > 0) //check for empty entries (e.g. directories)
 				{
-					break;
+					BuildBlocks(entry, stream);
 				}
-
-				BuildBlocks(entry, stream);
-
+				
 				entries.Add(entry);
 			}
 
@@ -62,6 +64,7 @@ namespace EggDotNet.Format.Egg
 					case FileHeader.FILE_HEADER_MAGIC:
 						var fileHeader = FileHeader.Parse(stream);
 						entry.Id = fileHeader.FileId;
+						entry.UncompressedSize = fileHeader.FileLength;
 						insideFileheader = true;
 						break;
 					case FilenameHeader.FILENAME_HEADER_MAGIC:
@@ -69,8 +72,7 @@ namespace EggDotNet.Format.Egg
 						entry.Name = filename.FileNameFull;
 						break;
 					case WinFileInfo.WIN_FILE_INFO_MAGIC_HEADER:
-						var winFileInfo = WinFileInfo.Parse(stream);
-						entry.LastModifiedTime = winFileInfo.LastModified;
+						entry.WinFileInfo = WinFileInfo.Parse(stream);
 						break;
 					case EncryptHeader.EGG_ENCRYPT_HEADER_MAGIC:
 						var encryptHeader = EncryptHeader.Parse(stream);
@@ -93,6 +95,8 @@ namespace EggDotNet.Format.Egg
 			}
 		}
 
+		//It may be incorrect to assume that an entry is contained in only one block per volume.  This method won't work if so because
+		//it applies one block per entry.  It should be relatively easy to revise if needed (although it will complicate block retrieval).
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static void BuildBlocks(EggEntry entry, Stream stream)
 		{
@@ -103,7 +107,7 @@ namespace EggDotNet.Format.Egg
 					var blockHeader = BlockHeader.Parse(stream);
 					entry.Position = blockHeader.BlockDataPosition;
 					entry.CompressedSize = blockHeader.CompressedSize;
-					entry.UncompressedSize = blockHeader.UncompressedSize;
+					//entry.UncompressedSize = blockHeader.UncompressedSize; //set by file header
 					entry.CompressionMethod = blockHeader.CompressionMethod;
 					entry.Crc = blockHeader.Crc32;
 					stream.Seek(entry.CompressedSize, SeekOrigin.Current);

@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EggDotNet.Exception
+﻿namespace EggDotNet.Exception
 {
+	/// <summary>
+	/// Represents an exception thrown when a local encoding can't be loaded.
+	/// </summary>
 	public class UnsupportedLocalEggception : Eggception
 	{
-		public UnsupportedLocalEggception(int localeCode, System.Exception innerException)
+		internal UnsupportedLocalEggception(int localeCode, System.Exception innerException)
 			: base($"Could not load encoder for locale {localeCode}", innerException)
 		{
 		}

@@ -1,4 +1,5 @@
 ﻿using EggDotNet.Extensions;
+using System;
 using System.IO;
 
 namespace EggDotNet.Format.Egg
@@ -7,12 +8,11 @@ namespace EggDotNet.Format.Egg
 	{
 		public const int SOLID_HEADER_MAGIC = 0x24E5A060;
 
-
 		public static SolidHeader Parse(Stream stream)
 		{
-			var bitFlag = stream.ReadByte();
-
-			stream.ReadShort(out short size);
+			_ = stream.ReadByte();
+			stream.ReadShort(out short _);
+			Console.Error.WriteLine("SOLID compression not implemented.  May encounter errors.");
 
 			return new SolidHeader();
 		}

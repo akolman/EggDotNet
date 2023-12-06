@@ -2,8 +2,16 @@
 
 namespace EggDotNet.Extensions
 {
+	/// <summary>
+	/// Extension methods for <see cref="EggArchiveEntry"/>.
+	/// </summary>
 	public static class EggArchiveEntryExtensions
 	{
+		/// <summary>
+		/// Extracts an <see cref="EggArchiveEntry"/> to a directory.
+		/// </summary>
+		/// <param name="entry">The source entry.</param>
+		/// <param name="destinationDirectory">The destination directory.</param>
 		public static void ExtractToDirectory(this EggArchiveEntry entry, string destinationDirectory)
 		{
 			using var entryStream = entry.Open();

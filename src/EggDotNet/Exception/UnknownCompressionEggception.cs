@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EggDotNet.Exception
+﻿namespace EggDotNet.Exception
 {
+	/// <summary>
+	/// Represents an error thrown when an unknown compression method is used.
+	/// </summary>
 	public class UnknownCompressionEggception : Eggception
 	{
 		internal UnknownCompressionEggception()
