@@ -26,7 +26,7 @@ namespace EggDotNet.Tests
 		{
 			using var archive = EggFile.Open("../../../test_files/lzma_simple.egg");
 			var loremEntry = archive.GetEntry("lorem_ipsum.txt");
-			Assert.Equal(5723, loremEntry.CompressedLength);
+			Assert.Equal(5723, loremEntry!.CompressedLength);
 			Assert.Equal(34446, loremEntry.UncompressedLength);
 			using var lstr = loremEntry.Open();
 			using var reader = new StreamReader(lstr);

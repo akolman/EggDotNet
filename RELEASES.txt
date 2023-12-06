@@ -20,5 +20,11 @@ Fixes and added features
 0.0.4-beta (2023-11-29)
 +Added LZMA support.
 =======================================================================
-0.0.5-beta (?)
+0.0.5-beta (2023-12-06)
 +Added checksum feature.
++Added EggArchiveEntry.Id member and EggArchive.GetEntry method.
++Removed EggArchive(filepath) constructor and moved to static EggFile method.
++Added Windows file attributes to EggArchive.ExternalAttributes.
++Fixed issue caused by data-less entries (e.g. empty directories).
++Added SOLID header warning.  Extraction likely to fail.
+
