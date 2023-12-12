@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace EggDotNet.Encryption
 {
-	internal class AesStreamDecryptionProvider : IStreamDecryptionProvider
+	internal sealed class AesStreamDecryptionProvider : IStreamDecryptionProvider
 	{
 #pragma warning disable IDE0052 // Remove unread private members
 		private readonly byte[] _footer;

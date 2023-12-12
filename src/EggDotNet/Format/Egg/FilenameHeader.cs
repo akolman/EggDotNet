@@ -1,7 +1,6 @@
 ﻿using EggDotNet.Exceptions;
 using EggDotNet.Extensions;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -56,7 +55,7 @@ namespace EggDotNet.Format.Egg
 				{
 					nameEncoder = Encoding.GetEncoding(locale);
 				}
-				catch(System.Exception ex)
+				catch(Exception ex)
 				{
 					throw new UnsupportedLocalException(locale, ex); 
 				}
