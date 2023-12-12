@@ -34,7 +34,7 @@ namespace EggDotNet.Format.Alz
 #pragma warning disable CA1859
 		private Stream PrepareStream()
 		{
-			var st = new FakeDisposingStream(_volumes.Single().GetStream());
+			var st = new WrappedNonDisposingStream(_volumes.Single().GetStream());
 
 			return st;
 		}

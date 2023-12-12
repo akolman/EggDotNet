@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 
 namespace EggDotNet.Format.Egg
 {
@@ -114,7 +113,7 @@ namespace EggDotNet.Format.Egg
 
 			if (_volumes.Count == 1)
 			{
-				return new FakeDisposingStream(_volumes.Single().GetStream());
+				return new WrappedNonDisposingStream(_volumes.Single().GetStream());
 			}
 			else
 			{
