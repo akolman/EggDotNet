@@ -1,5 +1,4 @@
-﻿using EggDotNet.Exceptions;
-using EggDotNet.Extensions;
+﻿using EggDotNet.Extensions;
 using System.Diagnostics;
 using System.IO;
 

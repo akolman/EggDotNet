@@ -20,7 +20,7 @@ namespace EggDotNet.Format.Egg
 
 			if (!stream.ReadLong(out long lastModTime))
 			{
-
+				throw new InvalidDataException("Error reading last modified date from file info entry");
 			}
 
 			var attributes = stream.ReadByte();
