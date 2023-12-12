@@ -1,16 +1,18 @@
-﻿namespace EggDotNet.Exception
+﻿using System;
+
+namespace EggDotNet.Exceptions
 {
 	/// <summary>
 	/// Exception indicating that the provided data is not EGG data, or is an unknown version.
 	/// </summary>
-	public class UnknownEggEggception : Eggception
+	public class UnknownEggException : Exception
 	{
-		internal UnknownEggEggception() 
+		internal UnknownEggException() 
 			: base("EGG format is unknown or unsupported") 
 		{ 
 		}
 
-		internal UnknownEggEggception(int version)
+		internal UnknownEggException(int version)
 			: base($"EGG version {version} is not supported" )
 		{
 		}

@@ -1,4 +1,4 @@
-﻿using EggDotNet.Exception;
+﻿using EggDotNet.Exceptions;
 using EggDotNet.Extensions;
 using EggDotNet.Format;
 using System.Collections.Generic;
@@ -13,14 +13,14 @@ namespace EggDotNet.Format
 		{
 			if (!stream.ReadInt(out int header))
 			{
-				throw new BadDataEggception("Could not read header from stream");
+				throw new InvalidDataException("Could not read header from stream");
 			}
 
 			return header switch
 			{
 				var _ when header == Egg.Header.EGG_HEADER_MAGIC => new Egg.EggFormat(streamCallback, pwCallback),
 				var _ when header == Alz.Header.ALZ_HEADER_MAGIC => new Alz.AlzFormat(),
-				_ => throw new UnknownEggEggception()
+				_ => throw new UnknownEggException()
 			}; ; ;
 		}
 	}

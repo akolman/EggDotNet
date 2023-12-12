@@ -1,4 +1,4 @@
-﻿using EggDotNet.Exception;
+﻿using EggDotNet.Exceptions;
 using EggDotNet.Extensions;
 using System;
 using System.Collections.Generic;
@@ -34,19 +34,19 @@ namespace EggDotNet.Format.Egg
 			var bitFlagByte = stream.ReadByte();
 			if (bitFlagByte == -1)
 			{
-				throw new BadDataEggception("Filename header flag couldn't be read");
+				throw new InvalidDataException("Filename header flag couldn't be read");
 			}
 
 			var bitFlag = (FilenameFlags)bitFlagByte;
 
 			if (bitFlag.HasFlag(FilenameFlags.Encrypt))
 			{
-				throw new BadDataEggception("Encrypted filenames not supported");
+				throw new InvalidDataException("Encrypted filenames not supported");
 			}
 
 			if (!stream.ReadShort(out short filenameSize))
 			{
-				throw new BadDataEggception("Filename size couldn't be read");
+				throw new InvalidDataException("Filename size couldn't be read");
 			}
 
 			if (bitFlag.HasFlag(FilenameFlags.UseAreaCode))
@@ -58,13 +58,13 @@ namespace EggDotNet.Format.Egg
 				}
 				catch(System.Exception ex)
 				{
-					throw new UnsupportedLocalEggception(locale, ex); 
+					throw new UnsupportedLocalException(locale, ex); 
 				}
 			}
 
 			if (!stream.ReadN(filenameSize, out byte[] filenameBuffer))
 			{
-				throw new BadDataEggception("Filename header corrupt");
+				throw new InvalidDataException("Filename header corrupt");
 			}
 
 			return new FilenameHeader(nameEncoder.GetString(filenameBuffer));

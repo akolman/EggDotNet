@@ -1,6 +1,6 @@
 ﻿using EggDotNet.Compression;
 using EggDotNet.Encryption;
-using EggDotNet.Exception;
+using EggDotNet.Exceptions;
 using EggDotNet.SpecialStreams;
 using System;
 using System.Collections.Generic;
@@ -110,7 +110,7 @@ namespace EggDotNet.Format.Egg
 
 		private Stream PrepareStream()
 		{
-			if (_volumes.Count == 0) throw new Eggception("Volume collection empty");
+			if (_volumes.Count == 0) throw new InvalidOperationException("Volume collection empty");
 
 			if (_volumes.Count == 1)
 			{
@@ -191,9 +191,9 @@ namespace EggDotNet.Format.Egg
 				CompressionMethod.Store => new StoreCompressionProvider(),
 				CompressionMethod.Deflate => new DeflateCompressionProvider(),
 				CompressionMethod.Bzip2 => new BZip2CompressionProvider(),
-				CompressionMethod.Azo => throw new NotImplementedException("AZO not implemented"),
+				CompressionMethod.Azo => throw new UnsupportedCompressionException("AZO"),
 				CompressionMethod.Lzma => new LzmaCompressionProvider(entry.CompressedSize, entry.UncompressedSize),
-				_ => throw new UnknownCompressionEggception(),
+				_ => throw new UnknownCompressionException((byte)entry.CompressionMethod),
 			};
 			return compressor.GetDecompressStream(stream);
 		}

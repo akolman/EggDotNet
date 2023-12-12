@@ -1,4 +1,4 @@
-﻿using EggDotNet.Exception;
+﻿using EggDotNet.Exceptions;
 using EggDotNet.Extensions;
 using System.IO;
 
@@ -24,12 +24,12 @@ namespace EggDotNet.Format.Egg
 		{
 			if (!stream.ReadInt(out int fileId))
 			{
-				throw new BadDataEggception("Failed reading ID from file header");
+				throw new InvalidDataException("Failed reading ID from file header");
 			}
 			
 			if (!stream.ReadLong(out long fileLength))
 			{
-				throw new BadDataEggception("Failed reading file length from file header");
+				throw new InvalidDataException("Failed reading file length from file header");
 			}
 
 			return new FileHeader(fileId, fileLength);
