@@ -12,14 +12,14 @@ namespace EggDotNet.Encryption
 		private readonly byte[] _vdata;
 		private readonly byte[] _crc;
 		private readonly string _password;
-		private readonly ZipDecryptStream _decrypt;
+		private readonly ZipDecryptionStream _decrypt;
 
 		public ZipStreamDecryptionProvider(byte[] vdata, byte[] crc, string password)
 		{
 			_vdata = vdata;
 			_crc = crc;
 			_password = password;
-			_decrypt = new ZipDecryptStream(_password, _vdata, _crc);
+			_decrypt = new ZipDecryptionStream(_password, _vdata, _crc);
 		}
 
 		public Stream GetDecryptionStream(Stream stream)

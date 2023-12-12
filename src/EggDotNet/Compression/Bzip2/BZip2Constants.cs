@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EggDotNet.Compression.Bzip2
+﻿namespace EggDotNet.Compression.Bzip2
 {
 	/// <summary>
 	/// Defines internal values for both compression and decompression

@@ -3,7 +3,7 @@
 namespace EggDotNet.Exceptions
 {
 	/// <summary>
-	/// Represents an error thrown when an unknown compression method is used.
+	/// Represents an exception thrown when an unknown compression method is used.
 	/// </summary>
 	public class UnknownCompressionException : Exception
 	{
