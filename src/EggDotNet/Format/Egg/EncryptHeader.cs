@@ -1,4 +1,5 @@
 ﻿using EggDotNet.Extensions;
+using EggDotNet.Exceptions;
 using System.IO;
 
 namespace EggDotNet.Format.Egg
@@ -58,12 +59,14 @@ namespace EggDotNet.Format.Egg
 				stream.ReadN(4, out byte[] pwData);
 				return new EncryptHeader(encMethod, size, standardHeader, pwData);
 			}
+			else if (encMethod == EncryptionMethod.LEA128 || encMethod == EncryptionMethod.LEA256)
+			{
+				throw new UnsupportedEncryptionException("LEA");
+			}
 			else
 			{
-				throw new System.NotImplementedException("Not implemented");
+				throw new UnknownEncryptionException((byte)encMethod);
 			}
-
 		}
-
 	}
 }

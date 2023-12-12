@@ -5,7 +5,7 @@ namespace EggDotNet.Exceptions
 	/// <summary>
 	/// Represents an exception thrown when the provided data is not EGG data, or is an unknown version.
 	/// </summary>
-	public class UnknownEggException : Exception
+	public sealed class UnknownEggException : Exception
 	{
 		internal UnknownEggException() 
 			: base("EGG format is unknown or unsupported") 
