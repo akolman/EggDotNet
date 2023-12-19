@@ -1,4 +1,4 @@
-﻿using EggDotNet.Exception;
+﻿using EggDotNet.Exceptions;
 using System;
 using System.IO;
 
@@ -47,7 +47,7 @@ namespace EggDotNet.Format.Egg
 			var eggHeader = Header.Parse(stream);
 			if (eggHeader.Version != 256)
 			{
-				throw new UnknownEggEggception(eggHeader.Version);
+				throw new UnknownEggException(eggHeader.Version);
 			}
 
 			return new EggVolume(stream, ownStream, eggHeader);

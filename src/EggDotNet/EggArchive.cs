@@ -40,7 +40,7 @@ namespace EggDotNet
 		/// Caller owns the stream.
 		/// </summary>
 		/// <param name="sourceStream">The input egg stream.</param>
-		/// <exception cref="Exception.UnknownEggEggception"/>
+		/// <exception cref="Exceptions.UnknownEggException"/>
 		public EggArchive(Stream sourceStream)
 			: this(sourceStream, false, null)
 		{	
@@ -51,7 +51,7 @@ namespace EggDotNet
 		/// </summary>
 		/// <param name="sourceStream">The input egg stream</param>
 		/// <param name="ownStream">A flag indicating whether the caller owns the stream (false) or the EggArchive (true)</param>
-		/// <exception cref="Exception.UnknownEggEggception"/>
+		/// <exception cref="Exceptions.UnknownEggException"/>
 		public EggArchive(Stream sourceStream, bool ownStream)
 			: this(sourceStream, ownStream, null)
 		{
@@ -62,7 +62,7 @@ namespace EggDotNet
 		/// </summary>
 		/// <param name="stream">The input egg stream</param>
 		/// <param name="streamCallback">A callback that will be called to retrieve volumes of a multi-part archive.</param>
-		/// <exception cref="Exception.UnknownEggEggception"/>
+		/// <exception cref="Exceptions.UnknownEggException"/>
 		public EggArchive(Stream stream, Func<Stream, IEnumerable<Stream>> streamCallback)
 			: this(stream, false, streamCallback)
 		{
@@ -75,7 +75,7 @@ namespace EggDotNet
 		/// <param name="ownStream">A flag indicating whether the caller owns the stream (false) or the EggArchive (true)</param>
 		/// <param name="streamCallback">A callback that will be called to retrieve volumes of a multi-part archive.</param>
 		/// <param name="passwordCallback">A callback that will be called to retrieve a password used for decryption.</param>
-		/// <exception cref="Exception.UnknownEggEggception"/>
+		/// <exception cref="Exceptions.UnknownEggException"/>
 #if NETSTANDARD2_1_OR_GREATER
 		public EggArchive(Stream stream, bool ownStream = false, Func<Stream, IEnumerable<Stream>>? streamCallback = null, Func<string>? passwordCallback = null)
 #else

@@ -1,4 +1,4 @@
-﻿using EggDotNet.Exception;
+﻿using EggDotNet.Exceptions;
 using System;
 using System.IO;
 
@@ -26,7 +26,7 @@ namespace EggDotNet.Format.Alz
 			var alzHeader = Header.Parse(stream);
 			if (alzHeader.Version != 10)
 			{
-				throw new UnknownEggEggception(alzHeader.Version);
+				throw new UnknownEggException(alzHeader.Version);
 			}
 
 			return new AlzVolume(stream, ownStream, alzHeader);

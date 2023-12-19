@@ -1,5 +1,5 @@
 using System.ComponentModel;
-using EggDotNet.Exception;
+using EggDotNet.Exceptions;
 
 namespace EggDotNet.Tests
 {
@@ -88,7 +88,7 @@ namespace EggDotNet.Tests
 			var fileData = new byte[] { 1, 2, 3, 4, 5 };
 			using var inputStream = new MemoryStream(fileData);
 
-			Assert.Throws<UnknownEggEggception>(() =>
+			Assert.Throws<UnknownEggException>(() =>
 			{
 				using var archive = new EggArchive(inputStream);
 			});

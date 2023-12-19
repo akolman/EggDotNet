@@ -1,4 +1,4 @@
-﻿using EggDotNet.Exception;
+﻿using EggDotNet.Exceptions;
 using EggDotNet.Extensions;
 using System.Diagnostics;
 using System.IO;
@@ -45,17 +45,17 @@ namespace EggDotNet.Format.Egg
 
 			if (!stream.ReadShort(out short version))
 			{
-				throw new BadDataEggception("Failed reading version from header");
+				throw new InvalidDataException("Failed reading version from header");
 			}
 
 			if (!stream.ReadInt(out int headerId))
 			{
-				throw new BadDataEggception("Failed reading ID from header");
+				throw new InvalidDataException("Failed reading ID from header");
 			}
 
 			if (!stream.ReadInt(out int reserved))
 			{
-				throw new BadDataEggception("Failed reading from header");
+				throw new InvalidDataException("Failed reading from header");
 			}
 
 			SplitHeader splitHeader = null;

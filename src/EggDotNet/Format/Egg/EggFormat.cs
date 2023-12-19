@@ -1,12 +1,11 @@
 ﻿using EggDotNet.Compression;
 using EggDotNet.Encryption;
-using EggDotNet.Exception;
+using EggDotNet.Exceptions;
 using EggDotNet.SpecialStreams;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 
 namespace EggDotNet.Format.Egg
 {
@@ -122,7 +121,7 @@ namespace EggDotNet.Format.Egg
 
 		private Stream PrepareStream()
 		{
-			if (_volumes.Count == 0) throw new Eggception("Volume collection empty");
+			if (_volumes.Count == 0) throw new InvalidOperationException("Volume collection empty");
 
 			if (_volumes.Count == 1)
 			{
@@ -215,7 +214,7 @@ namespace EggDotNet.Format.Egg
 				case CompressionMethod.Azo:
 					throw new NotImplementedException("AZO not implemented");
 				default:
-					throw new UnknownCompressionEggception();
+					throw new UnknownCompressionException((byte)entry.CompressionMethod);
 
 			}
 

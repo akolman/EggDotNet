@@ -1,4 +1,4 @@
-﻿using EggDotNet.Exception;
+﻿using EggDotNet.Exceptions;
 using EggDotNet.Extensions;
 using System;
 using System.Collections.Generic;
@@ -24,7 +24,7 @@ namespace EggDotNet.Format.Egg
 
 			if (!stream.ReadShort(out short size))
 			{
-				throw new BadDataEggception("Failed to read comment size");
+				throw new InvalidDataException("Failed to read comment size");
 			}
 
 			if (!stream.ReadN(size, out byte[] commentData))
