@@ -15,11 +15,12 @@ namespace EggDotNet
 		/// <param name="destinationDirectory">The destination directory path to place files.</param>
 		public static void ExtractToDirectory(Stream sourceStream, string destinationDirectory)
 		{
-			using var eggArchive = new EggArchive(sourceStream, false);
-
-			foreach(var archiveEntry in  eggArchive.Entries)
+			using (var eggArchive = new EggArchive(sourceStream, false))
 			{
-				archiveEntry.ExtractToDirectory(destinationDirectory);
+				foreach (var archiveEntry in eggArchive.Entries)
+				{
+					archiveEntry.ExtractToDirectory(destinationDirectory);
+				}
 			}
 		}
 
@@ -30,8 +31,10 @@ namespace EggDotNet
 		/// <param name="destinationDirectory">The desination directory path to place files.</param>
 		public static void ExtractToDirectory(string sourceArchiveName, string destinationDirectory)
 		{
-			using var inputStream = new FileStream(sourceArchiveName, FileMode.Open, FileAccess.Read, FileShare.Read);
-			ExtractToDirectory(inputStream, destinationDirectory);
+			using (var inputStream = new FileStream(sourceArchiveName, FileMode.Open, FileAccess.Read, FileShare.Read))
+			{
+				ExtractToDirectory(inputStream, destinationDirectory);
+			}
 		}
 
 		/// <summary>

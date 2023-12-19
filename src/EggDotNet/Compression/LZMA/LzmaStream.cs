@@ -2,7 +2,6 @@
 using System;
 using System.IO;
 
-#nullable disable
 #pragma warning disable
 namespace EggDotNet.Compression.LZMA
 {

@@ -3,6 +3,10 @@ using EggDotNet.SpecialStreams;
 using System;
 using System.IO;
 
+#if NETSTANDARD2_1_OR_GREATER
+#nullable enable
+#endif
+
 namespace EggDotNet
 {
 	/// <summary>
@@ -27,12 +31,20 @@ namespace EggDotNet
 		/// <summary>
 		/// Gets the name of the egg entry, not including any directory.
 		/// </summary>
+#if NETSTANDARD2_1_OR_GREATER
 		public string? Name => Path.GetFileName(FullName);
+#else
+		public string Name => Path.GetFileName(FullName);
+#endif
 
 		/// <summary>
 		/// Gets the name of the egg entry, including any directory.
 		/// </summary>
+#if NETSTANDARD2_1_OR_GREATER
 		public string? FullName { get; internal set; }
+#else
+		public string FullName { get; internal set; }
+#endif
 
 		/// <summary>
 		/// Gets the Crc32 checksum for this entry.
@@ -57,7 +69,11 @@ namespace EggDotNet
 		/// <summary>
 		/// Gets the last write time of the file.
 		/// </summary>
+#if NETSTANDARD2_1_OR_GREATER
 		public DateTime? LastWriteTime { get; internal set; }
+#else
+		public DateTime LastWriteTime { get; internal set; }
+#endif
 
 		/// <summary>
 		/// Gets the external attributes for the entry.
@@ -68,7 +84,11 @@ namespace EggDotNet
 		/// <summary>
 		/// Gets the comment of the file.
 		/// </summary>
+#if NETSTANDARD2_1_OR_GREATER
 		public string? Comment { get; internal set; }
+#else
+		public string Comment { get; internal set; }
+#endif
 
 		internal EggArchiveEntry(IEggFileFormat format, EggArchive archive)
 		{
@@ -91,11 +111,15 @@ namespace EggDotNet
 		/// <returns>True is checksum matches, false if not.</returns>
 		public bool ChecksumValid()
 		{
-			using var st = _format.GetStreamForEntry(this);
-			using var crc = new Crc32Stream(st);
-			var data = new byte[8192];
-			while (crc.Read(data, 0, data.Length) > 0) { };
-			return crc.Crc == Crc32;
+			using (var st = _format.GetStreamForEntry(this))
+			{
+				using (var crc = new Crc32Stream(st))
+				{
+					var data = new byte[8192];
+					while (crc.Read(data, 0, data.Length) > 0) { };
+					return crc.Crc == Crc32;
+				}
+			}
 		}
 	}
 }

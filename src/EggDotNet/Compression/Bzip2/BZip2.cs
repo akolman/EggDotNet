@@ -27,9 +27,11 @@ namespace EggDotNet.Compression.Bzip2
 
 			try
 			{
-				using BZip2InputStream bzipInput = new BZip2InputStream(inStream);
-				bzipInput.IsStreamOwner = isStreamOwner;
-				Copy(bzipInput, outStream, new byte[4096]);
+				using (BZip2InputStream bzipInput = new BZip2InputStream(inStream))
+				{
+					bzipInput.IsStreamOwner = isStreamOwner;
+					Copy(bzipInput, outStream, new byte[4096]);
+				}
 			}
 			finally
 			{
@@ -60,9 +62,11 @@ namespace EggDotNet.Compression.Bzip2
 
 			try
 			{
-				using BZip2OutputStream bzipOutput = new BZip2OutputStream(outStream, level);
-				bzipOutput.IsStreamOwner = isStreamOwner;
-				Copy(inStream, bzipOutput, new byte[4096]);
+				using (BZip2OutputStream bzipOutput = new BZip2OutputStream(outStream, level))
+				{
+					bzipOutput.IsStreamOwner = isStreamOwner;
+					Copy(inStream, bzipOutput, new byte[4096]);
+				}
 			}
 			finally
 			{

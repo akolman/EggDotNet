@@ -5,7 +5,7 @@ namespace EggDotNet.Compression.LZMA
 
 	internal sealed class LzmaEncoderProperties
 	{
-		public static LzmaEncoderProperties Default { get; } = new();
+		public static LzmaEncoderProperties Default { get; } = new LzmaEncoderProperties();
 
 		internal CoderPropId[] PropIDs => _propIDs;
 		private readonly CoderPropId[] _propIDs;

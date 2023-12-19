@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.IO;
 using EggDotNet.Compression.LZMA.LZ;

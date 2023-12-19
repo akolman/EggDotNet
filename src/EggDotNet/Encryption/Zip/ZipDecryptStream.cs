@@ -44,7 +44,7 @@ namespace EggDotNet.Encryption.Zip
 
 		public override long Length => throw new NotImplementedException();
 
-		private Stream? _input;
+		private Stream _input;
 
 		private readonly byte[] _footer;
 		private readonly byte verifyByte;
@@ -108,7 +108,7 @@ namespace EggDotNet.Encryption.Zip
 
 		public override int Read(byte[] buffer, int offset, int count)
 		{
-			var bytesRead = _input!.Read(buffer, offset, count);
+			var bytesRead = _input.Read(buffer, offset, count);
 			for(var i=0; i<bytesRead; i++)
 			{
 				buffer[i] = (byte)(buffer[i] ^ DecryptByte());

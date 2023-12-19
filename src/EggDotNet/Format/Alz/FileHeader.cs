@@ -18,7 +18,7 @@ namespace EggDotNet.Format.Alz
 
 		public CompressionMethod CompressionMethod { get; private set; } = CompressionMethod.Store;
 
-		public string? Name { get; private set; }
+		public string Name { get; private set; }
 
 		public long StartPosition { get; private set; }
 

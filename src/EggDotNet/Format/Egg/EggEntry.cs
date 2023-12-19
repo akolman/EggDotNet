@@ -9,7 +9,7 @@ namespace EggDotNet.Format.Egg
 	internal sealed class EggEntry
 	{
 		public int Id { get; private set; }
-		public string? Name { get; private set; }
+		public string Name { get; private set; }
 		public long Position { get; private set; }
 
 		public long UncompressedSize { get; private set; }
@@ -20,11 +20,11 @@ namespace EggDotNet.Format.Egg
 
 		//public DateTime? LastModifiedTime { get; private set; }
 
-		public WinFileInfo? WinFileInfo { get; private set; }
+		public WinFileInfo WinFileInfo { get; private set; }
 
-		public EncryptHeader? EncryptHeader { get; private set; }
+		public EncryptHeader EncryptHeader { get; private set; }
 
-		public string? Comment { get; private set; }
+		public string Comment { get; private set; }
 
 		public uint Crc { get; private set; }
 

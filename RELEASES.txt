@@ -27,4 +27,8 @@ Fixes and added features
 +Added Windows file attributes to EggArchive.ExternalAttributes.
 +Fixed issue caused by data-less entries (e.g. empty directories).
 +Added SOLID header warning.  Extraction likely to fail.
+=======================================================================
+0.0.6-beta (2023-12-19)
++Modified to use correct compiler for netstandard version.  This removes nullability in exposed members for netstandard2.0.  Nullability remains for netstandard 2.1.
++Removed custom Eggception base Exception class.
 

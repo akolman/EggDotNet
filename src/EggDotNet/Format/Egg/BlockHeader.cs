@@ -1,4 +1,4 @@
-﻿using EggDotNet.Exception;
+﻿using EggDotNet.Exceptions;
 using EggDotNet.Extensions;
 using System;
 using System.IO;
@@ -34,22 +34,22 @@ namespace EggDotNet.Format.Egg
 		{
 			if (!stream.ReadShort(out short compressionMethod))
 			{
-				throw new BadDataEggception("Failed to read block compression method");
+				throw new InvalidDataException("Failed to read block compression method");
 			}
 
 			if (!stream.ReadInt(out int uncompSize))
 			{
-				throw new BadDataEggception("Failed to read block uncompressed size");
+				throw new InvalidDataException("Failed to read block uncompressed size");
 			}
 
 			if (!stream.ReadInt(out int compSize))
 			{
-				throw new BadDataEggception("Failed to read block compressed size");
+				throw new InvalidDataException("Failed to read block compressed size");
 			}
 
 			if (!stream.ReadUInt(out uint crc))
 			{
-				throw new BadDataEggception("Failed to read block checksum");
+				throw new InvalidDataException("Failed to read block checksum");
 			}
 
 			if (!stream.ReadInt(out int endHeader) && endHeader != BLOCK_HEADER_END_MAGIC)

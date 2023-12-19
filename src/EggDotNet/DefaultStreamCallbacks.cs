@@ -1,5 +1,4 @@
-﻿using EggDotNet.Exception;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -24,7 +23,7 @@ namespace EggDotNet
 				return sts;
 			}
 
-			throw new Eggception("DefaultFileStream can only be used with FileStream", new InvalidOperationException());
+			throw new InvalidOperationException("DefaultFileStream can only be used with FileStream");
 		};
 
 		public static Func<string> DefaultPasswordCallback = () =>
@@ -39,7 +38,7 @@ namespace EggDotNet
 			return password;
 		};
 
-		public static Func<Stream, IEnumerable<Stream>>? GetStreamCallback(Stream st)
+		public static Func<Stream, IEnumerable<Stream>> GetStreamCallback(Stream st)
 		{
 			if (st is FileStream)
 			{
