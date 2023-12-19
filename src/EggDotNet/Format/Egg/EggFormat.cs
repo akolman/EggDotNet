@@ -164,6 +164,10 @@ namespace EggDotNet.Format.Egg
 				{
 					s = new ZipStreamDecryptionProvider(eggEntry.EncryptHeader.Param1, eggEntry.EncryptHeader.Param2, pw);
 				}
+				else if (eggEntry.EncryptHeader!.EncryptionMethod == EncryptionMethod.LEA128 || eggEntry.EncryptHeader!.EncryptionMethod == EncryptionMethod.LEA256)
+				{
+					s = new LeaStreamDecryptionProvider(256, eggEntry.EncryptHeader.Param1, eggEntry.EncryptHeader.Param2, pw); 
+				}
 				else if (eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.AES128 
 					|| eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.AES256)
 				{

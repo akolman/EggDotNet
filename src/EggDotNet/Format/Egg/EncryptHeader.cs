@@ -59,9 +59,11 @@ namespace EggDotNet.Format.Egg
 				stream.ReadN(4, out byte[] pwData);
 				return new EncryptHeader(encMethod, size, standardHeader, pwData);
 			}
-			else if (encMethod == EncryptionMethod.LEA128 || encMethod == EncryptionMethod.LEA256)
+			else if (encMethod == EncryptionMethod.LEA256)
 			{
-				throw new UnsupportedEncryptionException("LEA");
+				stream.ReadN(18, out byte[] aesHeader);
+				stream.ReadN(10, out byte[] aesFooter);
+				return new EncryptHeader(encMethod, size, aesHeader, aesFooter);
 			}
 			else
 			{
