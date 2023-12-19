@@ -30,7 +30,7 @@ namespace EggDotNet.Format
 		/// </summary>
 		/// <param name="entry"></param>
 		/// <returns></returns>
-		public Stream GetStreamForEntry(EggArchiveEntry entry);
+		Stream GetStreamForEntry(EggArchiveEntry entry);
 
 
 	}

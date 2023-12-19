@@ -2,8 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
-	  <LangVersion>9.0</LangVersion>
-	  <Nullable>enable</Nullable>
 	  <Version>0.0.5</Version>
 	  <Authors>Andrew Kolman</Authors>
 	  <RepositoryUrl>https://github.com/akolman/EggDotNet</RepositoryUrl>
@@ -23,6 +21,7 @@
 	  <PackageTags>egg, compression, alz</PackageTags>
   </PropertyGroup>
 
+	
   <ItemGroup>
     <None Include="..\..\eggdotnet.png">
       <Pack>True</Pack>

@@ -8,8 +8,8 @@ namespace EggDotNet.Format.Alz
 {
 	internal sealed class AlzFormat : IEggFileFormat
 	{
-		private List<AlzVolume>? _volumes;
-		private List<AlzEntry>? _entriesCache;
+		private List<AlzVolume> _volumes;
+		private List<AlzEntry> _entriesCache;
 		private bool disposedValue;
 
 		public Stream GetStreamForEntry(EggArchiveEntry entry)
@@ -18,9 +18,15 @@ namespace EggDotNet.Format.Alz
 			Stream subSt = new SubStream(st, entry.PositionInStream, entry.PositionInStream + entry.CompressedLength);
 			var eggEntry = _entriesCache.Single(e => e.Id == entry.Id);
 
-			IStreamCompressionProvider? streamProvider = (eggEntry.CompressionMethod == CompressionMethod.Deflate) ?
-				 new DeflateCompressionProvider()
-				 : new StoreCompressionProvider();
+			IStreamCompressionProvider streamProvider;
+			if (eggEntry.CompressionMethod == CompressionMethod.Deflate)
+			{
+				streamProvider = new DeflateCompressionProvider();
+			}
+			else
+			{
+				streamProvider = new StoreCompressionProvider();
+			}
 
             return streamProvider.GetDecompressStream(subSt);
 		}
@@ -41,28 +47,29 @@ namespace EggDotNet.Format.Alz
 
 		public List<EggArchiveEntry> Scan(EggArchive archive)
 		{
-			using var st = PrepareStream();
-
-			_entriesCache = AlzEntry.ParseEntries(st);
-
-			var ret = new List<EggArchiveEntry>();
-			foreach (var entry in _entriesCache)
+			using (var st = PrepareStream())
 			{
-				ret.Add(new EggArchiveEntry(this, archive)
+				_entriesCache = AlzEntry.ParseEntries(st);
+
+				var ret = new List<EggArchiveEntry>();
+				foreach (var entry in _entriesCache)
 				{
-					FullName = entry.Name,
-					PositionInStream = entry.Position,
-					CompressedLength = entry.CompressedSize,
-					UncompressedLength = entry.UncompressedSize,
-					//LastWriteTime = entry.LastModifiedTime,
-					//Comment = entry.Comment,
-					//IsEncrypted = entry.EncryptHeader != null,
-					Archive = archive,
-					Id = entry.Id,
-					//Crc32 = entry.Crc
-				});
+					ret.Add(new EggArchiveEntry(this, archive)
+					{
+						FullName = entry.Name,
+						PositionInStream = entry.Position,
+						CompressedLength = entry.CompressedSize,
+						UncompressedLength = entry.UncompressedSize,
+						//LastWriteTime = entry.LastModifiedTime,
+						//Comment = entry.Comment,
+						//IsEncrypted = entry.EncryptHeader != null,
+						Archive = archive,
+						Id = entry.Id,
+						//Crc32 = entry.Crc
+					});
+				}
+				return ret;
 			}
-			return ret;
 		}
 
 		private void Dispose(bool disposing)

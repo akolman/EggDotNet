@@ -7,7 +7,7 @@ namespace EggDotNet.Format.Alz
 	internal sealed class AlzEntry
 	{
 		public int Id { get; private set; }
-		public string? Name { get; private set; }
+		public string Name { get; private set; }
 		public long Position { get; private set; }
 
 		public long UncompressedSize { get; private set; }

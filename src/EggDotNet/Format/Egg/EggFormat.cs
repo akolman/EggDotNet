@@ -13,13 +13,13 @@ namespace EggDotNet.Format.Egg
 #pragma warning disable CA1852
 	internal class EggFormat : IEggFileFormat
 	{
-		private readonly Func<Stream, IEnumerable<Stream>>? _streamCallback;
-		private readonly Func<string>? _pwCallback;
-		private readonly List<EggVolume> _volumes = new(8);
-		private List<EggEntry>? _entriesCache;
+		private readonly Func<Stream, IEnumerable<Stream>> _streamCallback;
+		private readonly Func<string> _pwCallback;
+		private readonly List<EggVolume> _volumes = new List<EggVolume>(8);
+		private List<EggEntry> _entriesCache;
 		private bool disposedValue;
 
-		internal EggFormat(Func<Stream, IEnumerable<Stream>>? streamCallback, Func<string>? pwCallback)
+		internal EggFormat(Func<Stream, IEnumerable<Stream>> streamCallback, Func<string> pwCallback)
 		{
 			_streamCallback = streamCallback;
 			_pwCallback = pwCallback;
@@ -38,31 +38,33 @@ namespace EggDotNet.Format.Egg
 
 		public List<EggArchiveEntry> Scan(EggArchive archive)
 		{
-			using var st = PrepareStream();
-
-			_entriesCache = EggEntry.ParseEntries(st, archive);
-
-			var ret = new List<EggArchiveEntry>();
-			foreach (var entry in _entriesCache)
+			using (var st = PrepareStream())
 			{
-				ret.Add(new EggArchiveEntry(this, archive)
+				_entriesCache = EggEntry.ParseEntries(st, archive);
+
+				var ret = new List<EggArchiveEntry>();
+				foreach (var entry in _entriesCache)
 				{
-					FullName = entry.Name,
-					PositionInStream = entry.Position,
-					CompressedLength = entry.CompressedSize,
-					UncompressedLength = entry.UncompressedSize,
-					LastWriteTime = GetLastWriteTime(entry),
-					Comment = entry.Comment,
-					IsEncrypted = entry.EncryptHeader != null,
-					Archive = archive,
-					Id = entry.Id,
-					Crc32 = entry.Crc,
-					ExternalAttributes = GetExternalAttributes(entry)
-				});
+					ret.Add(new EggArchiveEntry(this, archive)
+					{
+						FullName = entry.Name,
+						PositionInStream = entry.Position,
+						CompressedLength = entry.CompressedSize,
+						UncompressedLength = entry.UncompressedSize,
+						LastWriteTime = GetLastWriteTime(entry),
+						Comment = entry.Comment,
+						IsEncrypted = entry.EncryptHeader != null,
+						Archive = archive,
+						Id = entry.Id,
+						Crc32 = entry.Crc,
+						ExternalAttributes = GetExternalAttributes(entry)
+					});
+				}
+				return ret;
 			}
-			return ret;
 		}
 
+#if NETSTANDARD2_1_OR_GREATER
 		private static DateTime? GetLastWriteTime(EggEntry eggEntry)
 		{
 			if (eggEntry.WinFileInfo != null)
@@ -72,7 +74,17 @@ namespace EggDotNet.Format.Egg
 
 			return null;
 		}
+#else
+		private static DateTime GetLastWriteTime(EggEntry eggEntry)
+		{
+			if (eggEntry.WinFileInfo != null)
+			{
+				return eggEntry.WinFileInfo.LastModified;
+			}
 
+			return DateTime.MinValue;
+		}
+#endif
 		private static long GetExternalAttributes(EggEntry entry)
 		{
 			if (entry.WinFileInfo != null)
@@ -103,7 +115,7 @@ namespace EggDotNet.Format.Egg
 				if (extVolume.Header.HeaderId != initialVolume.Header.HeaderId
 					&& !_volumes.Any(v => v.Header.HeaderId == extVolume.Header.HeaderId))
 				{
-					_volumes!.Add(extVolume);
+					_volumes.Add(extVolume);
 				}
 			}
 		}
@@ -125,11 +137,11 @@ namespace EggDotNet.Format.Egg
 		private CollectiveStream PrepareSplitStream()
 		{
 			var subStreams = new List<SubStream>(_volumes.Count);
-			var curVol = _volumes.Single(v => v.Header.SplitHeader!.PreviousFileId == 0);
+			var curVol = _volumes.Single(v => v.Header.SplitHeader.PreviousFileId == 0);
 			var curSt = curVol.GetStream();
 			subStreams.Add(new SubStream(curSt, curVol.Header.HeaderEndPosition));
 
-			while (curVol.Header.SplitHeader!.NextFileId != 0)
+			while (curVol.Header.SplitHeader.NextFileId != 0)
 			{
 				curVol = _volumes.Single(v => v.Header.HeaderId == curVol.Header.SplitHeader.NextFileId);
 				curSt = curVol.GetStream();
@@ -160,8 +172,8 @@ namespace EggDotNet.Format.Egg
 			while (true)
 			{
 				var pw = pwCb.Invoke();
-				IStreamDecryptionProvider? s;
-				if (eggEntry.EncryptHeader!.EncryptionMethod == EncryptionMethod.Standard)
+				IStreamDecryptionProvider s;
+				if (eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.Standard)
 				{
 					s = new ZipStreamDecryptionProvider(eggEntry.EncryptHeader.Param1, eggEntry.EncryptHeader.Param2, pw);
 				}
@@ -185,16 +197,28 @@ namespace EggDotNet.Format.Egg
 
 		private static Stream GetDecompressionStream(Stream stream, EggEntry entry)
 		{
-			IStreamCompressionProvider? compressor;
-			compressor = entry.CompressionMethod switch
+			IStreamCompressionProvider compressor;
+			switch (entry.CompressionMethod)
 			{
-				CompressionMethod.Store => new StoreCompressionProvider(),
-				CompressionMethod.Deflate => new DeflateCompressionProvider(),
-				CompressionMethod.Bzip2 => new BZip2CompressionProvider(),
-				CompressionMethod.Azo => throw new NotImplementedException("AZO not implemented"),
-				CompressionMethod.Lzma => new LzmaCompressionProvider(entry.CompressedSize, entry.UncompressedSize),
-				_ => throw new UnknownCompressionEggception(),
-			};
+				case CompressionMethod.Store:
+					compressor = new DeflateCompressionProvider();
+					break;
+				case CompressionMethod.Deflate:
+					compressor = new DeflateCompressionProvider();
+					break;
+				case CompressionMethod.Bzip2:
+					compressor = new BZip2CompressionProvider();
+					break;
+				case CompressionMethod.Lzma:
+					compressor = new LzmaCompressionProvider(entry.CompressedSize, entry.UncompressedSize);
+					break;
+				case CompressionMethod.Azo:
+					throw new NotImplementedException("AZO not implemented");
+				default:
+					throw new UnknownCompressionEggception();
+
+			}
+
 			return compressor.GetDecompressStream(stream);
 		}
 

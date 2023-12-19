@@ -23,13 +23,13 @@ namespace EggDotNet.Format.Egg
 
 		public int Reserved { get; private set; }
 
-		public SplitHeader? SplitHeader { get; private set; }
+		public SplitHeader SplitHeader { get; private set; }
 
-		public SolidHeader? SolidHeader { get; private set; }
+		public SolidHeader SolidHeader { get; private set; }
 
 		public long HeaderEndPosition { get; private set; }
 
-		private Header(short version, int headerId, int reserved, long headerEnd, SplitHeader? splitHeader, SolidHeader? solidHeader)
+		private Header(short version, int headerId, int reserved, long headerEnd, SplitHeader splitHeader, SolidHeader solidHeader)
 		{
 			Version = version;
 			HeaderId = headerId;
@@ -58,8 +58,8 @@ namespace EggDotNet.Format.Egg
 				throw new BadDataEggception("Failed reading from header");
 			}
 
-			SplitHeader? splitHeader = null;
-			SolidHeader? solidHeader = null;
+			SplitHeader splitHeader = null;
+			SolidHeader solidHeader = null;
 			while (stream.ReadInt(out int nextHeaderOrEnd) && nextHeaderOrEnd != EGG_HEADER_END_MAGIC)
 			{
 				if (nextHeaderOrEnd == SplitHeader.SPLIT_HEADER_MAGIC)

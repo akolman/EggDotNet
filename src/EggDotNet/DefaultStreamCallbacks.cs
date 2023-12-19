@@ -39,7 +39,7 @@ namespace EggDotNet
 			return password;
 		};
 
-		public static Func<Stream, IEnumerable<Stream>>? GetStreamCallback(Stream st)
+		public static Func<Stream, IEnumerable<Stream>> GetStreamCallback(Stream st)
 		{
 			if (st is FileStream)
 			{
