@@ -67,6 +67,11 @@ namespace EggDotNet
 		public long UncompressedLength { get; internal set; }
 
 		/// <summary>
+		/// Gets the compression method used to compress this entry.
+		/// </summary>
+		public CompressionMethod CompressionMethod { get; internal set; }
+
+		/// <summary>
 		/// Gets the last write time of the file.
 		/// </summary>
 #if NETSTANDARD2_1_OR_GREATER
