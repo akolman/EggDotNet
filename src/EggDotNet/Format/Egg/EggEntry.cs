@@ -28,12 +28,30 @@ namespace EggDotNet.Format.Egg
 
 		public uint Crc { get; private set; }
 
+		public EggArchiveEntry ToArchiveEntry(EggFormat format, EggArchive archive)
+		{
+			return new EggArchiveEntry(format, archive)
+			{
+				Archive = archive,
+				Comment = Comment,
+				CompressedLength = CompressedSize,
+				CompressionMethod = CompressionMethod,
+				Crc32 = Crc,
+				ExternalAttributes = GetExternalAttributes(),
+				FullName = Name,
+				Id = Id,
+				IsEncrypted = EncryptHeader != null,
+				LastWriteTime = GetLastWriteTime(),
+				PositionInStream = Position,
+				UncompressedLength = UncompressedSize
+			};
+		}
 
 		public static List<EggEntry> ParseEntries(Stream stream, EggArchive archive)
 		{
 			var entries = new List<EggEntry>();
 
-			while(true)
+			while (true)
 			{
 				var entry = new EggEntry();
 
@@ -45,11 +63,45 @@ namespace EggDotNet.Format.Egg
 				{
 					BuildBlocks(entry, stream);
 				}
-				
+
 				entries.Add(entry);
 			}
 
 			return entries;
+		}
+
+#if NETSTANDARD2_1_OR_GREATER
+		private DateTime? GetLastWriteTime()
+		{
+			if (WinFileInfo != null)
+			{
+				return WinFileInfo.LastModified;
+			}
+
+			return null;
+		}
+#else
+		private DateTime GetLastWriteTime()
+		{
+			if (WinFileInfo != null)
+			{
+				return WinFileInfo.LastModified;
+			}
+
+			return DateTime.MinValue;
+		}
+#endif
+
+		private long GetExternalAttributes()
+		{
+			if (WinFileInfo != null)
+			{
+				return WinFileInfo.WindowsFileAttributes;
+			}
+			else
+			{
+				return 0;
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -115,6 +167,5 @@ namespace EggDotNet.Format.Egg
 				}
 			}
 		}
-
 	}
 }
