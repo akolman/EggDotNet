@@ -60,7 +60,6 @@ namespace EggDotNet.Tests
 			{ "lorem_ipsum.zip", new TestFileInfo(1_242_971, "32AE3E83", "F7E4474594F6B6C8EB4A38A86C5391761AC8C8B8F8CFE2D35101A1B43B467BCC") }
 		};
 
-
 		private SHA256 sha;
 		private bool disposedValue;
 
