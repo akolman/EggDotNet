@@ -81,8 +81,10 @@ namespace EggDotNet.Tests
 			while (true)
 			{
 				var readCount = stream.Read(buf, 0, buf.Length);
-				if (readCount == 0) break;
 				read += readCount;
+				if (readCount == 0) 
+					break;
+				
 			}
 			return read;
 		}
@@ -112,6 +114,7 @@ namespace EggDotNet.Tests
 		public void Test_Default_File_Default_Options()
 		{
 			using var archive = OpenTestEgg("defaults.egg");
+
 			foreach (var entry in archive.Entries) 
 			{
 				ValidateEggEntry(entry.FullName, archive);
