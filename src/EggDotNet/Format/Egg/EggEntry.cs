@@ -70,39 +70,6 @@ namespace EggDotNet.Format.Egg
 			return entries;
 		}
 
-#if NETSTANDARD2_1_OR_GREATER
-		private DateTime? GetLastWriteTime()
-		{
-			if (WinFileInfo != null)
-			{
-				return WinFileInfo.LastModified;
-			}
-
-			return null;
-		}
-#else
-		private DateTime GetLastWriteTime()
-		{
-			if (WinFileInfo != null)
-			{
-				return WinFileInfo.LastModified;
-			}
-
-			return DateTime.MinValue;
-		}
-#endif
-
-		private long GetExternalAttributes()
-		{
-			if (WinFileInfo != null)
-			{
-				return WinFileInfo.WindowsFileAttributes;
-			}
-			else
-			{
-				return 0;
-			}
-		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static void BuildHeaders(EggEntry entry, EggArchive archive, Stream stream)
@@ -111,7 +78,7 @@ namespace EggDotNet.Format.Egg
 			var insideFileheader = false;
 			while (!foundEnd && stream.ReadInt(out int nextHeader))
 			{
-				switch(nextHeader)
+				switch (nextHeader)
 				{
 					case FileHeader.FILE_HEADER_MAGIC:
 						var fileHeader = FileHeader.Parse(stream);
@@ -165,6 +132,40 @@ namespace EggDotNet.Format.Egg
 					stream.Seek(entry.CompressedSize, SeekOrigin.Current);
 					break;
 				}
+			}
+		}
+
+#if NETSTANDARD2_1_OR_GREATER
+		private DateTime? GetLastWriteTime()
+		{
+			if (WinFileInfo != null)
+			{
+				return WinFileInfo.LastModified;
+			}
+
+			return null;
+		}
+#else
+		private DateTime GetLastWriteTime()
+		{
+			if (WinFileInfo != null)
+			{
+				return WinFileInfo.LastModified;
+			}
+
+			return DateTime.MinValue;
+		}
+#endif
+
+		private long GetExternalAttributes()
+		{
+			if (WinFileInfo != null)
+			{
+				return WinFileInfo.WindowsFileAttributes;
+			}
+			else
+			{
+				return 0;
 			}
 		}
 	}
