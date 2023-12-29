@@ -60,7 +60,6 @@ namespace EggDotNet.Format.Alz
 						PositionInStream = entry.Position,
 						CompressedLength = entry.CompressedSize,
 						UncompressedLength = entry.UncompressedSize,
-						CompressionMethod = entry.CompressionMethod,
 						//LastWriteTime = entry.LastModifiedTime,
 						//Comment = entry.Comment,
 						//IsEncrypted = entry.EncryptHeader != null,
