@@ -50,6 +50,7 @@ namespace EggDotNet.Format.Egg
 						PositionInStream = entry.Position,
 						CompressedLength = entry.CompressedSize,
 						UncompressedLength = entry.UncompressedSize,
+						CompressionMethod = entry.CompressionMethod,
 						LastWriteTime = GetLastWriteTime(entry),
 						Comment = entry.Comment,
 						IsEncrypted = entry.EncryptHeader != null,

@@ -110,17 +110,38 @@ namespace EggDotNet.Tests
 			Assert.Equal<byte>(fileInfo.Sha256, GetDataSha(entry));
 		}
 
-		[Fact]
-		public void Test_Default_File_Default_Options()
+		private void ValidateAllEggEntries(EggArchive archive)
 		{
-			using var archive = OpenTestEgg("defaults.egg");
-
-			foreach (var entry in archive.Entries) 
+			foreach (var entry in archive.Entries)
 			{
 				ValidateEggEntry(entry.FullName, archive);
 			}
 		}
 
+		[Fact]
+		[Description("Tests handling of a smple which includes all basic test files, using default EGG options in ALZip (Priority on compressing speed).")]
+		public void Test_Default_File_Default_Options()
+		{
+			using var archive = OpenTestEgg("defaults.egg");
+			Assert.Equal("Sample which includes all basic test files, using default EGG options in ALZip (Priority on compressing speed).", archive.Comment);
+			Assert.Equal(6, archive.Entries.Count);
+			Assert.True(archive.Entries)
+			ValidateAllEggEntries(archive);
+		}
+
+		[Fact]
+		public void Test_Default_File_Priority_Compress_Ratio()
+		{
+			using var archive = OpenTestEgg("default_lzma_pri_compress_ratio.egg");
+			Assert.Equal("Sample which includes all basic test files, with Priority on Compress Ratio.", archive.Comment);
+			Assert.Equal(6, archive.Entries.Count);
+			ValidateAllEggEntries(archive);
+		}
+
+		public void Test_Defaults_Optimized()
+		{
+			using var archive = OpenTestEgg("defaults_bz_optimized.egg");
+		}
 
 		[Fact]
 		[Description("Validates an archive with 3 files, all in folders, compressed using deflate compression")]
