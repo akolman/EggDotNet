@@ -1,6 +1,5 @@
 using System.ComponentModel;
 using System.Security.Cryptography;
-using System.Text;
 using EggDotNet.Exceptions;
 
 namespace EggDotNet.Tests
@@ -49,7 +48,7 @@ namespace EggDotNet.Tests
 
 	public class UnitTest1 : IDisposable
 	{
-		private SHA256 sha;
+		private static string TEST_FILES_DIR = "../../../test_files/";
 
 		public static readonly Dictionary<string, TestFileInfo> TestFileInfos = new Dictionary<string, TestFileInfo>()
 		{
@@ -61,61 +60,13 @@ namespace EggDotNet.Tests
 			{ "lorem_ipsum.zip", new TestFileInfo(1_242_971, "32AE3E83", "F7E4474594F6B6C8EB4A38A86C5391761AC8C8B8F8CFE2D35101A1B43B467BCC") }
 		};
 
+
+		private SHA256 sha;
+		private bool disposedValue;
+
 		public UnitTest1()
 		{
 			sha = SHA256.Create();
-		}
-
-
-
-		private static string TEST_FILES_DIR = "../../../test_files2/";
-		private bool disposedValue;
-
-		private static byte[] CrcToBytes(uint crc) => BitConverter.GetBytes(crc);
-
-		private static long GetDataSize(EggArchiveEntry entry)
-		{
-			using var stream = entry.Open();
-			var read = 0;
-			var buf = new byte[4096];
-			while (true)
-			{
-				var readCount = stream.Read(buf, 0, buf.Length);
-				read += readCount;
-				if (readCount == 0) 
-					break;
-				
-			}
-			return read;
-		}
-
-		private byte[] GetDataSha(EggArchiveEntry entry)
-		{
-			using var entryStream = entry.Open();
-			return sha.ComputeHash(entryStream);
-		}
-
-		private static EggArchive OpenTestEgg(string eggName) => EggFile.Open(Path.Combine(TEST_FILES_DIR, eggName));
-
-		private void ValidateEggEntry(string entryName, EggArchive archive)
-		{
-			var entry = archive.GetEntry(entryName);
-			var fileInfo = TestFileInfos[entryName];
-		
-			
-			Assert.Equal(fileInfo.UncompressedSize, entry.UncompressedLength);
-			Assert.Equal(fileInfo.UncompressedSize, GetDataSize(entry));
-			Assert.Equal<byte>(fileInfo.Crc32, CrcToBytes(entry.Crc32));
-			Assert.True(entry.ChecksumValid());
-			Assert.Equal<byte>(fileInfo.Sha256, GetDataSha(entry));
-		}
-
-		private void ValidateAllEggEntries(EggArchive archive)
-		{
-			foreach (var entry in archive.Entries)
-			{
-				ValidateEggEntry(entry.FullName, archive);
-			}
 		}
 
 		[Fact]
@@ -125,7 +76,8 @@ namespace EggDotNet.Tests
 			using var archive = OpenTestEgg("defaults.egg");
 			Assert.Equal("Sample which includes all basic test files, using default EGG options in ALZip (Priority on compressing speed).", archive.Comment);
 			Assert.Equal(6, archive.Entries.Count);
-			Assert.True(archive.Entries)
+			Assert.Contains<CompressionMethod>(CompressionMethod.Store, archive.Entries.Select(e => e.CompressionMethod));
+			Assert.Contains<CompressionMethod>(CompressionMethod.Deflate, archive.Entries.Select(e => e.CompressionMethod));
 			ValidateAllEggEntries(archive);
 		}
 
@@ -135,12 +87,70 @@ namespace EggDotNet.Tests
 			using var archive = OpenTestEgg("default_lzma_pri_compress_ratio.egg");
 			Assert.Equal("Sample which includes all basic test files, with Priority on Compress Ratio.", archive.Comment);
 			Assert.Equal(6, archive.Entries.Count);
+			Assert.Contains<CompressionMethod>(CompressionMethod.Lzma, archive.Entries.Select(e => e.CompressionMethod));
 			ValidateAllEggEntries(archive);
 		}
 
+		[Fact]
 		public void Test_Defaults_Optimized()
 		{
 			using var archive = OpenTestEgg("defaults_bz_optimized.egg");
+			Assert.Equal("Sample which includes all basic test files, with Optimized for Compression.", archive.Comment);
+			Assert.Equal(6, archive.Entries.Count);
+			Assert.Contains<CompressionMethod>(CompressionMethod.Bzip2, archive.Entries.Select(e => e.CompressionMethod));
+			ValidateAllEggEntries(archive);
+		}
+
+		[Fact]
+		public void Test_Normal()
+		{
+			using var archive = OpenTestEgg("defaults_normal.egg");
+			Assert.Equal("Sample which includes all basic test files, with Normal setting selected.", archive.Comment);
+			Assert.Equal(6, archive.Entries.Count);
+			ValidateAllEggEntries(archive);
+		}
+
+		[Fact]
+		public void Test_Store()
+		{
+			using var archive = OpenTestEgg("defaults_nocompress.egg");
+			var compMethod = archive.Entries.Select(e => e.CompressionMethod).Distinct().Single();
+			Assert.Equal(CompressionMethod.Store, compMethod);
+			ValidateAllEggEntries(archive);
+		}
+
+		[Fact]
+		public void Test_Aes128()
+		{
+			using var fs = new FileStream(GetTestPath("lorem_long_aes128.egg"), FileMode.Open, FileAccess.Read);
+			using var archive = new EggArchive(fs, false, null, () => "password12345!");
+			Assert.Equal("Lorem long text encrypted with AES128", archive.Comment);
+			ValidateAllEggEntries(archive);
+			var aes256Entry = archive.GetEntry("lorem_ipsum_long.txt");
+			Assert.Equal("This file is encrypted using AES128", aes256Entry.Comment);
+			using var entryStream = aes256Entry.Open();
+			using var sr = new StreamReader(entryStream);
+			var loremLongText = sr.ReadToEnd();
+			Assert.Equal(15_238, loremLongText.Length);
+			Assert.StartsWith("Lorem ipsum dolor sit amet", loremLongText);
+			Assert.EndsWith("sed faucibus orci ligula eu nisi.", loremLongText);
+		}
+
+		[Fact]
+		public void Test_Aes256()
+		{
+			using var fs = new FileStream(GetTestPath("lorem_long_aes256.egg"), FileMode.Open, FileAccess.Read);
+			using var archive = new EggArchive(fs, false, null, () => "password12345!");
+			Assert.Equal("Lorem long text encrypted with AES256", archive.Comment);
+			ValidateAllEggEntries(archive);
+			var aes256Entry = archive.GetEntry("lorem_ipsum_long.txt");
+			Assert.Equal("This file is encrypted using AES256", aes256Entry.Comment);
+			using var entryStream = aes256Entry.Open();
+			using var sr = new StreamReader(entryStream);
+			var loremLongText = sr.ReadToEnd();
+			Assert.Equal(15_238, loremLongText.Length);
+			Assert.StartsWith("Lorem ipsum dolor sit amet", loremLongText);
+			Assert.EndsWith("sed faucibus orci ligula eu nisi.", loremLongText);			
 		}
 
 		[Fact]
@@ -180,38 +190,6 @@ namespace EggDotNet.Tests
 		}
 
 		[Fact]
-		public void Test_Basic_Deflate_Aes128()
-		{
-			using var fs = new FileStream("../../../test_files/test128.egg", FileMode.Open, FileAccess.Read);
-			using var archive = new EggArchive(fs, false, null, () => "password12345!");
-			var onlyEntry = archive.Entries.Single();
-			Assert.Equal("test.txt", onlyEntry.Name);
-
-			using var onlyEntryStream = onlyEntry.Open();
-			using var sReader = new StreamReader(onlyEntryStream);
-			var text = sReader.ReadToEnd();
-
-			Assert.Equal("Hello there my name is Andrew.", text);
-
-			Assert.True(onlyEntry.ChecksumValid());
-		}
-
-		[Fact]
-		public void Test_Basic_Deflate_Aes256()
-		{
-			using var fs = new FileStream("../../../test_files/test256.egg", FileMode.Open, FileAccess.Read);
-			using var archive = new EggArchive(fs, false, null, () => "password12345!");
-			var onlyEntry = archive.Entries.Single();
-			Assert.Equal("test.txt", onlyEntry.Name);
-
-			using var onlyEntryStream = onlyEntry.Open();
-			using var sReader = new StreamReader(onlyEntryStream);
-			var text = sReader.ReadToEnd();
-
-			Assert.Equal("Hello there my name is Andrew.", text);
-		}
-
-		[Fact]
 		public void Test_Large()
 		{
 			using var archive = EggFile.Open("../../../test_files/zeros.egg");
@@ -230,6 +208,54 @@ namespace EggDotNet.Tests
 			{
 				using var archive = new EggArchive(inputStream);
 			});
+		}
+
+		private static byte[] CrcToBytes(uint crc) => BitConverter.GetBytes(crc);
+
+		private static long GetDataSize(EggArchiveEntry entry)
+		{
+			using var stream = entry.Open();
+			var read = 0;
+			var buf = new byte[4096];
+			while (true)
+			{
+				var readCount = stream.Read(buf, 0, buf.Length);
+				read += readCount;
+				if (readCount == 0)
+					break;
+
+			}
+			return read;
+		}
+
+		private byte[] GetDataSha(EggArchiveEntry entry)
+		{
+			using var entryStream = entry.Open();
+			return sha.ComputeHash(entryStream);
+		}
+
+		private static string GetTestPath(string eggName) => Path.Combine(TEST_FILES_DIR, eggName);
+
+		private static EggArchive OpenTestEgg(string eggName) => EggFile.Open(GetTestPath(eggName));
+
+		private void ValidateEggEntry(string entryName, EggArchive archive)
+		{
+			var entry = archive.GetEntry(entryName);
+			var fileInfo = TestFileInfos[entryName];
+
+			Assert.Equal(fileInfo.UncompressedSize, entry.UncompressedLength);
+			Assert.Equal(fileInfo.UncompressedSize, GetDataSize(entry));
+			Assert.Equal<byte>(fileInfo.Crc32, CrcToBytes(entry.Crc32));
+			Assert.True(entry.ChecksumValid());
+			Assert.Equal<byte>(fileInfo.Sha256, GetDataSha(entry));
+		}
+
+		private void ValidateAllEggEntries(EggArchive archive)
+		{
+			foreach (var entry in archive.Entries)
+			{
+				ValidateEggEntry(entry.FullName, archive);
+			}
 		}
 
 		protected virtual void Dispose(bool disposing)
