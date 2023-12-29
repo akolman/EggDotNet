@@ -200,7 +200,7 @@ namespace EggDotNet.Format.Egg
 			switch (entry.CompressionMethod)
 			{
 				case CompressionMethod.Store:
-					compressor = new DeflateCompressionProvider();
+					compressor = new StoreCompressionProvider();
 					break;
 				case CompressionMethod.Deflate:
 					compressor = new DeflateCompressionProvider();

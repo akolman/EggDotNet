@@ -1,10 +1,124 @@
 using System.ComponentModel;
+using System.Security.Cryptography;
+using System.Text;
 using EggDotNet.Exceptions;
 
 namespace EggDotNet.Tests
 {
-	public class UnitTest1
+	public class TestFileInfo
 	{
+		public long UncompressedSize { get; }
+
+		public byte[] Crc32 { get; }
+
+		public byte[] Sha256 { get; }
+
+		public TestFileInfo(long uncompressedSize, string crc32, string sha256)
+		{
+			Sha256 = StringToByteArray(sha256);
+			Crc32 = StringToByteArray(crc32);
+			UncompressedSize = uncompressedSize;
+		}
+
+		private static byte[] StringToByteArray(string hex)
+		{
+			if (hex.Length % 2 == 1)
+				throw new Exception("The binary key cannot have an odd number of digits");
+
+			byte[] arr = new byte[hex.Length >> 1];
+
+			for (int i = 0; i < hex.Length >> 1; ++i)
+			{
+				arr[i] = (byte)((GetHexVal(hex[i << 1]) << 4) + (GetHexVal(hex[(i << 1) + 1])));
+			}
+
+			return arr;
+		}
+
+		private static int GetHexVal(char hex)
+		{
+			int val = (int)hex;
+			//For uppercase A-F letters:
+			//return val - (val < 58 ? 48 : 55);
+			//For lowercase a-f letters:
+			//return val - (val < 58 ? 48 : 87);
+			//Or the two combined, but a bit slower:
+			return val - (val < 58 ? 48 : (val < 97 ? 55 : 87));
+		}
+	}
+
+	public class UnitTest1 : IDisposable
+	{
+		private SHA256 sha;
+
+		public static readonly Dictionary<string, TestFileInfo> TestFileInfos = new Dictionary<string, TestFileInfo>()
+		{
+			{ "lorem_ipsum_short.txt" , new TestFileInfo(525, "3AAE00F7", "ACFE59AFCFFCBE68A4DEE454D11F5BF78DFDEE32C77A03C1A50CF384418FE38F") },
+			{ "lorem_ipsum_long.pdf" , new TestFileInfo(66_431, "798BEF9F", "4B3E49290B2399C2AB63886B0585B819AE7C6D9FA947F1B3DB53BD9DA62A2B10")},
+			{ "lorem_ipsum_long.tif", new TestFileInfo(1_195_080 , "90D70968", "162D8B99FD7E695BD3E8C790493C93B649A76996F4E129C818A366614977EC67") },
+			{ "lorem_ipsum_medium.txt", new TestFileInfo(3_950, "AE4BAE1D", "5DEA92AB15A3A73AF46B0AFBF793C109B576E35C62CE9DB703E7F4088F2E8A07" ) },
+			{ "lorem_ipsum_long.txt", new TestFileInfo(15_238, "EE3EDF61", "D63CFF6C64AB12F1C08A298F7B3A0C27F19A9822D2C6C7156D676D62265DB46E" ) },
+			{ "lorem_ipsum.zip", new TestFileInfo(1_242_971, "32AE3E83", "F7E4474594F6B6C8EB4A38A86C5391761AC8C8B8F8CFE2D35101A1B43B467BCC") }
+		};
+
+		public UnitTest1()
+		{
+			sha = SHA256.Create();
+		}
+
+
+
+		private static string TEST_FILES_DIR = "../../../test_files2/";
+		private bool disposedValue;
+
+		private static byte[] CrcToBytes(uint crc) => BitConverter.GetBytes(crc);
+
+		private static long GetDataSize(EggArchiveEntry entry)
+		{
+			using var stream = entry.Open();
+			var read = 0;
+			var buf = new byte[4096];
+			while (true)
+			{
+				var readCount = stream.Read(buf, 0, buf.Length);
+				if (readCount == 0) break;
+				read += readCount;
+			}
+			return read;
+		}
+
+		private byte[] GetDataSha(EggArchiveEntry entry)
+		{
+			using var entryStream = entry.Open();
+			return sha.ComputeHash(entryStream);
+		}
+
+		private static EggArchive OpenTestEgg(string eggName) => EggFile.Open(Path.Combine(TEST_FILES_DIR, eggName));
+
+		private void ValidateEggEntry(string entryName, EggArchive archive)
+		{
+			var entry = archive.GetEntry(entryName);
+			var fileInfo = TestFileInfos[entryName];
+		
+			
+			Assert.Equal(fileInfo.UncompressedSize, entry.UncompressedLength);
+			Assert.Equal(fileInfo.UncompressedSize, GetDataSize(entry));
+			Assert.Equal<byte>(fileInfo.Crc32, CrcToBytes(entry.Crc32));
+			Assert.True(entry.ChecksumValid());
+			Assert.Equal<byte>(fileInfo.Sha256, GetDataSha(entry));
+		}
+
+		[Fact]
+		public void Test_Default_File_Default_Options()
+		{
+			using var archive = OpenTestEgg("defaults.egg");
+			foreach (var entry in archive.Entries) 
+			{
+				ValidateEggEntry(entry.FullName, archive);
+			}
+		}
+
+
 		[Fact]
 		[Description("Validates an archive with 3 files, all in folders, compressed using deflate compression")]
 		public void Test_Basic_Defalte_With_Folders()
@@ -92,6 +206,33 @@ namespace EggDotNet.Tests
 			{
 				using var archive = new EggArchive(inputStream);
 			});
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposedValue)
+			{
+				if (disposing)
+				{
+					sha.Dispose();
+				}
+
+				disposedValue = true;
+			}
+		}
+
+		// // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+		// ~UnitTest1()
+		// {
+		//     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+		//     Dispose(disposing: false);
+		// }
+
+		public void Dispose()
+		{
+			// Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+			Dispose(disposing: true);
+			GC.SuppressFinalize(this);
 		}
 	}
 }
