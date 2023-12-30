@@ -54,20 +54,7 @@ namespace EggDotNet.Format.Alz
 				var ret = new List<EggArchiveEntry>();
 				foreach (var entry in _entriesCache)
 				{
-					ret.Add(new EggArchiveEntry(this, archive)
-					{
-						FullName = entry.Name,
-						PositionInStream = entry.Position,
-						CompressedLength = entry.CompressedSize,
-						UncompressedLength = entry.UncompressedSize,
-						CompressionMethod = entry.CompressionMethod,
-						//LastWriteTime = entry.LastModifiedTime,
-						//Comment = entry.Comment,
-						//IsEncrypted = entry.EncryptHeader != null,
-						Archive = archive,
-						Id = entry.Id,
-						//Crc32 = entry.Crc
-					});
+					ret.Add(entry.ToArchiveEntry(this, archive));
 				}
 				return ret;
 			}

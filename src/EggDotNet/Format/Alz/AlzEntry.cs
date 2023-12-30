@@ -1,4 +1,5 @@
 ﻿using EggDotNet.Extensions;
+using EggDotNet.Format.Egg;
 using System.Collections.Generic;
 using System.IO;
 
@@ -14,7 +15,29 @@ namespace EggDotNet.Format.Alz
 
 		public long CompressedSize { get; private set; }
 
+		public uint Crc32 { get; private set; }
+
 		public CompressionMethod CompressionMethod { get; private set; }
+
+		public EggArchiveEntry ToArchiveEntry(AlzFormat format, EggArchive archive)
+		{
+			return new EggArchiveEntry(format, archive)
+			{
+				FullName = Name,
+				PositionInStream = Position,
+				CompressedLength = CompressedSize,
+				UncompressedLength = UncompressedSize,
+				CompressionMethod = CompressionMethod,
+				Comment = null,
+				
+				//LastWriteTime = entry.LastModifiedTime,
+				//Comment = entry.Comment,
+				//IsEncrypted = entry.EncryptHeader != null,
+				Archive = archive,
+				Id = Id,
+				Crc32 = Crc32
+			};
+		}
 
 		public static List<AlzEntry> ParseEntries(Stream stream)
 		{
@@ -27,11 +50,13 @@ namespace EggDotNet.Format.Alz
 				if (nextHeader == FileHeader.ALZ_FILE_HEADER_START_MAGIC)
 				{
 					var fileHeader = FileHeader.Parse(stream);
+					entry.Id = entries.Count;
 					entry.CompressedSize = fileHeader.CompressedSize;
 					entry.UncompressedSize = fileHeader.UncompressedSize;
 					entry.CompressionMethod = fileHeader.CompressionMethod;
 					entry.Name = fileHeader.Name;
 					entry.Position = fileHeader.StartPosition;
+					entry.Crc32 = fileHeader.Crc32;
 					entries.Add(entry);
 					stream.Seek(entry.CompressedSize, SeekOrigin.Current);
 				}
