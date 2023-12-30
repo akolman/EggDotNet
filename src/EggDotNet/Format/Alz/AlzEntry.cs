@@ -1,5 +1,4 @@
 ﻿using EggDotNet.Extensions;
-using EggDotNet.Format.Egg;
 using System.Collections.Generic;
 using System.IO;
 
@@ -29,10 +28,6 @@ namespace EggDotNet.Format.Alz
 				UncompressedLength = UncompressedSize,
 				CompressionMethod = CompressionMethod,
 				Comment = null,
-				
-				//LastWriteTime = entry.LastModifiedTime,
-				//Comment = entry.Comment,
-				//IsEncrypted = entry.EncryptHeader != null,
 				Archive = archive,
 				Id = Id,
 				Crc32 = Crc32
@@ -64,10 +59,7 @@ namespace EggDotNet.Format.Alz
 				{
 					break;
 				}
-
-				
 			}
-
 			return entries;
 		}
 	}

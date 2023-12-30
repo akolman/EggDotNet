@@ -1,8 +1,7 @@
 ﻿using EggDotNet.Extensions;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
+using System.Runtime.CompilerServices;
 
 namespace EggDotNet.Format.Alz
 {
@@ -29,6 +28,7 @@ namespace EggDotNet.Format.Alz
 
 		}
 
+		/*
 		private FileHeader(CompressionMethod compressionMethod, long compressedSize, long uncompressedSize, uint crc32, string name, long startPos)
 		{
 			CompressionMethod = compressionMethod;
@@ -37,8 +37,9 @@ namespace EggDotNet.Format.Alz
 			Crc32 = crc32;
 			Name = name;
 			StartPosition = startPos;
-		}
+		}*/
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FileHeader Parse(Stream stream)
 		{
 			var header = new FileHeader();
@@ -50,7 +51,6 @@ namespace EggDotNet.Format.Alz
 
 			if (bitFlags != 0)
 			{
-#pragma warning disable IDE0059
 				stream.ReadShort(out short compMethodVal);
 				header.CompressionMethod = compMethodVal == 2 ? CompressionMethod.Deflate : CompressionMethod.Store;
 				stream.ReadUInt(out uint crc);
@@ -70,23 +70,29 @@ namespace EggDotNet.Format.Alz
 			return header;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static short GetReadFileSize(short bitflags)
 		{
 			var a = (bitflags & 0xF0) >> 4;
 			return (short)a;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static long ReadSize(short size, byte[] buf)
 		{
-			if (size == 2)
+			switch (size)
 			{
-				return BitConverter.ToInt16(buf, 0);
-			}
-			else if (size == 4)
-			{
-				return BitConverter.ToInt32(buf, 0);
-			}
-			throw new NotImplementedException();
+				case 1:
+					return buf[0];
+				case 2:
+					return BitConverter.ToInt16(buf, 0);
+				case 4:
+					return BitConverter.ToInt32(buf, 0);
+				case 8:
+					return BitConverter.ToInt64(buf, 0);
+				default:
+					throw new InvalidDataException($"Invalid file size descriptor ({size})");
+			};
 		}
 	}
 }
