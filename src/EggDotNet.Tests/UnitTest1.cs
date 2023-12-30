@@ -153,6 +153,13 @@ namespace EggDotNet.Tests
 		}
 
 		[Fact]
+		public void Test_Alz_Defaults()
+		{
+			using var archive = OpenTestEgg("defaults.alz");
+			ValidateAllEggEntries(archive);
+		}
+
+		[Fact]
 		[Description("Validates an archive with 3 files, all in folders, compressed using deflate compression")]
 		public void Test_Basic_Defalte_With_Folders()
 		{
