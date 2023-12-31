@@ -48,9 +48,9 @@ namespace EggDotNet.Tests
 
 	public class UnitTest1 : IDisposable
 	{
-		private static string TEST_FILES_DIR = "../../../test_files/";
+		private static readonly string TEST_FILES_DIR = "../../../test_files/";
 
-		public static readonly Dictionary<string, TestFileInfo> TestFileInfos = new Dictionary<string, TestFileInfo>()
+		public static readonly Dictionary<string, TestFileInfo> TestFileInfos = new()
 		{
 			{ "lorem_ipsum_short.txt" , new TestFileInfo(525, "3AAE00F7", "ACFE59AFCFFCBE68A4DEE454D11F5BF78DFDEE32C77A03C1A50CF384418FE38F") },
 			{ "lorem_ipsum_long.pdf" , new TestFileInfo(66_431, "798BEF9F", "4B3E49290B2399C2AB63886B0585B819AE7C6D9FA947F1B3DB53BD9DA62A2B10")},
@@ -60,7 +60,7 @@ namespace EggDotNet.Tests
 			{ "lorem_ipsum.zip", new TestFileInfo(1_242_971, "32AE3E83", "F7E4474594F6B6C8EB4A38A86C5391761AC8C8B8F8CFE2D35101A1B43B467BCC") }
 		};
 
-		private SHA256 sha;
+		private readonly SHA256 sha;
 		private bool disposedValue;
 
 		public UnitTest1()
@@ -126,7 +126,7 @@ namespace EggDotNet.Tests
 			Assert.Equal("Lorem long text encrypted with AES128", archive.Comment);
 			ValidateAllEggEntries(archive);
 			var aes256Entry = archive.GetEntry("lorem_ipsum_long.txt");
-			Assert.Equal("This file is encrypted using AES128", aes256Entry.Comment);
+			Assert.Equal("This file is encrypted using AES128", aes256Entry!.Comment);
 			using var entryStream = aes256Entry.Open();
 			using var sr = new StreamReader(entryStream);
 			var loremLongText = sr.ReadToEnd();
@@ -143,7 +143,7 @@ namespace EggDotNet.Tests
 			Assert.Equal("Lorem long text encrypted with AES256", archive.Comment);
 			ValidateAllEggEntries(archive);
 			var aes256Entry = archive.GetEntry("lorem_ipsum_long.txt");
-			Assert.Equal("This file is encrypted using AES256", aes256Entry.Comment);
+			Assert.Equal("This file is encrypted using AES256", aes256Entry!.Comment);
 			using var entryStream = aes256Entry.Open();
 			using var sr = new StreamReader(entryStream);
 			var loremLongText = sr.ReadToEnd();
@@ -249,7 +249,7 @@ namespace EggDotNet.Tests
 			var entry = archive.GetEntry(entryName);
 			var fileInfo = TestFileInfos[entryName];
 
-			Assert.Equal(fileInfo.UncompressedSize, entry.UncompressedLength);
+			Assert.Equal(fileInfo.UncompressedSize, entry!.UncompressedLength);
 			Assert.Equal(fileInfo.UncompressedSize, GetDataSize(entry));
 			Assert.Equal<byte>(fileInfo.Crc32, CrcToBytes(entry.Crc32));
 			Assert.True(entry.ChecksumValid());
@@ -260,7 +260,7 @@ namespace EggDotNet.Tests
 		{
 			foreach (var entry in archive.Entries)
 			{
-				ValidateEggEntry(entry.FullName, archive);
+				ValidateEggEntry(entry.FullName!, archive);
 			}
 		}
 
