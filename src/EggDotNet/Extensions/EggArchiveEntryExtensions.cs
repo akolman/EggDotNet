@@ -35,7 +35,27 @@ namespace EggDotNet.Extensions
 						File.SetLastWriteTime(path, entry.LastWriteTime);
 					}
 #endif
+					if (entry.ExternalAttributes !=  (long)WindowsFileAttributes.None)
+					{
+						SetWindowsFileAttributes(path, (WindowsFileAttributes)entry.ExternalAttributes);
+					}
 				}
+			}
+		}
+
+		private static void SetWindowsFileAttributes(string path, WindowsFileAttributes fileAttributes)
+		{
+			if (fileAttributes.HasFlag(WindowsFileAttributes.ReadOnly))
+			{
+				File.SetAttributes(path, FileAttributes.ReadOnly);
+			}
+			if (fileAttributes.HasFlag(WindowsFileAttributes.Hidden))
+			{
+				File.SetAttributes(path, FileAttributes.Hidden);
+			}
+			if (fileAttributes.HasFlag(WindowsFileAttributes.SystemFile))
+			{
+				File.SetAttributes(path, FileAttributes.System);
 			}
 		}
 	}
