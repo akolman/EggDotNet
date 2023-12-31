@@ -85,7 +85,9 @@ namespace EggDotNet
 		/// <summary>
 		/// Gets the external attributes for the entry.
 		/// </summary>
-		/// <remarks>See <see cref="WindowsFileAttributes"/>.</remarks>
+		/// <remarks>See <see cref="WindowsFileAttributes"/>.
+		/// For entries which contain Windows file attributes, the value will be the lowest 4 bytes of the total long value.
+		/// </remarks>
 		public long ExternalAttributes => entry.ExternalAttributes;
 
 		/// <summary>
