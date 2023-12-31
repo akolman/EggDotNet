@@ -5,11 +5,9 @@ VisualStudioVersion = 17.8.34212.112
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EggDotNet", "src\EggDotNet\EggDotNet.csproj", "{3DCBC628-51E8-439D-AC53-1CE7E8803B4F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EggDotNet.Workbench", "src\EggDotNet.Workbench\EggDotNet.Workbench.csproj", "{52B0826A-54D0-4E0E-98EF-2FCD08C3D3A8}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EggDotNet.Tests", "src\EggDotNet.Tests\EggDotNet.Tests.csproj", "{F77890FF-4670-41EF-AF20-003C58BB08A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EggDotNet.Benchmarks", "src\EggDotNet.Benchmarks\EggDotNet.Benchmarks.csproj", "{1CE2A183-8A21-4A69-A8A1-317A6EDF9864}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EggDotNet.Benchmarks", "src\EggDotNet.Benchmarks\EggDotNet.Benchmarks.csproj", "{1CE2A183-8A21-4A69-A8A1-317A6EDF9864}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,10 +19,6 @@ Global
 		{3DCBC628-51E8-439D-AC53-1CE7E8803B4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3DCBC628-51E8-439D-AC53-1CE7E8803B4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3DCBC628-51E8-439D-AC53-1CE7E8803B4F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{52B0826A-54D0-4E0E-98EF-2FCD08C3D3A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{52B0826A-54D0-4E0E-98EF-2FCD08C3D3A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{52B0826A-54D0-4E0E-98EF-2FCD08C3D3A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{52B0826A-54D0-4E0E-98EF-2FCD08C3D3A8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F77890FF-4670-41EF-AF20-003C58BB08A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F77890FF-4670-41EF-AF20-003C58BB08A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F77890FF-4670-41EF-AF20-003C58BB08A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
