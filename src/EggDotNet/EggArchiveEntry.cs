@@ -19,11 +19,10 @@ namespace EggDotNet
 		internal readonly IEggFileEntry entry;
 		internal long PositionInStream => entry.Position;
 		
-
 		/// <summary>
 		/// Gets the parent <see cref="EggArchive"/> for this entry.
 		/// </summary>
-		public EggArchive Archive { get; internal set; }
+		public EggArchive Archive { get; private set; }
 
 		/// <summary>
 		/// Gets the ID of the egg entry.
@@ -96,7 +95,7 @@ namespace EggDotNet
 #if NETSTANDARD2_1_OR_GREATER
 		public string? Comment => entry.Comment;
 #else
-		public string Comment => entry.Comment;
+		public string Comment => entry.Comment ?? string.Empty;
 #endif
 
 		internal EggArchiveEntry(IEggFileEntry entry, EggArchive archive)
@@ -129,6 +128,16 @@ namespace EggDotNet
 					return crc.Crc == Crc32;
 				}
 			}
+		}
+
+		/// <inheritdoc/>
+		public override string ToString()
+		{
+			if (string.IsNullOrWhiteSpace(entry.Name)) 
+			{
+				return $"{nameof(EggArchiveEntry)} {entry.Id}";
+			}
+			return $"{nameof(EggArchiveEntry)} {entry.Id} - {entry.Name}";
 		}
 	}
 }
