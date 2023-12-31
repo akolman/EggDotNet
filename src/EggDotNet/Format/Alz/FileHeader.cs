@@ -23,6 +23,8 @@ namespace EggDotNet.Format.Alz
 
 		public long StartPosition { get; private set; }
 
+		public DateTime LastWriteTime { get; private set; }
+
 		private FileHeader()
 		{
 
@@ -45,7 +47,13 @@ namespace EggDotNet.Format.Alz
 			var header = new FileHeader();
 
 			stream.ReadShort(out short filenameLen);
-			stream.Seek(5, SeekOrigin.Current);
+			stream.ReadByte(out byte attributes);
+			stream.ReadUInt(out uint moddate);
+
+			header.LastWriteTime = Utilities.FromAlzTime(moddate);
+			//header.La = Utilities.FromAlzTime(moddate);
+			
+			//stream.Seek(5, SeekOrigin.Current);
 
 			stream.ReadShort(out short bitFlags);
 

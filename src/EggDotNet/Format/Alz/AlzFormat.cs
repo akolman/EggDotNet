@@ -16,7 +16,7 @@ namespace EggDotNet.Format.Alz
 		{
 			var st = PrepareStream();
 			Stream subSt = new SubStream(st, entry.PositionInStream, entry.PositionInStream + entry.CompressedLength);
-			var eggEntry = _entriesCache.Single(e => e.Id == entry.Id);
+			var eggEntry = (AlzEntry)entry.entry;
 
 			IStreamCompressionProvider streamProvider;
 			if (eggEntry.CompressionMethod == CompressionMethod.Deflate)
@@ -40,9 +40,7 @@ namespace EggDotNet.Format.Alz
 #pragma warning disable CA1859
 		private Stream PrepareStream()
 		{
-			var st = new FakeDisposingStream(_volumes.Single().GetStream());
-
-			return st;
+			return new FakeDisposingStream(_volumes.Single().GetStream());
 		}
 
 		public List<EggArchiveEntry> Scan(EggArchive archive)
@@ -54,7 +52,7 @@ namespace EggDotNet.Format.Alz
 				var ret = new List<EggArchiveEntry>();
 				foreach (var entry in _entriesCache)
 				{
-					ret.Add(entry.ToArchiveEntry(this, archive));
+					ret.Add(new EggArchiveEntry(entry, archive));
 				}
 				return ret;
 			}
@@ -78,8 +76,6 @@ namespace EggDotNet.Format.Alz
 				disposedValue = true;
 			}
 		}
-
-
 
 		public void Dispose()
 		{

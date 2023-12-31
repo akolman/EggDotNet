@@ -44,7 +44,7 @@ namespace EggDotNet.Format.Egg
 				var ret = new List<EggArchiveEntry>(_entriesCache.Count);
 				foreach (var entry in _entriesCache)
 				{
-					ret.Add(entry.ToArchiveEntry(this, archive));
+					ret.Add(new EggArchiveEntry(entry, archive));
 				}
 				return ret;
 			}
@@ -54,8 +54,7 @@ namespace EggDotNet.Format.Egg
 		{
 			var st = PrepareStream();
 			Stream subSt = new SubStream(st, entry.PositionInStream, entry.PositionInStream + entry.CompressedLength);
-			var eggEntry = _entriesCache.Single(e => e.Id == entry.Id);
-
+			var eggEntry = (EggEntry)entry.entry;
 			if (eggEntry.EncryptHeader != null)
 			{
 				subSt = GetDecryptionStream(subSt, eggEntry);

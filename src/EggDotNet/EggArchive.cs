@@ -19,7 +19,8 @@ namespace EggDotNet
 		private bool disposedValue;
 
 		private readonly List<EggArchiveEntry> _entries;
-		private readonly IEggFileFormat format;
+		
+		internal readonly IEggFileFormat format;
 
 		/// <summary>
 		/// Gets the archive-level comment text.

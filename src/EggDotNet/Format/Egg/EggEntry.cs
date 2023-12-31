@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 
 namespace EggDotNet.Format.Egg
 {
-	internal sealed class EggEntry
+	internal sealed class EggEntry : IEggFileEntry
 	{
 		public int Id { get; private set; }
 		public string Name { get; private set; }
@@ -26,26 +26,17 @@ namespace EggDotNet.Format.Egg
 
 		public string Comment { get; private set; }
 
-		public uint Crc { get; private set; }
+		public uint Crc32 { get; private set; }
 
-		public EggArchiveEntry ToArchiveEntry(EggFormat format, EggArchive archive)
-		{
-			return new EggArchiveEntry(format, archive)
-			{
-				Archive = archive,
-				Comment = Comment,
-				CompressedLength = CompressedSize,
-				CompressionMethod = CompressionMethod,
-				Crc32 = Crc,
-				ExternalAttributes = GetExternalAttributes(),
-				FullName = Name,
-				Id = Id,
-				IsEncrypted = EncryptHeader != null,
-				LastWriteTime = GetLastWriteTime(),
-				PositionInStream = Position,
-				UncompressedLength = UncompressedSize
-			};
-		}
+		public bool IsEncrypted => EncryptHeader != null;
+
+		public long ExternalAttributes => GetExternalAttributes();
+
+#if NETSTANDARD2_1_OR_GREATER
+		public DateTime? LastWriteTime => GetLastWriteTime();
+#else
+		public DateTime LastWriteTime => GetLastWriteTime();
+#endif
 
 		public static List<EggEntry> ParseEntries(Stream stream, EggArchive archive)
 		{
@@ -128,7 +119,7 @@ namespace EggDotNet.Format.Egg
 					entry.CompressedSize = blockHeader.CompressedSize;
 					//entry.UncompressedSize = blockHeader.UncompressedSize; //set by file header
 					entry.CompressionMethod = blockHeader.CompressionMethod;
-					entry.Crc = blockHeader.Crc32;
+					entry.Crc32 = blockHeader.Crc32;
 					stream.Seek(entry.CompressedSize, SeekOrigin.Current);
 					break;
 				}

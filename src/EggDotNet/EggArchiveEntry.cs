@@ -14,9 +14,11 @@ namespace EggDotNet
 	/// </summary>
 	public sealed class EggArchiveEntry
 	{
-		private readonly IEggFileFormat _format;
+		private IEggFileFormat _format => Archive.format;
 
-		internal long PositionInStream { get; set; }
+		internal readonly IEggFileEntry entry;
+		internal long PositionInStream => entry.Position;
+		
 
 		/// <summary>
 		/// Gets the parent <see cref="EggArchive"/> for this entry.
@@ -26,7 +28,7 @@ namespace EggDotNet
 		/// <summary>
 		/// Gets the ID of the egg entry.
 		/// </summary>
-		public int Id { get; internal set; }
+		public int Id => entry.Id;
 
 		/// <summary>
 		/// Gets the name of the egg entry, not including any directory.
@@ -41,64 +43,64 @@ namespace EggDotNet
 		/// Gets the name of the egg entry, including any directory.
 		/// </summary>
 #if NETSTANDARD2_1_OR_GREATER
-		public string? FullName { get; internal set; }
+		public string? FullName => entry.Name;
 #else
-		public string FullName { get; internal set; }
+		public string FullName => entry.Name;
 #endif
 
 		/// <summary>
 		/// Gets the Crc32 checksum for this entry.
 		/// </summary>
-		public uint Crc32 { get; internal set; }
+		public uint Crc32 => entry.Crc32;
 
 		/// <summary>
 		/// Gets a flag indicating whether the entry is encrypted.
 		/// </summary>
-		public bool IsEncrypted { get; internal set; }
+		public bool IsEncrypted => entry.IsEncrypted;
 
 		/// <summary>
 		/// Gets the compressed length of the file.
 		/// </summary>
-		public long CompressedLength { get; internal set; }
+		public long CompressedLength => entry.CompressedSize;
 
 		/// <summary>
 		/// Gets the uncompressed length of the file.
 		/// </summary>
-		public long UncompressedLength { get; internal set; }
+		public long UncompressedLength => entry.UncompressedSize;
 
 		/// <summary>
 		/// Gets the compression method used to compress this entry.
 		/// </summary>
-		public CompressionMethod CompressionMethod { get; internal set; }
+		public CompressionMethod CompressionMethod => entry.CompressionMethod;
 
 		/// <summary>
 		/// Gets the last write time of the file.
 		/// </summary>
 #if NETSTANDARD2_1_OR_GREATER
-		public DateTime? LastWriteTime { get; internal set; }
+		public DateTime? LastWriteTime => entry.LastWriteTime;
 #else
-		public DateTime LastWriteTime { get; internal set; }
+		public DateTime LastWriteTime => entry.LastWriteTime;
 #endif
 
 		/// <summary>
 		/// Gets the external attributes for the entry.
 		/// </summary>
 		/// <remarks>See <see cref="WindowsFileAttributes"/>.</remarks>
-		public long ExternalAttributes {  get; internal set; }
+		public long ExternalAttributes => entry.ExternalAttributes;
 
 		/// <summary>
 		/// Gets the comment of the file.
 		/// </summary>
 #if NETSTANDARD2_1_OR_GREATER
-		public string? Comment { get; internal set; }
+		public string? Comment => entry.Comment;
 #else
-		public string Comment { get; internal set; }
+		public string Comment => entry.Comment;
 #endif
 
-		internal EggArchiveEntry(IEggFileFormat format, EggArchive archive)
+		internal EggArchiveEntry(IEggFileEntry entry, EggArchive archive)
 		{
-			_format = format;
 			Archive = archive;
+			this.entry = entry;
 		}
 
 		/// <summary>
