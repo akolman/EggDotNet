@@ -31,4 +31,15 @@ Fixes and added features
 0.0.6-beta (2023-12-19)
 +Modified to use correct compiler for netstandard version.  This removes nullability in exposed members for netstandard2.0.  Nullability remains for netstandard 2.1.
 +Removed custom Eggception base Exception class.
-
+=======================================================================
+0.0.7-beta (2023-12-31)
++Added additional tests to EggDotNet.Tests.
++Fixed regression prevent decompression of store (uncompressed) entries.
++Fixed bug where additional data may be returned from decompression stream.
++Added EggArchiveEntry.CompressionMethod member.
++Fixed missing Alz property mappings and implemented CRC check for ALZ.
++Added windows file attribute setting for EggFile methods.
++Added documentation regarding ExternalAttributes.
++Added EggArchiveEntry.ToString() override.
++Added benchmark utility.
++Misc cleanup on code.
