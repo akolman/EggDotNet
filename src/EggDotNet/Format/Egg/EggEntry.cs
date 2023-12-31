@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 
 namespace EggDotNet.Format.Egg
 {
-	internal sealed class EggEntry
+	internal sealed class EggEntry : IEggFileEntry
 	{
 		public int Id { get; private set; }
 		public string Name { get; private set; }
@@ -26,14 +26,23 @@ namespace EggDotNet.Format.Egg
 
 		public string Comment { get; private set; }
 
-		public uint Crc { get; private set; }
+		public uint Crc32 { get; private set; }
 
+		public bool IsEncrypted => EncryptHeader != null;
+
+		public long ExternalAttributes => GetExternalAttributes();
+
+#if NETSTANDARD2_1_OR_GREATER
+		public DateTime? LastWriteTime => GetLastWriteTime();
+#else
+		public DateTime LastWriteTime => GetLastWriteTime();
+#endif
 
 		public static List<EggEntry> ParseEntries(Stream stream, EggArchive archive)
 		{
 			var entries = new List<EggEntry>();
 
-			while(true)
+			while (true)
 			{
 				var entry = new EggEntry();
 
@@ -45,12 +54,13 @@ namespace EggDotNet.Format.Egg
 				{
 					BuildBlocks(entry, stream);
 				}
-				
+
 				entries.Add(entry);
 			}
 
 			return entries;
 		}
+
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static void BuildHeaders(EggEntry entry, EggArchive archive, Stream stream)
@@ -59,7 +69,7 @@ namespace EggDotNet.Format.Egg
 			var insideFileheader = false;
 			while (!foundEnd && stream.ReadInt(out int nextHeader))
 			{
-				switch(nextHeader)
+				switch (nextHeader)
 				{
 					case FileHeader.FILE_HEADER_MAGIC:
 						var fileHeader = FileHeader.Parse(stream);
@@ -109,12 +119,45 @@ namespace EggDotNet.Format.Egg
 					entry.CompressedSize = blockHeader.CompressedSize;
 					//entry.UncompressedSize = blockHeader.UncompressedSize; //set by file header
 					entry.CompressionMethod = blockHeader.CompressionMethod;
-					entry.Crc = blockHeader.Crc32;
+					entry.Crc32 = blockHeader.Crc32;
 					stream.Seek(entry.CompressedSize, SeekOrigin.Current);
 					break;
 				}
 			}
 		}
 
+#if NETSTANDARD2_1_OR_GREATER
+		private DateTime? GetLastWriteTime()
+		{
+			if (WinFileInfo != null)
+			{
+				return WinFileInfo.LastModified;
+			}
+
+			return null;
+		}
+#else
+		private DateTime GetLastWriteTime()
+		{
+			if (WinFileInfo != null)
+			{
+				return WinFileInfo.LastModified;
+			}
+
+			return DateTime.MinValue;
+		}
+#endif
+
+		private long GetExternalAttributes()
+		{
+			if (WinFileInfo != null)
+			{
+				return WinFileInfo.WindowsFileAttributes;
+			}
+			else
+			{
+				return 0;
+			}
+		}
 	}
 }

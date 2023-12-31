@@ -6,3 +6,6 @@
 using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
+[assembly: SuppressMessage("Style", "IDE0074:Use compound assignment", Justification = "No netstandard2.0 support")]
+[assembly: SuppressMessage("Style", "IDE0063", Justification = "No netstandard2.0 support")]
+[assembly: SuppressMessage("Style", "IDE0066", Justification = "No netstandard2.0 support")]

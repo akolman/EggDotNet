@@ -41,59 +41,26 @@ namespace EggDotNet.Format.Egg
 			{
 				_entriesCache = EggEntry.ParseEntries(st, archive);
 
-				var ret = new List<EggArchiveEntry>();
+				var ret = new List<EggArchiveEntry>(_entriesCache.Count);
 				foreach (var entry in _entriesCache)
 				{
-					ret.Add(new EggArchiveEntry(this, archive)
-					{
-						FullName = entry.Name,
-						PositionInStream = entry.Position,
-						CompressedLength = entry.CompressedSize,
-						UncompressedLength = entry.UncompressedSize,
-						LastWriteTime = GetLastWriteTime(entry),
-						Comment = entry.Comment,
-						IsEncrypted = entry.EncryptHeader != null,
-						Archive = archive,
-						Id = entry.Id,
-						Crc32 = entry.Crc,
-						ExternalAttributes = GetExternalAttributes(entry)
-					});
+					ret.Add(new EggArchiveEntry(entry, archive));
 				}
 				return ret;
 			}
 		}
 
-#if NETSTANDARD2_1_OR_GREATER
-		private static DateTime? GetLastWriteTime(EggEntry eggEntry)
+		public Stream GetStreamForEntry(EggArchiveEntry entry)
 		{
-			if (eggEntry.WinFileInfo != null)
+			var st = PrepareStream();
+			Stream subSt = new SubStream(st, entry.PositionInStream, entry.PositionInStream + entry.CompressedLength);
+			var eggEntry = (EggEntry)entry.entry;
+			if (eggEntry.EncryptHeader != null)
 			{
-				return eggEntry.WinFileInfo.LastModified;
+				subSt = GetDecryptionStream(subSt, eggEntry);
 			}
 
-			return null;
-		}
-#else
-		private static DateTime GetLastWriteTime(EggEntry eggEntry)
-		{
-			if (eggEntry.WinFileInfo != null)
-			{
-				return eggEntry.WinFileInfo.LastModified;
-			}
-
-			return DateTime.MinValue;
-		}
-#endif
-		private static long GetExternalAttributes(EggEntry entry)
-		{
-			if (entry.WinFileInfo != null)
-			{
-				return (long)entry.WinFileInfo.WindowsFileAttributes;
-			}
-			else
-			{
-				return 0;
-			}
+			return GetDecompressionStream(subSt, eggEntry);
 		}
 
 		private void FetchAndParseSplitVolumes(Stream stream)
@@ -150,20 +117,6 @@ namespace EggDotNet.Format.Egg
 			return new CollectiveStream(subStreams);
 		}
 
-		public Stream GetStreamForEntry(EggArchiveEntry entry)
-		{
-			var st = PrepareStream();
-			Stream subSt = new SubStream(st, entry.PositionInStream, entry.PositionInStream + entry.CompressedLength);
-			var eggEntry = _entriesCache.Single(e => e.Id == entry.Id);
-
-			if (eggEntry.EncryptHeader != null)
-			{
-				subSt = GetDecryptionStream(subSt, eggEntry);
-			}
-
-			return GetDecompressionStream(subSt, eggEntry);
-		}
-
 		private Stream GetDecryptionStream(Stream subSt, EggEntry eggEntry)
 		{
 			var pwCb = _pwCallback ?? DefaultStreamCallbacks.GetPasswordCallback();
@@ -200,7 +153,7 @@ namespace EggDotNet.Format.Egg
 			switch (entry.CompressionMethod)
 			{
 				case CompressionMethod.Store:
-					compressor = new DeflateCompressionProvider();
+					compressor = new StoreCompressionProvider();
 					break;
 				case CompressionMethod.Deflate:
 					compressor = new DeflateCompressionProvider();

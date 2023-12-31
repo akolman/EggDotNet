@@ -19,8 +19,16 @@ namespace EggDotNet.Format.Alz
 
 		public static Header Parse(Stream stream)
 		{
-			stream.ReadShort(out short version);
-			stream.ReadShort(out short headerId);
+			if (!stream.ReadShort(out short version))
+			{
+				throw new InvalidDataException("Could not read Alz version");
+			}
+
+			if (!stream.ReadShort(out short headerId))
+			{
+				throw new InvalidDataException("Could not read Alz header Id");
+			}
+
 			return new Header(version, headerId);
 		}
 	}
