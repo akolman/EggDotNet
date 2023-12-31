@@ -48,6 +48,7 @@ namespace EggDotNet.Format.Alz
 
 			stream.ReadShort(out short filenameLen);
 			stream.ReadByte(out byte attributes);
+			_ = attributes; //TODO
 			stream.ReadUInt(out uint moddate);
 
 			header.LastWriteTime = Utilities.FromAlzTime(moddate);
