@@ -1,10 +1,11 @@
 ﻿using EggDotNet.Extensions;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
 namespace EggDotNet.Format.Alz
 {
-	internal sealed class AlzEntry
+	internal sealed class AlzEntry : IEggFileEntry
 	{
 		public int Id { get; private set; }
 		public string Name { get; private set; }
@@ -18,22 +19,20 @@ namespace EggDotNet.Format.Alz
 
 		public CompressionMethod CompressionMethod { get; private set; }
 
-		public EggArchiveEntry ToArchiveEntry(AlzFormat format, EggArchive archive)
-		{
-			return new EggArchiveEntry(format, archive)
-			{
-				FullName = Name,
-				PositionInStream = Position,
-				CompressedLength = CompressedSize,
-				UncompressedLength = UncompressedSize,
-				CompressionMethod = CompressionMethod,
-				Comment = null,
-				Archive = archive,
-				Id = Id,
-				Crc32 = Crc32
-			};
-		}
+		public bool IsEncrypted => false;
 
+		public long ExternalAttributes => 0;
+
+#if NETSTANDARD2_1_OR_GREATER
+#nullable enable
+		public DateTime? LastWriteTime { get; private set; }
+
+		public string? Comment => throw new NotImplementedException();
+#else
+		public DateTime LastWriteTime { get; private set; }
+
+		public string Comment => throw new NotImplementedException();
+#endif
 		public static List<AlzEntry> ParseEntries(Stream stream)
 		{
 			var entries = new List<AlzEntry>();
@@ -52,6 +51,7 @@ namespace EggDotNet.Format.Alz
 					entry.Name = fileHeader.Name;
 					entry.Position = fileHeader.StartPosition;
 					entry.Crc32 = fileHeader.Crc32;
+					entry.LastWriteTime = fileHeader.LastWriteTime;
 					entries.Add(entry);
 					stream.Seek(entry.CompressedSize, SeekOrigin.Current);
 				}
