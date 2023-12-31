@@ -1,6 +1,6 @@
+# EggDotNet ![pipeline badge](https://github.com/akolman/EggDotNet/actions/workflows/ci.yml/badge.svg)
 
-# EggDotNet
-## An unarchiving library for the Egg file format.
+## A decompression library for the Egg file format.
 Supports both ALZ and EGG formats, with limitations (see wiki) as well as encryption and split archives.
 
 **Not intended for production use at this time as functionality is incomplete and testing is currently limited.** Bugs and suggestions are welcome, however.
@@ -24,3 +24,6 @@ EggFile.ExtractToDirectory("archive.egg", "me/output");
 ```
 
 Pure C# and completely managed with no dependencies.  Compatible with netstandard2.0 and netstandard2.1.
+
+### Install using NuGet
+`Install-Package EggDotNet`
