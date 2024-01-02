@@ -10,9 +10,9 @@ namespace EggDotNet.Format.Egg
 	/// </summary>
 	internal sealed class Header
 	{
-		private static readonly short HEADER_SIZE_BYTES = 14;
+		private const short HEADER_SIZE_BYTES = 14;
 
-		public static readonly int EGG_HEADER_MAGIC = 0x41474745;
+		public const int EGG_HEADER_MAGIC = 0x41474745;
 
 		public const int EGG_HEADER_END_MAGIC = 0x08E28222;
 

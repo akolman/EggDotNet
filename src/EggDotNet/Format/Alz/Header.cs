@@ -5,7 +5,7 @@ namespace EggDotNet.Format.Alz
 {
 	internal sealed class Header
 	{
-		public static readonly int ALZ_HEADER_MAGIC = 0x015A4C41;
+		public const int ALZ_HEADER_MAGIC = 0x015A4C41;
 
 		public short Version { get; private set; }
 

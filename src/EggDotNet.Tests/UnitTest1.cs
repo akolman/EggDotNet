@@ -48,7 +48,7 @@ namespace EggDotNet.Tests
 
 	public class UnitTest1 : IDisposable
 	{
-		private static readonly string TEST_FILES_DIR = "../../../test_files/";
+		private const string TEST_FILES_DIR = "../../../test_files/";
 
 		public static readonly Dictionary<string, TestFileInfo> TestFileInfos = new()
 		{
