@@ -2,6 +2,7 @@
 using EggDotNet.Extensions;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace EggDotNet.Format.Egg
 {
@@ -32,31 +33,31 @@ namespace EggDotNet.Format.Egg
 
 		public static BlockHeader Parse(Stream stream)
 		{
-			if (!stream.ReadShort(out short compressionMethod))
+#if NETSTANDARD2_1_OR_GREATER
+			Span<byte> buffer = stackalloc byte[18];
+
+			if (stream.Read(buffer) < 18)
 			{
-				throw new InvalidDataException("Failed to read block compression method");
+				throw new InvalidDataException("Failed reading block");
 			}
 
-			if (!stream.ReadInt(out int uncompSize))
+			var compressionMethod = BitConverter.ToInt16(buffer.Slice(0, 2));
+			var uncompSize = BitConverter.ToInt32(buffer.Slice(2, 4));
+			var compSize = BitConverter.ToInt32((buffer.Slice(6, 4)));
+			var crc = BitConverter.ToUInt32((buffer.Slice(10, 4)));
+#else
+			var buffer = new byte[18];
+
+			if (stream.Read(buffer, 0, 18) < 18)
 			{
-				throw new InvalidDataException("Failed to read block uncompressed size");
+				throw new InvalidDataException("Failed reading block");
 			}
 
-			if (!stream.ReadInt(out int compSize))
-			{
-				throw new InvalidDataException("Failed to read block compressed size");
-			}
-
-			if (!stream.ReadUInt(out uint crc))
-			{
-				throw new InvalidDataException("Failed to read block checksum");
-			}
-
-			if (!stream.ReadInt(out int endHeader) && endHeader != BLOCK_HEADER_END_MAGIC)
-			{
-				Console.Error.WriteLine("Didn't find block end header");
-			}
-
+			var compressionMethod = BitConverter.ToInt16(buffer.Take(2).ToArray(), 0);
+			var uncompSize = BitConverter.ToInt32(buffer.Skip(2).Take(4).ToArray(), 0);
+			var compSize = BitConverter.ToInt32(buffer.Skip(6).Take(4).ToArray(), 0);
+			var crc = BitConverter.ToUInt32(buffer.Skip(10).Take(4).ToArray(), 0);
+#endif
 			return new BlockHeader((CompressionMethod)(compressionMethod & 0xFF), compSize, uncompSize, stream.Position, crc);
 		}
 	}

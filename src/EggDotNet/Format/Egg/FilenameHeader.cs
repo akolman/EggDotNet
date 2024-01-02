@@ -62,12 +62,23 @@ namespace EggDotNet.Format.Egg
 				}
 			}
 
-			if (!stream.ReadN(filenameSize, out byte[] filenameBuffer))
+#if NETSTANDARD2_1_OR_GREATER
+			Span<byte> filenameBytes = stackalloc byte[filenameSize];
+			if (stream.Read(filenameBytes) != filenameSize)
 			{
 				throw new InvalidDataException("Filename header corrupt");
 			}
 
-			return new FilenameHeader(nameEncoder.GetString(filenameBuffer));
+			return new FilenameHeader(nameEncoder.GetString(filenameBytes));
+#else
+			var filenameBytes = new byte[filenameSize];
+			if (stream.Read(filenameBytes, 0, filenameSize) != filenameSize)
+			{
+				throw new InvalidDataException("Filename header corrupt");
+			}
+
+			return new FilenameHeader(nameEncoder.GetString(filenameBytes));
+#endif
 		}
 	}
 }

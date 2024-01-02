@@ -7,17 +7,19 @@ namespace EggDotNet.Format.Alz
 {
 	internal sealed class AlzEntry : IEggFileEntry
 	{
+		public FileHeader FileHeader { get; private set; }
+
 		public int Id { get; private set; }
-		public string Name { get; private set; }
-		public long Position { get; private set; }
+		public string Name => FileHeader.Name;
+		public long Position => FileHeader.StartPosition;
 
-		public long UncompressedSize { get; private set; }
+		public long UncompressedSize => FileHeader.UncompressedSize;
 
-		public long CompressedSize { get; private set; }
+		public long CompressedSize => FileHeader.CompressedSize;
 
-		public uint Crc32 { get; private set; }
+		public uint Crc32 => FileHeader.Crc32;
 
-		public CompressionMethod CompressionMethod { get; private set; }
+		public CompressionMethod CompressionMethod => FileHeader.CompressionMethod;
 
 		public bool IsEncrypted => false;
 
@@ -25,13 +27,13 @@ namespace EggDotNet.Format.Alz
 
 #if NETSTANDARD2_1_OR_GREATER
 #nullable enable
-		public DateTime? LastWriteTime { get; private set; }
+		public DateTime? LastWriteTime => FileHeader.LastWriteTime;
 
-		public string? Comment => throw new NotImplementedException();
+		public string? Comment => string.Empty; //TODO
 #else
-		public DateTime LastWriteTime { get; private set; }
+		public DateTime LastWriteTime => FileHeader.LastWriteTime;
 
-		public string Comment => throw new NotImplementedException();
+		public string Comment => string.Empty; //TODO
 #endif
 		public static List<AlzEntry> ParseEntries(Stream stream)
 		{
@@ -43,22 +45,16 @@ namespace EggDotNet.Format.Alz
 
 				if (nextHeader == FileHeader.ALZ_FILE_HEADER_START_MAGIC)
 				{
-					var fileHeader = FileHeader.Parse(stream);
+					entry.FileHeader = FileHeader.Parse(stream);
 					entry.Id = entries.Count;
-					entry.CompressedSize = fileHeader.CompressedSize;
-					entry.UncompressedSize = fileHeader.UncompressedSize;
-					entry.CompressionMethod = fileHeader.CompressionMethod;
-					entry.Name = fileHeader.Name;
-					entry.Position = fileHeader.StartPosition;
-					entry.Crc32 = fileHeader.Crc32;
-					entry.LastWriteTime = fileHeader.LastWriteTime;
-					entries.Add(entry);
 					stream.Seek(entry.CompressedSize, SeekOrigin.Current);
 				}
 				else if (nextHeader == FileHeader.ALZ_FILE_HEADER_END_MAGIC)
 				{
 					break;
 				}
+
+				entries.Add(entry);
 			}
 			return entries;
 		}

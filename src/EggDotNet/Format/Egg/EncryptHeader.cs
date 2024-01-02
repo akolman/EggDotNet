@@ -1,5 +1,7 @@
 ﻿using EggDotNet.Extensions;
+using System;
 using System.IO;
+using System.Linq;
 
 namespace EggDotNet.Format.Egg
 {
@@ -31,39 +33,41 @@ namespace EggDotNet.Format.Egg
 
 			if (!stream.ReadShort(out short size))
 			{
-
+				Console.Error.WriteLine("Could not read encrypt header size");
+				return null;
 			}
 
-			if (!stream.ReadByte(out var encMethodVal))
+			var encDataBuffer = new byte[size];
+			if (stream.Read(encDataBuffer, 0, size) != size)
 			{
-
+				Console.Error.WriteLine("Could not read encryption header");
+				return null;
 			}
 
-			var encMethod = (EncryptionMethod)encMethodVal;
+			var encMethod = (EncryptionMethod)encDataBuffer[0];
+
 			if (encMethod == EncryptionMethod.AES128)
 			{
-				stream.ReadN(10, out byte[] aesHeader);
-				stream.ReadN(10, out byte[] aesFooter);
+				var aesHeader = encDataBuffer.Skip(1).Take(10).ToArray();
+				var aesFooter = encDataBuffer.Skip(11).Take(10).ToArray();
 				return new EncryptHeader(encMethod, size, aesHeader, aesFooter);
 			}
 			else if(encMethod == EncryptionMethod.AES256)
 			{
-				stream.ReadN(18, out byte[] aesHeader);
-				stream.ReadN(10, out byte[] aesFooter);
+				var aesHeader = encDataBuffer.Skip(1).Take(18).ToArray();
+				var aesFooter = encDataBuffer.Skip(19).Take(10).ToArray();
 				return new EncryptHeader(encMethod, size, aesHeader, aesFooter);
 			}
 			else if (encMethod == EncryptionMethod.Standard)
 			{
-				stream.ReadN(12, out byte[]  standardHeader);
-				stream.ReadN(4, out byte[] pwData);
+				var standardHeader = encDataBuffer.Skip(1).Take(12).ToArray();
+				var pwData = encDataBuffer.Skip(13).Take(4).ToArray();
 				return new EncryptHeader(encMethod, size, standardHeader, pwData);
 			}
 			else
 			{
 				throw new System.NotImplementedException("Not implemented");
 			}
-
 		}
-
 	}
 }

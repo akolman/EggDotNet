@@ -1,7 +1,5 @@
-﻿using EggDotNet.Exceptions;
-using EggDotNet.Extensions;
+﻿using EggDotNet.Extensions;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
