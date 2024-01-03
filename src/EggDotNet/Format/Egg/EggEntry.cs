@@ -10,7 +10,7 @@ using BitConverter = EggDotNet.Extensions.BitConverterWrapper;
 
 namespace EggDotNet.Format.Egg
 {
-	internal sealed class EggEntry : IEggFileEntry
+	internal sealed class EggEntry : EggFileEntryBase
 	{
 		public FileHeader FileHeader { get; private set; }
 		public FilenameHeader FilenameHeader { get; private set; }
@@ -21,33 +21,35 @@ namespace EggDotNet.Format.Egg
 
 		public BlockHeader BlockHeader { get; private set; }
 
-		public int Id => FileHeader.FileId;
+		public CommentHeader CommentHeader { get; private set; }
 
-		public string Name => FilenameHeader.FileNameFull;
+		public override int Id => FileHeader.FileId;
 
-		public long Position => BlockHeader.BlockDataPosition;
+		public override string Name => FilenameHeader.FileNameFull;
 
-		public long UncompressedSize => FileHeader.FileLength;
+		public override long Position => BlockHeader.BlockDataPosition;
 
-		public long CompressedSize => BlockHeader.CompressedSize;
+		public override long UncompressedSize => FileHeader.FileLength;
 
-		public CompressionMethod CompressionMethod => BlockHeader.CompressionMethod;
+		public override long CompressedSize => BlockHeader.CompressedSize;
 
-		public uint Crc32 => BlockHeader.Crc32;
+		public override CompressionMethod CompressionMethod => BlockHeader.CompressionMethod;
 
-		public bool IsEncrypted => EncryptHeader != null;
+		public override uint Crc32 => BlockHeader.Crc32;
 
-		public long ExternalAttributes => GetExternalAttributes();
+		public override bool IsEncrypted => EncryptHeader != null;
+
+		public override long ExternalAttributes => GetExternalAttributes();
 
 #if NETSTANDARD2_1_OR_GREATER
 #nullable enable
-		public DateTime? LastWriteTime => GetLastWriteTime();
+		public override DateTime? LastWriteTime => GetLastWriteTime();
 
-		public string? Comment { get; private set; }
+		public override string? Comment => CommentHeader.CommentText;
 #else
-		public DateTime LastWriteTime => GetLastWriteTime();
+		public override DateTime LastWriteTime => GetLastWriteTime();
 
-		public string Comment { get; private set; } = string.Empty;
+		public override string Comment => CommentHeader.CommentText;
 #endif
 
 		public static List<EggEntry> ParseEntries(Stream stream, EggArchive archive)
@@ -105,7 +107,7 @@ namespace EggDotNet.Format.Egg
 					case CommentHeader.COMMENT_HEADER_MAGIC:
 						var comment = CommentHeader.Parse(stream); //TODO: should we save CommentHeader like other members?
 						if (insideFileheader)
-							entry.Comment = comment.CommentText;
+							entry.CommentHeader = comment;
 						else
 							archive.Comment = comment.CommentText;
 						break;
