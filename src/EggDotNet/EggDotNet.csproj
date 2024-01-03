@@ -18,7 +18,7 @@
 	  <AnalysisLevel>latest-recommended</AnalysisLevel>
 	  <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
 	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
-	  <Deterministic>true</Deterministic>
+	  <Deterministic>True</Deterministic>
 	  <PackageTags>egg, compression, alz, deflate, lzma, bzip, alzip, altools</PackageTags>
   </PropertyGroup>
 
