@@ -6,13 +6,13 @@ using System.Linq;
 
 namespace EggDotNet.Format.Alz
 {
-	internal sealed class AlzFormat : IEggFileFormat
+	internal sealed class AlzFormat : EggFileFormatBase
 	{
 		private List<AlzVolume> _volumes;
 		private List<AlzEntry> _entriesCache;
 		private bool disposedValue;
 
-		public Stream GetStreamForEntry(EggArchiveEntry entry)
+		public override Stream GetStreamForEntry(EggArchiveEntry entry)
 		{
 			var st = PrepareStream();
 			Stream subSt = new SubStream(st, entry.PositionInStream, entry.PositionInStream + entry.CompressedLength);
@@ -31,7 +31,7 @@ namespace EggDotNet.Format.Alz
             return streamProvider.GetDecompressStream(subSt);
 		}
 
-		public void ParseHeaders(Stream stream, bool ownStream)
+		public override void ParseHeaders(Stream stream, bool ownStream)
 		{
 			var initialVolume = AlzVolume.Parse(stream, ownStream);
 			_volumes = new List<AlzVolume>() { initialVolume };
@@ -43,7 +43,7 @@ namespace EggDotNet.Format.Alz
 			return new EggStream(_volumes.Single().GetStream());
 		}
 
-		public List<EggArchiveEntry> Scan(EggArchive archive)
+		public override List<EggArchiveEntry> Scan(EggArchive archive)
 		{
 			using (var st = PrepareStream())
 			{
@@ -77,7 +77,7 @@ namespace EggDotNet.Format.Alz
 			}
 		}
 
-		public void Dispose()
+		public override void Dispose()
 		{
 			Dispose(disposing: true);
 			System.GC.SuppressFinalize(this);

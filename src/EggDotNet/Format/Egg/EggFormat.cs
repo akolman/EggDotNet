@@ -10,7 +10,7 @@ using System.Linq;
 namespace EggDotNet.Format.Egg
 {
 #pragma warning disable CA1852
-	internal class EggFormat : IEggFileFormat
+	internal class EggFormat : EggFileFormatBase
 	{
 		private readonly Func<Stream, IEnumerable<Stream>> _streamCallback;
 		private readonly Func<string> _pwCallback;
@@ -24,7 +24,7 @@ namespace EggDotNet.Format.Egg
 			_pwCallback = pwCallback;
 		}
 
-		public void ParseHeaders(Stream stream, bool ownStream)
+		public override void ParseHeaders(Stream stream, bool ownStream)
 		{
 			var initialVolume = EggVolume.Parse(stream, ownStream);
 			_volumes.Add(initialVolume);
@@ -35,7 +35,7 @@ namespace EggDotNet.Format.Egg
 			}
 		}
 
-		public List<EggArchiveEntry> Scan(EggArchive archive)
+		public override List<EggArchiveEntry> Scan(EggArchive archive)
 		{
 			using (var st = PrepareStream())
 			{
@@ -50,7 +50,7 @@ namespace EggDotNet.Format.Egg
 			}
 		}
 
-		public Stream GetStreamForEntry(EggArchiveEntry entry)
+		public override Stream GetStreamForEntry(EggArchiveEntry entry)
 		{
 			var st = PrepareStream();
 			Stream subSt = new SubStream(st, entry.PositionInStream, entry.PositionInStream + entry.CompressedLength);
@@ -190,7 +190,7 @@ namespace EggDotNet.Format.Egg
 			}
 		}
 
-		public void Dispose()
+		public override void Dispose()
 		{
 			// Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
 			Dispose(disposing: true);

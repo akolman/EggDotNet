@@ -9,35 +9,42 @@ using BitConverter = EggDotNet.Extensions.BitConverterWrapper;
 
 namespace EggDotNet.Format.Alz
 {
-	internal sealed class AlzEntry : IEggFileEntry
+	internal sealed class AlzEntry : EggFileEntryBase
 	{
-		public FileHeader FileHeader { get; private set; }
+		private readonly int _id;
+		private readonly FileHeader FileHeader;
 
-		public int Id { get; private set; }
-		public string Name => FileHeader.Name;
-		public long Position => FileHeader.StartPosition;
+		private AlzEntry(FileHeader header, int id)
+		{
+			_id = id;
+			FileHeader = header;
+		}
 
-		public long UncompressedSize => FileHeader.UncompressedSize;
+		public override int Id => _id;
+		public override string Name => FileHeader.Name;
+		public override long Position => FileHeader.StartPosition;
 
-		public long CompressedSize => FileHeader.CompressedSize;
+		public override long UncompressedSize => FileHeader.UncompressedSize;
 
-		public uint Crc32 => FileHeader.Crc32;
+		public override long CompressedSize => FileHeader.CompressedSize;
 
-		public CompressionMethod CompressionMethod => FileHeader.CompressionMethod;
+		public override uint Crc32 => FileHeader.Crc32;
 
-		public bool IsEncrypted => false;
+		public override CompressionMethod CompressionMethod => FileHeader.CompressionMethod;
 
-		public long ExternalAttributes => 0;
+		public override bool IsEncrypted => false;
+
+		public override long ExternalAttributes => 0;
 
 #if NETSTANDARD2_1_OR_GREATER
 #nullable enable
-		public DateTime? LastWriteTime => FileHeader.LastWriteTime;
+		public override DateTime? LastWriteTime => FileHeader.LastWriteTime;
 
-		public string? Comment => string.Empty; //TODO
+		public override string? Comment => string.Empty; //TODO
 #else
-		public DateTime LastWriteTime => FileHeader.LastWriteTime;
+		public override DateTime LastWriteTime => FileHeader.LastWriteTime;
 
-		public string Comment => string.Empty; //TODO
+		public override string Comment => string.Empty; //TODO
 #endif
 		public static List<AlzEntry> ParseEntries(Stream stream)
 		{
@@ -55,11 +62,7 @@ namespace EggDotNet.Format.Alz
 
 				if (nextHeader == FileHeader.ALZ_FILE_HEADER_START_MAGIC)
 				{
-					var entry = new AlzEntry
-					{
-						FileHeader = FileHeader.Parse(stream),
-						Id = entries.Count
-					};
+					var entry = new AlzEntry(FileHeader.Parse(stream), entries.Count);
 					stream.Seek(entry.CompressedSize, SeekOrigin.Current);
 					entries.Add(entry);
 				}

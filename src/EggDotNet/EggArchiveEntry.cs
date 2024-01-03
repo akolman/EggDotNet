@@ -14,9 +14,9 @@ namespace EggDotNet
 	/// </summary>
 	public sealed class EggArchiveEntry
 	{
-		private IEggFileFormat _format => Archive.format;
+		private EggFileFormatBase _format => Archive.format;
 
-		internal readonly IEggFileEntry entry;
+		internal readonly EggFileEntryBase entry;
 		internal long PositionInStream => entry.Position;
 		
 		/// <summary>
@@ -98,7 +98,7 @@ namespace EggDotNet
 		public string Comment => entry.Comment ?? string.Empty;
 #endif
 
-		internal EggArchiveEntry(IEggFileEntry entry, EggArchive archive)
+		internal EggArchiveEntry(EggFileEntryBase entry, EggArchive archive)
 		{
 			Archive = archive;
 			this.entry = entry;

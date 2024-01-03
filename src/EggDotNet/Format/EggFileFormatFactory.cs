@@ -9,7 +9,7 @@ namespace EggDotNet.Format
 {
 	internal static class EggFileFormatFactory
 	{
-		public static IEggFileFormat Create(Stream stream, Func<Stream, IEnumerable<Stream>> streamCallback, Func<string> pwCallback)
+		public static EggFileFormatBase Create(Stream stream, Func<Stream, IEnumerable<Stream>> streamCallback, Func<string> pwCallback)
 		{
 #if NETSTANDARD2_1_OR_GREATER
 			Span<byte> headerBuffer = stackalloc byte[Global.HEADER_SIZE];

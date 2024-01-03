@@ -20,7 +20,7 @@ namespace EggDotNet
 
 		private readonly List<EggArchiveEntry> _entries;
 		
-		internal readonly IEggFileFormat format;
+		internal readonly EggFileFormatBase format;
 
 		/// <summary>
 		/// Gets the archive-level comment text.
