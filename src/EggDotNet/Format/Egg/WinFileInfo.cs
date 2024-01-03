@@ -2,6 +2,10 @@
 using System;
 using System.IO;
 
+#if NETSTANDARD2_0
+using BitConverter = EggDotNet.Extensions.BitConverterWrapper;
+#endif
+
 namespace EggDotNet.Format.Egg
 {
 	internal sealed class WinFileInfo //: ExtraField2
@@ -14,16 +18,18 @@ namespace EggDotNet.Format.Egg
 
 		public static WinFileInfo Parse(Stream stream)
 		{
-			_ = stream.ReadByte();
-
-			_ = stream.ReadShort(out short _);
-
-			if (!stream.ReadLong(out long lastModTime))
+#if NETSTANDARD2_1_OR_GREATER
+			Span<byte> winFileBuffer = stackalloc byte[12];
+#else
+			var winFileBuffer = new byte[12];
+#endif
+			if (stream.Read(winFileBuffer) != 12)
 			{
-
+				throw new InvalidDataException("Failed reading windows file header");
 			}
 
-			var attributes = stream.ReadByte();
+			var lastModTime = BitConverter.ToInt64(winFileBuffer.Slice(3, 8));
+			var attributes = winFileBuffer[11];
 
 			return new WinFileInfo() { LastModified = Utilities.FromEggTime(lastModTime), WindowsFileAttributes = attributes };
 		}

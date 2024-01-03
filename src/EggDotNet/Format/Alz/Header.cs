@@ -1,11 +1,16 @@
 ﻿using EggDotNet.Extensions;
+using System;
 using System.IO;
+
+#if NETSTANDARD2_0
+using BitConverter = EggDotNet.Extensions.BitConverterWrapper;
+#endif
 
 namespace EggDotNet.Format.Alz
 {
 	internal sealed class Header
 	{
-		public static readonly int ALZ_HEADER_MAGIC = 0x015A4C41;
+		public const int ALZ_HEADER_MAGIC = 0x015A4C41;
 
 		public short Version { get; private set; }
 
@@ -19,15 +24,19 @@ namespace EggDotNet.Format.Alz
 
 		public static Header Parse(Stream stream)
 		{
-			if (!stream.ReadShort(out short version))
+#if NETSTANDARD2_1_OR_GREATER
+			Span<byte> headerBuffer = stackalloc byte[4];
+#else
+			var headerBuffer = new byte[4];
+#endif
+
+			if (stream.Read(headerBuffer) != 4)
 			{
-				throw new InvalidDataException("Could not read Alz version");
+				throw new InvalidDataException("Failed reading Alz header");
 			}
 
-			if (!stream.ReadShort(out short headerId))
-			{
-				throw new InvalidDataException("Could not read Alz header Id");
-			}
+			var version = BitConverter.ToInt16(headerBuffer.Slice(0, 2));
+			var headerId = BitConverter.ToInt16(headerBuffer.Slice(2, 2));
 
 			return new Header(version, headerId);
 		}

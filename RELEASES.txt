@@ -43,3 +43,6 @@ Fixes and added features
 +Added EggArchiveEntry.ToString() override.
 +Added benchmark utility.
 +Misc cleanup on code.
+=======================================================================
+0.0.8-beta (2024-?)
++Refactored parsing and scanning logic to use stack allocated Spans for netstandard2.1 instead of byte[].  This appears to yield some performance improvement for netstandard2.1.

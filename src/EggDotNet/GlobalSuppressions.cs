@@ -9,3 +9,4 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("Style", "IDE0074:Use compound assignment", Justification = "No netstandard2.0 support")]
 [assembly: SuppressMessage("Style", "IDE0063", Justification = "No netstandard2.0 support")]
 [assembly: SuppressMessage("Style", "IDE0066", Justification = "No netstandard2.0 support")]
+[assembly: SuppressMessage("Style", "IDE0057:Use range operator", Justification = "Breaks netstandard2.0 byte[] polyfills")]

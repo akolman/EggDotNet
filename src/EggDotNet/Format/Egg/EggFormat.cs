@@ -92,7 +92,7 @@ namespace EggDotNet.Format.Egg
 
 			if (_volumes.Count == 1)
 			{
-				return new FakeDisposingStream(_volumes.Single().GetStream());
+				return new EggStream(_volumes.Single().GetStream());
 			}
 			else
 			{
@@ -100,7 +100,7 @@ namespace EggDotNet.Format.Egg
 			}
 		}
 
-		private CollectiveStream PrepareSplitStream()
+		private CollectiveEggStream PrepareSplitStream()
 		{
 			var subStreams = new List<SubStream>(_volumes.Count);
 			var curVol = _volumes.Single(v => v.Header.SplitHeader.PreviousFileId == 0);
@@ -114,7 +114,7 @@ namespace EggDotNet.Format.Egg
 				subStreams.Add(new SubStream(curSt, curVol.Header.HeaderEndPosition));
 			}
 
-			return new CollectiveStream(subStreams);
+			return new CollectiveEggStream(subStreams);
 		}
 
 		private Stream GetDecryptionStream(Stream subSt, EggEntry eggEntry)

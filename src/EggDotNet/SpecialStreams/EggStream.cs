@@ -3,7 +3,7 @@
 #pragma warning disable CA2213, CA2215
 namespace EggDotNet.SpecialStreams
 {
-	internal sealed class FakeDisposingStream : Stream
+	internal sealed class EggStream : Stream
 	{
 		private readonly Stream _stream;
 
@@ -17,7 +17,7 @@ namespace EggDotNet.SpecialStreams
 
 		public override long Position { get => _stream.Position; set => _stream.Position = value; }
 
-		public FakeDisposingStream(Stream stream)
+		public EggStream(Stream stream)
 		{
 			_stream = stream;
 		}
