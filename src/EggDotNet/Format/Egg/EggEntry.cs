@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 
+#if NETSTANDARD2_0
+using EggDotNet.Extensions;
+using BitConverter = EggDotNet.Extensions.BitConverterWrapper;
+#endif
+
 namespace EggDotNet.Format.Egg
 {
 	internal sealed class EggEntry : IEggFileEntry
@@ -75,15 +80,13 @@ namespace EggDotNet.Format.Egg
 			var insideFileheader = false;
 #if NETSTANDARD2_1_OR_GREATER
 			Span<byte> buff = stackalloc byte[4];
+#else
+			var buff = new byte[4];
+#endif
 			while (!foundEnd && stream.Read(buff) == 4)
 			{
 				var nextHeader = BitConverter.ToInt32(buff);
-#else
-			var buff = new byte[4];
-			while (!foundEnd && stream.Read(buff, 0, 4) == 4)
-			{
-				var nextHeader = BitConverter.ToInt32(buff, 0);
-#endif
+
 				switch (nextHeader)
 				{
 					case FileHeader.FILE_HEADER_MAGIC:
@@ -123,16 +126,12 @@ namespace EggDotNet.Format.Egg
 		{
 #if NETSTANDARD2_1_OR_GREATER
 			Span<byte> buffer = stackalloc byte[4];
-			while (stream.Read(buffer) == 4)
-			{
-				var nextHeader = BitConverter.ToInt32(buffer);
 #else
 			var buffer = new byte[4];
-			while (stream.Read(buffer, 0, 4) == 4)
-			{
-				var nextHeader = BitConverter.ToInt32(buffer, 0);
 #endif
-				if (nextHeader == BlockHeader.BLOCK_HEADER_MAGIC)
+			while (stream.Read(buffer) == 4)
+			{
+				if (BitConverter.ToInt32(buffer) == BlockHeader.BLOCK_HEADER_MAGIC)
 				{
 					entry.BlockHeader = BlockHeader.Parse(stream);
 					stream.Seek(entry.CompressedSize, SeekOrigin.Current);

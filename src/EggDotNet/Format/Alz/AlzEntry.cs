@@ -41,20 +41,18 @@ namespace EggDotNet.Format.Alz
 
 			while (stream.ReadInt(out int nextHeader))
 			{
-				var entry = new AlzEntry();
-
 				if (nextHeader == FileHeader.ALZ_FILE_HEADER_START_MAGIC)
 				{
+					var entry = new AlzEntry();
 					entry.FileHeader = FileHeader.Parse(stream);
 					entry.Id = entries.Count;
 					stream.Seek(entry.CompressedSize, SeekOrigin.Current);
+					entries.Add(entry);
 				}
 				else if (nextHeader == FileHeader.ALZ_FILE_HEADER_END_MAGIC)
 				{
 					break;
 				}
-
-				entries.Add(entry);
 			}
 			return entries;
 		}

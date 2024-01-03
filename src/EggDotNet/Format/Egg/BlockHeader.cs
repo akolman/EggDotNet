@@ -4,6 +4,10 @@ using System;
 using System.IO;
 using System.Linq;
 
+#if NETSTANDARD2_0
+using BitConverter = EggDotNet.Extensions.BitConverterWrapper;
+#endif
+
 namespace EggDotNet.Format.Egg
 {
 	internal sealed class BlockHeader
@@ -35,7 +39,9 @@ namespace EggDotNet.Format.Egg
 		{
 #if NETSTANDARD2_1_OR_GREATER
 			Span<byte> buffer = stackalloc byte[18];
-
+#else
+			var buffer = new byte[18];
+#endif
 			if (stream.Read(buffer) < 18)
 			{
 				throw new InvalidDataException("Failed reading block");
@@ -45,19 +51,7 @@ namespace EggDotNet.Format.Egg
 			var uncompSize = BitConverter.ToInt32(buffer.Slice(2, 4));
 			var compSize = BitConverter.ToInt32((buffer.Slice(6, 4)));
 			var crc = BitConverter.ToUInt32((buffer.Slice(10, 4)));
-#else
-			var buffer = new byte[18];
 
-			if (stream.Read(buffer, 0, 18) < 18)
-			{
-				throw new InvalidDataException("Failed reading block");
-			}
-
-			var compressionMethod = BitConverter.ToInt16(buffer.Take(2).ToArray(), 0);
-			var uncompSize = BitConverter.ToInt32(buffer.Skip(2).Take(4).ToArray(), 0);
-			var compSize = BitConverter.ToInt32(buffer.Skip(6).Take(4).ToArray(), 0);
-			var crc = BitConverter.ToUInt32(buffer.Skip(10).Take(4).ToArray(), 0);
-#endif
 			return new BlockHeader((CompressionMethod)(compressionMethod & 0xFF), compSize, uncompSize, stream.Position, crc);
 		}
 	}

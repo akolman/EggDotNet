@@ -12,6 +12,13 @@ namespace EggDotNet.Extensions
 			return valRead > -1;
 		}
 
+#if NETSTANDARD2_0
+		public static int Read(this Stream stream, byte[] buffer)
+		{
+			return stream.Read(buffer, 0, buffer.Length);
+		}
+#endif
+
 #if NETSTANDARD2_1_OR_GREATER
 		public static bool ReadShort(this Stream stream, out short value)
 		{

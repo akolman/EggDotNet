@@ -5,6 +5,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
+#if NETSTANDARD2_0
+using BitConverter = EggDotNet.Extensions.BitConverterWrapper;
+#endif
+
 namespace EggDotNet.Format.Egg
 {
 	internal sealed class FilenameHeader //: ExtraField2
@@ -64,21 +68,15 @@ namespace EggDotNet.Format.Egg
 
 #if NETSTANDARD2_1_OR_GREATER
 			Span<byte> filenameBytes = stackalloc byte[filenameSize];
+#else
+			var filenameBytes = new byte[filenameSize];
+#endif
 			if (stream.Read(filenameBytes) != filenameSize)
 			{
 				throw new InvalidDataException("Filename header corrupt");
 			}
 
 			return new FilenameHeader(nameEncoder.GetString(filenameBytes));
-#else
-			var filenameBytes = new byte[filenameSize];
-			if (stream.Read(filenameBytes, 0, filenameSize) != filenameSize)
-			{
-				throw new InvalidDataException("Filename header corrupt");
-			}
-
-			return new FilenameHeader(nameEncoder.GetString(filenameBytes));
-#endif
 		}
 	}
 }

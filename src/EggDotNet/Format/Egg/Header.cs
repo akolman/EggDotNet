@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
+
+#if NETSTANDARD2_0
+using EggDotNet.Extensions;
+using BitConverter = EggDotNet.Extensions.BitConverterWrapper;
+#endif
 
 namespace EggDotNet.Format.Egg
 {
@@ -47,7 +51,9 @@ namespace EggDotNet.Format.Egg
 
 #if NETSTANDARD2_1_OR_GREATER
 			Span<byte> buffer = stackalloc byte[HEADER_SIZE_BYTES];
-
+#else
+			var buffer = new byte[HEADER_SIZE_BYTES];
+#endif
 			if (stream.Read(buffer) != HEADER_SIZE_BYTES)
 			{
 				throw new InvalidDataException("Failed reading EGG header");
@@ -57,39 +63,21 @@ namespace EggDotNet.Format.Egg
 			var headerId = BitConverter.ToInt32(buffer.Slice(2, 4));
 			var reserved = BitConverter.ToInt32(buffer.Slice(6, 4));
 			var next = BitConverter.ToInt32(buffer.Slice(10, 4));
-#else
-			var buffer = new byte[HEADER_SIZE_BYTES];
 
-			if (stream.Read(buffer, 0, buffer.Length) != HEADER_SIZE_BYTES)
-			{
-				throw new InvalidDataException("Failed reading EGG header");
-			}
-
-			var version = BitConverter.ToInt16(buffer.Take(2).ToArray(), 0);
-			var headerId = BitConverter.ToInt32(buffer.Skip(2).Take(4).ToArray(), 0);
-			var reserved = BitConverter.ToInt32(buffer.Skip(6).Take(4).ToArray(), 0);
-			var next = BitConverter.ToInt32(buffer.Skip(10).Take(4).ToArray(), 0);
-#endif
 			SplitHeader splitHeader = null;
 			SolidHeader solidHeader = null;
 			if (next != EGG_HEADER_END_MAGIC)
 			{
 #if NETSTANDARD2_1_OR_GREATER
 				Span<byte> extFieldBuffer = stackalloc byte[Global.HEADER_SIZE];
+#else
+				var extFieldBuffer = new byte[Global.HEADER_SIZE];
+#endif
 				var foundEnd = false;
 
 				while (!foundEnd && stream.Read(extFieldBuffer) == Global.HEADER_SIZE)
 				{
-					var nextHeader = BitConverter.ToInt32(extFieldBuffer);
-#else
-				var extFieldBuffer = new byte[Global.HEADER_SIZE];
-				var foundEnd = false;
-
-				while (!foundEnd && stream.Read(extFieldBuffer, 0, extFieldBuffer.Length) == Global.HEADER_SIZE)
-				{
-					var nextHeader = BitConverter.ToInt32(extFieldBuffer, 0);
-#endif
-					switch (nextHeader)
+					switch (BitConverter.ToInt32(extFieldBuffer))
 					{
 						case SplitHeader.SPLIT_HEADER_MAGIC:
 							splitHeader = SplitHeader.Parse(stream);
