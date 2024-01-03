@@ -23,7 +23,7 @@ using var firstEntryStream = archive.Entries.First().Open();
 EggFile.ExtractToDirectory("archive.egg", "me/output");
 ```
 
-Pure C# and completely managed with no dependencies.  Compatible with netstandard2.0 and netstandard2.1.
+Pure, safe C# and completely managed with no dependencies.  Compatible with netstandard2.0 and netstandard2.1.
 
 ### Install using NuGet
 `Install-Package EggDotNet`
