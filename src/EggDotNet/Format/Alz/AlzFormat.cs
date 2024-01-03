@@ -40,7 +40,7 @@ namespace EggDotNet.Format.Alz
 #pragma warning disable CA1859
 		private Stream PrepareStream()
 		{
-			return new FakeDisposingStream(_volumes.Single().GetStream());
+			return new EggStream(_volumes.Single().GetStream());
 		}
 
 		public List<EggArchiveEntry> Scan(EggArchive archive)
