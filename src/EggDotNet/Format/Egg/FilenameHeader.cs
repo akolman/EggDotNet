@@ -34,28 +34,39 @@ namespace EggDotNet.Format.Egg
 		public static FilenameHeader Parse(Stream stream)
 		{
 			var nameEncoder = Encoding.UTF8;
-
-			var bitFlagByte = stream.ReadByte();
-			if (bitFlagByte == -1)
+#if NETSTANDARD2_1_OR_GREATER
+			Span<byte> filenameHeaderBuffer = stackalloc byte[3];
+#else
+			var filenameHeaderBuffer = new byte[3];
+#endif
+			if (stream.Read(filenameHeaderBuffer) != 3)
 			{
-				throw new InvalidDataException("Filename header flag couldn't be read");
+				throw new InvalidDataException("Failed reading filename header");
 			}
 
-			var bitFlag = (FilenameFlags)bitFlagByte;
+			var bitFlag = (FilenameFlags)filenameHeaderBuffer[0];
 
 			if (bitFlag.HasFlag(FilenameFlags.Encrypt))
 			{
 				throw new InvalidDataException("Encrypted filenames not supported");
 			}
 
-			if (!stream.ReadShort(out short filenameSize))
-			{
-				throw new InvalidDataException("Filename size couldn't be read");
-			}
+			var filenameSize = BitConverter.ToInt16(filenameHeaderBuffer.Slice(1, 2));
 
 			if (bitFlag.HasFlag(FilenameFlags.UseAreaCode))
 			{
-				stream.ReadShort(out short locale);
+#if NETSTANDARD2_1_OR_GREATER
+				Span<byte> localeBuffer = stackalloc byte[2];
+#else
+				var localeBuffer = new byte[2];
+#endif
+				if (stream.Read(localeBuffer) != 2)
+				{
+					throw new InvalidDataException("Failed reading filename locale");
+				}
+
+				var locale = BitConverter.ToInt16(localeBuffer);
+
 				try
 				{
 					nameEncoder = Encoding.GetEncoding(locale);

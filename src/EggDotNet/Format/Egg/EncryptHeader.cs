@@ -1,7 +1,10 @@
 ﻿using EggDotNet.Extensions;
 using System;
 using System.IO;
-using System.Linq;
+
+#if NETSTANDARD2_0
+using BitConverter = EggDotNet.Extensions.BitConverterWrapper;
+#endif
 
 namespace EggDotNet.Format.Egg
 {
@@ -16,6 +19,15 @@ namespace EggDotNet.Format.Egg
 
 		public byte[] Param2 { get; private set; }
 
+#if NETSTANDARD2_1_OR_GREATER
+		public EncryptHeader(EncryptionMethod encryptionMethod, short size, Span<byte> aesHeader, Span<byte> aesFooter)
+		{
+			EncryptionMethod = encryptionMethod;
+			Size = size;
+			Param1 = aesHeader.ToArray();
+			Param2 = aesFooter.ToArray();
+		}
+#else
 		public EncryptHeader(EncryptionMethod encryptionMethod, short size, byte[] aesHeader, byte[] aesFooter)
 		{
 			EncryptionMethod = encryptionMethod;
@@ -23,22 +35,31 @@ namespace EggDotNet.Format.Egg
 			Param1 = aesHeader;
 			Param2 = aesFooter;
 		}
+#endif
+
 
 		public static EncryptHeader Parse(Stream stream)
 		{
-			if (stream.ReadByte() == -1)
-			{
+#if NETSTANDARD2_1_OR_GREATER
+			Span<byte> encryptHeaderBuffer = stackalloc byte[3];
+#else
+			var encryptHeaderBuffer = new byte[3];
+#endif
 
-			}
-
-			if (!stream.ReadShort(out short size))
+			if (stream.Read(encryptHeaderBuffer) != 3)
 			{
 				Console.Error.WriteLine("Could not read encrypt header size");
 				return null;
 			}
 
+			var size = BitConverter.ToInt16(encryptHeaderBuffer.Slice(1, 2));
+
+#if NETSTANDARD2_1_OR_GREATER
+			Span<byte> encDataBuffer = stackalloc byte[size];
+#else
 			var encDataBuffer = new byte[size];
-			if (stream.Read(encDataBuffer, 0, size) != size)
+#endif
+			if (stream.Read(encDataBuffer) != size)
 			{
 				Console.Error.WriteLine("Could not read encryption header");
 				return null;
@@ -48,20 +69,20 @@ namespace EggDotNet.Format.Egg
 
 			if (encMethod == EncryptionMethod.AES128)
 			{
-				var aesHeader = encDataBuffer.Skip(1).Take(10).ToArray();
-				var aesFooter = encDataBuffer.Skip(11).Take(10).ToArray();
+				var aesHeader = encDataBuffer.Slice(1, 10);
+				var aesFooter = encDataBuffer.Slice(11, 10);
 				return new EncryptHeader(encMethod, size, aesHeader, aesFooter);
 			}
 			else if(encMethod == EncryptionMethod.AES256)
 			{
-				var aesHeader = encDataBuffer.Skip(1).Take(18).ToArray();
-				var aesFooter = encDataBuffer.Skip(19).Take(10).ToArray();
+				var aesHeader = encDataBuffer.Slice(1, 18);
+				var aesFooter = encDataBuffer.Slice(19, 10);
 				return new EncryptHeader(encMethod, size, aesHeader, aesFooter);
 			}
 			else if (encMethod == EncryptionMethod.Standard)
 			{
-				var standardHeader = encDataBuffer.Skip(1).Take(12).ToArray();
-				var pwData = encDataBuffer.Skip(13).Take(4).ToArray();
+				var standardHeader = encDataBuffer.Slice(1, 12);
+				var pwData = encDataBuffer.Slice(13, 4);
 				return new EncryptHeader(encMethod, size, standardHeader, pwData);
 			}
 			else

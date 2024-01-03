@@ -10,8 +10,16 @@ namespace EggDotNet.Format.Egg
 
 		public static SolidHeader Parse(Stream stream)
 		{
-			_ = stream.ReadByte();
-			stream.ReadShort(out short _);
+#if NETSTANDARD2_1_OR_GREATER
+			Span<byte> buffer = stackalloc byte[3];
+#else
+			var buffer = new byte[3];
+#endif
+			if (stream.Read(buffer) != 3)
+			{
+				throw new InvalidDataException("Failed reading solid header");
+			}
+
 			Console.Error.WriteLine("SOLID compression not implemented.  May encounter errors.");
 
 			return new SolidHeader();

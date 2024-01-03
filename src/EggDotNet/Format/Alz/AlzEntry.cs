@@ -1,7 +1,11 @@
-﻿using EggDotNet.Extensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
+
+#if NETSTANDARD2_0
+using EggDotNet.Extensions;
+using BitConverter = EggDotNet.Extensions.BitConverterWrapper;
+#endif
 
 namespace EggDotNet.Format.Alz
 {
@@ -39,13 +43,23 @@ namespace EggDotNet.Format.Alz
 		{
 			var entries = new List<AlzEntry>();
 
-			while (stream.ReadInt(out int nextHeader))
+#if NETSTANDARD2_1_OR_GREATER
+			Span<byte> nextHeaderBuf = stackalloc byte[Global.HEADER_SIZE];
+#else
+			var nextHeaderBuf = new byte[Global.HEADER_SIZE];
+#endif
+
+			while (stream.Read(nextHeaderBuf) == Global.HEADER_SIZE)
 			{
+				var nextHeader = BitConverter.ToInt32(nextHeaderBuf);
+
 				if (nextHeader == FileHeader.ALZ_FILE_HEADER_START_MAGIC)
 				{
-					var entry = new AlzEntry();
-					entry.FileHeader = FileHeader.Parse(stream);
-					entry.Id = entries.Count;
+					var entry = new AlzEntry
+					{
+						FileHeader = FileHeader.Parse(stream),
+						Id = entries.Count
+					};
 					stream.Seek(entry.CompressedSize, SeekOrigin.Current);
 					entries.Add(entry);
 				}
