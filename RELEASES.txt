@@ -46,3 +46,4 @@ Fixes and added features
 =======================================================================
 0.0.8-beta (2024-?)
 +Refactored parsing and scanning logic to use stack allocated Spans for netstandard2.1 instead of byte[].  This appears to yield some performance improvement for netstandard2.1.
+**Breaking change** Updated callbacks to use delegates.  Password callback now receives name of entity being decrypted.

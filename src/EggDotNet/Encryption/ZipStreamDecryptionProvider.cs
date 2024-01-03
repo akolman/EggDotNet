@@ -11,7 +11,7 @@ namespace EggDotNet.Encryption
 
 		private readonly byte[] _vdata;
 		private readonly byte[] _crc;
-		private readonly string _password;
+		private string _password;
 		private readonly ZipDecryptStream _decrypt;
 
 		public ZipStreamDecryptionProvider(byte[] vdata, byte[] crc, string password)
@@ -19,7 +19,12 @@ namespace EggDotNet.Encryption
 			_vdata = vdata;
 			_crc = crc;
 			_password = password;
-			_decrypt = new ZipDecryptStream(_password, _vdata, _crc);
+			_decrypt = new ZipDecryptStream(password, _vdata, _crc);
+		}
+
+		public bool AttachAndValidatePassword(string password)
+		{
+			throw new System.NotImplementedException();
 		}
 
 		public Stream GetDecryptionStream(Stream stream)
@@ -27,5 +32,7 @@ namespace EggDotNet.Encryption
 			_decrypt.AttachStream(stream);
 			return _decrypt;
 		}
+
+
 	}
 }

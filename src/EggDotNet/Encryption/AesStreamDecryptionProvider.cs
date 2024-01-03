@@ -606,6 +606,11 @@ namespace EggDotNet.Encryption
 
 		public bool PasswordValid => _crypto.PasswordValid;
 
+		public bool AttachAndValidatePassword(string password)
+		{
+			throw new NotImplementedException();
+		}
+
 		public Stream GetDecryptionStream(Stream stream)
 		{
 			stream.Seek(0, SeekOrigin.Begin);

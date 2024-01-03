@@ -6,19 +6,20 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using static EggDotNet.Callbacks;
 
 namespace EggDotNet.Format.Egg
 {
 #pragma warning disable CA1852
 	internal class EggFormat : EggFileFormatBase
 	{
-		private readonly Func<Stream, IEnumerable<Stream>> _streamCallback;
-		private readonly Func<string> _pwCallback;
+		private readonly SplitFileReceiverCallback _streamCallback;
+		private readonly PasswordCallback _pwCallback;
 		private readonly List<EggVolume> _volumes = new List<EggVolume>(8);
 		private List<EggEntry> _entriesCache;
 		private bool disposedValue;
 
-		internal EggFormat(Func<Stream, IEnumerable<Stream>> streamCallback, Func<string> pwCallback)
+		internal EggFormat(SplitFileReceiverCallback streamCallback, PasswordCallback pwCallback)
 		{
 			_streamCallback = streamCallback;
 			_pwCallback = pwCallback;
@@ -123,7 +124,12 @@ namespace EggDotNet.Format.Egg
 
 			while (true)
 			{
-				var pw = pwCb.Invoke();
+				var pw = pwCb.Invoke(eggEntry.Name);
+				if (string.IsNullOrWhiteSpace(pw))
+				{
+					throw new DecryptFailedException();
+				}
+
 				IStreamDecryptionProvider s;
 				if (eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.Standard)
 				{

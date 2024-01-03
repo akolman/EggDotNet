@@ -6,6 +6,8 @@ namespace EggDotNet.Encryption
 	{
 		bool PasswordValid { get; }
 
+		bool AttachAndValidatePassword(string password);
+
 		Stream GetDecryptionStream(Stream stream);
 	}
 }

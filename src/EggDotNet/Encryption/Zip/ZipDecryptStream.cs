@@ -60,6 +60,7 @@ namespace EggDotNet.Encryption.Zip
 			}
 
 			_footer = footer;
+			var a = r;
 			verifyByte = (byte)r;
 		}
 

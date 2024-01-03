@@ -4,6 +4,8 @@ using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using static EggDotNet.Callbacks;
+
 
 #if NETSTANDARD2_1_OR_GREATER
 #nullable enable
@@ -64,7 +66,7 @@ namespace EggDotNet
 		/// <param name="stream">The input egg stream</param>
 		/// <param name="streamCallback">A callback that will be called to retrieve volumes of a multi-part archive.</param>
 		/// <exception cref="Exceptions.UnknownEggException"/>
-		public EggArchive(Stream stream, Func<Stream, IEnumerable<Stream>> streamCallback)
+		public EggArchive(Stream stream, SplitFileReceiverCallback streamCallback)
 			: this(stream, false, streamCallback)
 		{
 		}
@@ -78,9 +80,9 @@ namespace EggDotNet
 		/// <param name="passwordCallback">A callback that will be called to retrieve a password used for decryption.</param>
 		/// <exception cref="Exceptions.UnknownEggException"/>
 #if NETSTANDARD2_1_OR_GREATER
-		public EggArchive(Stream stream, bool ownStream = false, Func<Stream, IEnumerable<Stream>>? streamCallback = null, Func<string>? passwordCallback = null)
+		public EggArchive(Stream stream, bool ownStream = false, SplitFileReceiverCallback? streamCallback = null, PasswordCallback passwordCallback = null)
 #else
-		public EggArchive(Stream stream, bool ownStream = false, Func<Stream, IEnumerable<Stream>> streamCallback = null, Func<string> passwordCallback = null)
+		public EggArchive(Stream stream, bool ownStream = false, SplitFileReceiverCallback streamCallback = null, PasswordCallback passwordCallback = null)
 #endif
 		{
 			if (streamCallback == null) streamCallback = DefaultStreamCallbacks.GetStreamCallback(stream);
