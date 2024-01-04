@@ -4,15 +4,16 @@ using System.IO;
 
 #if NETSTANDARD2_0
 using EggDotNet.Extensions;
-using BitConverter = EggDotNet.Extensions.BitConverterWrapper;
+using EggDotNet.InternalExtensions;
+using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif
 
 namespace EggDotNet.Format.Egg
 {
-	/// <summary>
-	/// Represents an egg archive header.  There will be one egg header per volume.
-	/// </summary>
-	internal sealed class Header
+    /// <summary>
+    /// Represents an egg archive header.  There will be one egg header per volume.
+    /// </summary>
+    internal sealed class Header
 	{
 		private const short HEADER_SIZE_BYTES = 14;
 

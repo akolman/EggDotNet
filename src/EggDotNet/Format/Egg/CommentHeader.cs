@@ -1,15 +1,15 @@
-﻿using EggDotNet.Extensions;
+﻿using EggDotNet.InternalExtensions;
 using System;
 using System.IO;
 using System.Text;
 
 #if NETSTANDARD2_0
-using BitConverter = EggDotNet.Extensions.BitConverterWrapper;
+using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif
 
 namespace EggDotNet.Format.Egg
 {
-	internal sealed class CommentHeader
+    internal sealed class CommentHeader
 	{
 		public const int COMMENT_HEADER_MAGIC = 0x04C63672;
 

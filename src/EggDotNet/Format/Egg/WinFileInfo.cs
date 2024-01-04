@@ -1,14 +1,14 @@
-﻿using EggDotNet.Extensions;
+﻿using EggDotNet.InternalExtensions;
 using System;
 using System.IO;
 
 #if NETSTANDARD2_0
-using BitConverter = EggDotNet.Extensions.BitConverterWrapper;
+using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif
 
 namespace EggDotNet.Format.Egg
 {
-	internal sealed class WinFileInfo //: ExtraField2
+    internal sealed class WinFileInfo //: ExtraField2
 	{
 		public const int WIN_FILE_INFO_MAGIC_HEADER = 0x2C86950B;
 

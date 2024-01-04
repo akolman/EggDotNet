@@ -1,16 +1,16 @@
 ﻿using EggDotNet.Exceptions;
-using EggDotNet.Extensions;
+using EggDotNet.InternalExtensions;
 using System;
 using System.IO;
 using System.Linq;
 
 #if NETSTANDARD2_0
-using BitConverter = EggDotNet.Extensions.BitConverterWrapper;
+using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif
 
 namespace EggDotNet.Format.Egg
 {
-	internal sealed class BlockHeader
+    internal sealed class BlockHeader
 	{
 		public const int BLOCK_HEADER_MAGIC = 0x02B50C13;
 

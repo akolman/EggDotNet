@@ -1,14 +1,14 @@
-﻿using EggDotNet.Extensions;
+﻿using EggDotNet.InternalExtensions;
 using System;
 using System.IO;
 
 #if NETSTANDARD2_0
-using BitConverter = EggDotNet.Extensions.BitConverterWrapper;
+using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif
 
 namespace EggDotNet.Format.Egg
 {
-	internal sealed class SplitHeader
+    internal sealed class SplitHeader
 	{
 		public const int SPLIT_HEADER_MAGIC = 0x24F5A262;
 

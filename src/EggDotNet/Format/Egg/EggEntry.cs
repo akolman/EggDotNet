@@ -5,12 +5,13 @@ using System.Runtime.CompilerServices;
 
 #if NETSTANDARD2_0
 using EggDotNet.Extensions;
-using BitConverter = EggDotNet.Extensions.BitConverterWrapper;
+using EggDotNet.InternalExtensions;
+using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif
 
 namespace EggDotNet.Format.Egg
 {
-	internal sealed class EggEntry : EggFileEntryBase
+    internal sealed class EggEntry : EggFileEntryBase
 	{
 		public FileHeader FileHeader { get; private set; }
 		public FilenameHeader FilenameHeader { get; private set; }

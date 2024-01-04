@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EggDotNet.Format
+﻿namespace EggDotNet.Format
 {
 	internal static class Global
 	{

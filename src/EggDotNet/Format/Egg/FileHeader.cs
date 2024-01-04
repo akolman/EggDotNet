@@ -1,14 +1,14 @@
-﻿using EggDotNet.Extensions;
+﻿using EggDotNet.InternalExtensions;
 using System;
 using System.IO;
 
 #if NETSTANDARD2_0
-using BitConverter = EggDotNet.Extensions.BitConverterWrapper;
+using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif
 
 namespace EggDotNet.Format.Egg
 {
-	internal sealed class FileHeader
+    internal sealed class FileHeader
 	{
 		public const int FILE_HEADER_MAGIC = 0x0A8590E3;
 

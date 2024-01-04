@@ -4,12 +4,13 @@ using System.IO;
 
 #if NETSTANDARD2_0
 using EggDotNet.Extensions;
-using BitConverter = EggDotNet.Extensions.BitConverterWrapper;
+using EggDotNet.InternalExtensions;
+using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif
 
 namespace EggDotNet.Format.Alz
 {
-	internal sealed class AlzEntry : EggFileEntryBase
+    internal sealed class AlzEntry : EggFileEntryBase
 	{
 		private readonly int _id;
 		private readonly FileHeader FileHeader;

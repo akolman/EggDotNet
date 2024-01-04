@@ -1,15 +1,15 @@
-﻿using EggDotNet.Extensions;
+﻿using EggDotNet.InternalExtensions;
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 
 #if NETSTANDARD2_0
-using BitConverter = EggDotNet.Extensions.BitConverterWrapper;
+using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif
 
 namespace EggDotNet.Format.Alz
 {
-	internal sealed class FileHeader
+    internal sealed class FileHeader
 	{
 		public const int ALZ_FILE_HEADER_START_MAGIC = 0x015A4C42;
 

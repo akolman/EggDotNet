@@ -1,10 +1,10 @@
-﻿using EggDotNet.Extensions;
+﻿using EggDotNet.InternalExtensions;
 using System;
 using System.IO;
 
 namespace EggDotNet.Format.Egg
 {
-	internal sealed class SolidHeader
+    internal sealed class SolidHeader
 	{
 		public const int SOLID_HEADER_MAGIC = 0x24E5A060;
 
