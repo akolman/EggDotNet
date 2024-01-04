@@ -171,6 +171,17 @@ namespace EggDotNet.Tests
 		}
 
 		[Fact]
+		public void Test_Lea256_Store()
+		{
+			using var fs = new FileStream(GetTestPath("test_lea256_store.egg"), FileMode.Open, FileAccess.Read);
+			using var archive = new EggArchive(fs, false, null, (filename, options) => { options.Password = "password12345!"; options.Retry = false; });
+			var ent = archive.Entries.First();
+			var entSt = ent.Open();
+			var sr = new StreamReader(entSt);
+			var text = sr.ReadToEnd();
+		}
+
+		[Fact]
 		public void Test_Alz_Defaults()
 		{
 			using var archive = OpenTestEgg("defaults.alz");
