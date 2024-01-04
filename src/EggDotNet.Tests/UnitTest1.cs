@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Security.Cryptography;
 using EggDotNet.Exceptions;
 
@@ -174,6 +175,18 @@ namespace EggDotNet.Tests
 		{
 			using var archive = OpenTestEgg("defaults.alz");
 			ValidateAllEggEntries(archive);
+		}
+
+		[Fact]
+		public void Test_Decrypt_Fails_With_Exception()
+		{
+			using var fs = new FileStream(GetTestPath("lorem_long_aes256.egg"), FileMode.Open, FileAccess.Read);
+			using var archive = new EggArchive(fs, false, null, (filename, options) => { options.Password = "badpassword"; options.Retry = false; });
+			var ent = archive.Entries.First();
+			Assert.ThrowsAny<DecryptFailedException>(() =>
+			{
+				using var entSt = ent.Open();
+			});
 		}
 
 		[Fact]
