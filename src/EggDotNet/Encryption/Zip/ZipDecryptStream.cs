@@ -60,7 +60,6 @@ namespace EggDotNet.Encryption.Zip
 			}
 
 			_footer = footer;
-			var a = r;
 			verifyByte = (byte)r;
 		}
 
@@ -133,6 +132,4 @@ namespace EggDotNet.Encryption.Zip
 			throw new NotImplementedException();
 		}
 	}
-
-
 }

@@ -7,24 +7,29 @@ namespace EggDotNet.Encryption
 {
 	internal sealed class ZipStreamDecryptionProvider : IStreamDecryptionProvider
 	{
-		public bool PasswordValid => _decrypt.PasswordValid;
-
 		private readonly byte[] _vdata;
 		private readonly byte[] _crc;
-		private string _password;
-		private readonly ZipDecryptStream _decrypt;
+		private ZipDecryptStream _decrypt;
 
-		public ZipStreamDecryptionProvider(byte[] vdata, byte[] crc, string password)
+		public ZipStreamDecryptionProvider(byte[] vdata, byte[] crc)
 		{
 			_vdata = vdata;
 			_crc = crc;
-			_password = password;
-			_decrypt = new ZipDecryptStream(password, _vdata, _crc);
 		}
 
 		public bool AttachAndValidatePassword(string password)
 		{
-			throw new System.NotImplementedException();
+			_decrypt = new ZipDecryptStream(password, _vdata, _crc);
+			if (_decrypt.PasswordValid)
+			{
+				return true;
+			}
+			else
+			{
+				_decrypt.Dispose();
+				_decrypt = null;
+				return false;
+			}
 		}
 
 		public Stream GetDecryptionStream(Stream stream)

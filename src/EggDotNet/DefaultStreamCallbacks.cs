@@ -27,11 +27,12 @@ namespace EggDotNet
 			throw new InvalidOperationException("DefaultFileStream can only be used with FileStream");
 		};
 
-		public static PasswordCallback DefaultPasswordCallback = (string filename) =>
+		public static FileDecryptPasswordCallback DefaultPasswordCallback = (string filename, PasswordCallbackOptions callbackOptions) =>
 		{
 			Console.WriteLine($"Please enter password for {filename} (return to quit): ");
 
-			return Console.ReadLine();
+			callbackOptions.Password = Console.ReadLine();
+			callbackOptions.Retry = true;
 		};
 
 		public static SplitFileReceiverCallback GetStreamCallback(Stream st)
@@ -44,7 +45,7 @@ namespace EggDotNet
 			return null;
 		}
 
-		public static PasswordCallback GetPasswordCallback()
+		public static FileDecryptPasswordCallback GetPasswordCallback()
 		{
 			return DefaultPasswordCallback;
 		}

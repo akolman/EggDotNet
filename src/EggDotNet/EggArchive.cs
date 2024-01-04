@@ -80,9 +80,9 @@ namespace EggDotNet
 		/// <param name="passwordCallback">A callback that will be called to retrieve a password used for decryption.</param>
 		/// <exception cref="Exceptions.UnknownEggException"/>
 #if NETSTANDARD2_1_OR_GREATER
-		public EggArchive(Stream stream, bool ownStream = false, SplitFileReceiverCallback? streamCallback = null, PasswordCallback passwordCallback = null)
+		public EggArchive(Stream stream, bool ownStream = false, SplitFileReceiverCallback? streamCallback = null, FileDecryptPasswordCallback? passwordCallback = null)
 #else
-		public EggArchive(Stream stream, bool ownStream = false, SplitFileReceiverCallback streamCallback = null, PasswordCallback passwordCallback = null)
+		public EggArchive(Stream stream, bool ownStream = false, SplitFileReceiverCallback streamCallback = null, FileDecryptPasswordCallback passwordCallback = null)
 #endif
 		{
 			if (streamCallback == null) streamCallback = DefaultStreamCallbacks.GetStreamCallback(stream);
