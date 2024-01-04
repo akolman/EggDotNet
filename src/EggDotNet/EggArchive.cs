@@ -27,11 +27,8 @@ namespace EggDotNet
 		/// <summary>
 		/// Gets the archive-level comment text.
 		/// </summary>
-#if NETSTANDARD2_1_OR_GREATER
-		public string? Comment { get; internal set; }
-#else
+
 		public string Comment { get; internal set; } = string.Empty;
-#endif
 
 		/// <summary>
 		/// Gets a collection of all <see cref="EggArchiveEntry"/> entries in this EggArchive.
@@ -52,7 +49,7 @@ namespace EggDotNet
 		/// <summary>
 		/// Constructs a new EggArchive using a source stream and option indicating who will own the stream.
 		/// </summary>
-		/// <param name="sourceStream">The input egg stream</param>
+		/// <param name="sourceStream">The input egg stream.</param>
 		/// <param name="ownStream">A flag indicating whether the caller owns the stream (false) or the EggArchive (true)</param>
 		/// <exception cref="Exceptions.UnknownEggException"/>
 		public EggArchive(Stream sourceStream, bool ownStream)
@@ -95,7 +92,7 @@ namespace EggDotNet
 		/// <summary>
 		/// Gets an <see cref="EggArchiveEntry"/> by name.
 		/// </summary>
-		/// <param name="entryName">The name of the entry.</param>
+		/// <param name="entryName">The name of the entry to fetch, including any directory.</param>
 		/// <returns>The entry specified by Name, null if not found.</returns>
 #if NETSTANDARD2_1_OR_GREATER
 		public EggArchiveEntry? GetEntry(string entryName)
@@ -109,7 +106,7 @@ namespace EggDotNet
 		/// <summary>
 		/// Gets an <see cref="EggArchiveEntry"/> by ID.
 		/// </summary>
-		/// <param name="id">The ID of the entry.</param>
+		/// <param name="id">The ID of the entry to fetch.</param>
 		/// <returns>The entry specifieid by ID, null if not found.</returns>
 #if NETSTANDARD2_1_OR_GREATER
 		public EggArchiveEntry? GetEntry(int id)

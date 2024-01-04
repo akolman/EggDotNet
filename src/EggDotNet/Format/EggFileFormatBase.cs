@@ -32,6 +32,7 @@ namespace EggDotNet.Format
 		/// <returns></returns>
 		public abstract Stream GetStreamForEntry(EggArchiveEntry entry);
 
+		/// <inheritdoc/>
 		public abstract void Dispose();
 	}
 }
