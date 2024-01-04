@@ -6,19 +6,20 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using static EggDotNet.Callbacks;
 
 namespace EggDotNet.Format.Egg
 {
 #pragma warning disable CA1852
 	internal class EggFormat : EggFileFormatBase
 	{
-		private readonly Func<Stream, IEnumerable<Stream>> _streamCallback;
-		private readonly Func<string> _pwCallback;
+		private readonly SplitFileReceiverCallback _streamCallback;
+		private readonly FileDecryptPasswordCallback _pwCallback;
 		private readonly List<EggVolume> _volumes = new List<EggVolume>(8);
 		private List<EggEntry> _entriesCache;
 		private bool disposedValue;
 
-		internal EggFormat(Func<Stream, IEnumerable<Stream>> streamCallback, Func<string> pwCallback)
+		internal EggFormat(SplitFileReceiverCallback streamCallback, FileDecryptPasswordCallback pwCallback)
 		{
 			_streamCallback = streamCallback;
 			_pwCallback = pwCallback;
@@ -121,28 +122,38 @@ namespace EggDotNet.Format.Egg
 		{
 			var pwCb = _pwCallback ?? DefaultStreamCallbacks.GetPasswordCallback();
 
+			IStreamDecryptionProvider s;
+			if (eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.Standard)
+			{
+				s = new ZipStreamDecryptionProvider(eggEntry.EncryptHeader.Param1, eggEntry.EncryptHeader.Param2);
+			}
+			else if (eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.AES128
+				|| eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.AES256)
+			{
+				var width = eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.AES256 ? 256 : 128;
+				s = new AesStreamDecryptionProvider(width, eggEntry.EncryptHeader.Param1, eggEntry.EncryptHeader.Param2);
+			}
+			else
+			{
+				throw new NotImplementedException("Encryption method not supported");
+			}
+
 			while (true)
 			{
-				var pw = pwCb.Invoke();
-				IStreamDecryptionProvider s;
-				if (eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.Standard)
+				var pwOptions = new PasswordCallbackOptions();
+				pwCb.Invoke(eggEntry.Name, pwOptions);
+				if (string.IsNullOrWhiteSpace(pwOptions.Password))
 				{
-					s = new ZipStreamDecryptionProvider(eggEntry.EncryptHeader.Param1, eggEntry.EncryptHeader.Param2, pw);
-				}
-				else if (eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.AES128 
-					|| eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.AES256)
-				{
-					var width = eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.AES256 ? 256 : 128;
-					s = new AesStreamDecryptionProvider(width, eggEntry.EncryptHeader.Param1, eggEntry.EncryptHeader.Param2, pw);
-				}
-				else
-				{
-					throw new NotImplementedException("Encryption method not supported");
+					throw new DecryptFailedException();
 				}
 
-				if (s.PasswordValid)
+				if (s.AttachAndValidatePassword(pwOptions.Password))
 				{
 					return s.GetDecryptionStream(subSt);
+				}
+				else if(!pwOptions.Retry)
+				{
+					throw new DecryptFailedException();
 				}
 			}
 		}

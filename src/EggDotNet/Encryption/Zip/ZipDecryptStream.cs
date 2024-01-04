@@ -132,6 +132,4 @@ namespace EggDotNet.Encryption.Zip
 			throw new NotImplementedException();
 		}
 	}
-
-
 }
