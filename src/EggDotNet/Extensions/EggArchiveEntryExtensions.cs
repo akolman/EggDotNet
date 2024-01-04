@@ -11,7 +11,7 @@ namespace EggDotNet.Extensions
 		/// Extracts an <see cref="EggArchiveEntry"/> to a directory.
 		/// </summary>
 		/// <param name="entry">The source entry.</param>
-		/// <param name="destinationDirectory">The destination directory.</param>
+		/// <param name="destinationDirectory">The destination directory to extract the entry into.</param>
 		public static void ExtractToDirectory(this EggArchiveEntry entry, string destinationDirectory)
 		{
 			using (var entryStream = entry.Open())

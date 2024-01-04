@@ -7,7 +7,7 @@ namespace EggDotNet.SpecialStreams
 {
 #pragma warning disable CA2215
 
-	internal sealed class CollectiveStream : Stream
+	internal sealed class CollectiveEggStream : Stream
 	{
 		private readonly List<SubStream> subStreams;
 		private readonly long totalLength;
@@ -33,7 +33,7 @@ namespace EggDotNet.SpecialStreams
 			}
 		}
 
-		public CollectiveStream(List<Stream> streams)
+		public CollectiveEggStream(List<Stream> streams)
 		{
 			var posTemps = new List<long>(streams.Count);
 			subStreams = new List<SubStream>(streams.Count);
@@ -54,7 +54,7 @@ namespace EggDotNet.SpecialStreams
 
 		}
 
-		public CollectiveStream(List<SubStream> streams)
+		public CollectiveEggStream(List<SubStream> streams)
 		{
 			var posTemps = new List<long>(streams.Count);
 			var len = 0L;

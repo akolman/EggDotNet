@@ -2,12 +2,12 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
-	  <Version>0.0.7</Version>
+	  <Version>0.0.8</Version>
 	  <Authors>Andrew Kolman</Authors>
 	  <RepositoryUrl>https://github.com/akolman/EggDotNet</RepositoryUrl>
 	  <RepositoryType>git</RepositoryType>
 	  <Title>EggDotNet</Title>
-	  <Description>An EGG file format extraction library for DotNet.</Description>
+	  <Description>An EGG file format extraction/decompression library for .NET (framework and modern).</Description>
 	  <PackageIcon>eggdotnet.png</PackageIcon>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
 	  <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
@@ -18,7 +18,8 @@
 	  <AnalysisLevel>latest-recommended</AnalysisLevel>
 	  <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
 	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
-	  <PackageTags>egg, compression, alz</PackageTags>
+	  <Deterministic>True</Deterministic>
+	  <PackageTags>egg, compression, alz, deflate, lzma, bzip, alzip, altools</PackageTags>
   </PropertyGroup>
 
 	

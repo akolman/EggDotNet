@@ -1,11 +1,15 @@
-﻿using EggDotNet.Extensions;
+﻿using EggDotNet.InternalExtensions;
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 
+#if NETSTANDARD2_0
+using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
+#endif
+
 namespace EggDotNet.Format.Alz
 {
-	internal sealed class FileHeader
+    internal sealed class FileHeader
 	{
 		public const int ALZ_FILE_HEADER_START_MAGIC = 0x015A4C42;
 
@@ -46,32 +50,55 @@ namespace EggDotNet.Format.Alz
 		{
 			var header = new FileHeader();
 
-			stream.ReadShort(out short filenameLen);
-			stream.ReadByte(out byte attributes);
+#if NETSTANDARD2_1_OR_GREATER
+			Span<byte> fileheaderBuffer = stackalloc byte[9];
+#else
+			var fileheaderBuffer = new byte[9];
+#endif
+
+			if (stream.Read(fileheaderBuffer) != 9)
+			{
+				throw new InvalidDataException("Failed reading Alz entry header");
+			}
+
+			var filenameLen = BitConverter.ToInt16(fileheaderBuffer.Slice(0, 2));
+			var attributes = fileheaderBuffer[2];
 			_ = attributes; //TODO
-			stream.ReadUInt(out uint moddate);
+			var moddate = Utilities.FromAlzTime(BitConverter.ToUInt32(fileheaderBuffer.Slice(3, 4)));
+			var bitFlags = BitConverter.ToInt16(fileheaderBuffer.Slice(7, 2));
 
-			header.LastWriteTime = Utilities.FromAlzTime(moddate);
-			//header.La = Utilities.FromAlzTime(moddate);
-			
-			//stream.Seek(5, SeekOrigin.Current);
-
-			stream.ReadShort(out short bitFlags);
 
 			if (bitFlags != 0)
 			{
-				stream.ReadShort(out short compMethodVal);
-				header.CompressionMethod = compMethodVal == 2 ? CompressionMethod.Deflate : CompressionMethod.Store;
-				stream.ReadUInt(out uint crc);
-				header.Crc32 = crc;
 				var rfs = GetReadFileSize(bitFlags);
-				stream.ReadN(rfs, out var fsBuf);
-				header.CompressedSize = ReadSize(rfs, fsBuf);
-				stream.ReadN(rfs, out fsBuf);
-				header.UncompressedSize = ReadSize(rfs, fsBuf);
+				var fileinfoBufferLen = rfs * 2 + 6;
+#if NETSTANDARD2_1_OR_GREATER
+				Span<byte> fileInfoBuffer = stackalloc byte[fileinfoBufferLen];
+#else
+				var fileInfoBuffer = new byte[fileinfoBufferLen];
+#endif
+				if (stream.Read(fileInfoBuffer) != fileinfoBufferLen)
+				{
+					throw new InvalidDataException("Failed reading Alz entry info");
+				}
+
+				var compMethodVal = BitConverter.ToInt16(fileInfoBuffer.Slice(0, 2));
+				header.CompressionMethod = compMethodVal == 2 ? CompressionMethod.Deflate : CompressionMethod.Store;
+				header.Crc32 = BitConverter.ToUInt32(fileInfoBuffer.Slice(2, 4));
+				header.CompressedSize = ReadSize(rfs, fileInfoBuffer.Slice(6, rfs));
+				header.UncompressedSize = ReadSize(rfs, fileInfoBuffer.Slice(6 + rfs, rfs));
 			}
 
-			stream.ReadN(filenameLen, out var filenameBuffer);
+#if NETSTANDARD2_1_OR_GREATER
+			Span<byte> filenameBuffer = stackalloc byte[filenameLen];
+#else
+			var filenameBuffer = new byte[filenameLen];
+#endif
+
+			if (stream.Read(filenameBuffer) != filenameLen)
+			{
+				throw new InvalidDataException("Failed reading Alz entry filename");
+			}
 
 			header.Name = System.Text.Encoding.UTF8.GetString(filenameBuffer);
 			header.StartPosition = stream.Position;
@@ -86,6 +113,7 @@ namespace EggDotNet.Format.Alz
 			return (short)a;
 		}
 
+#if NETSTANDARD2_0
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static long ReadSize(short size, byte[] buf)
 		{
@@ -94,14 +122,33 @@ namespace EggDotNet.Format.Alz
 				case 1:
 					return buf[0];
 				case 2:
-					return BitConverter.ToInt16(buf, 0);
+					return System.BitConverter.ToInt16(buf, 0);
 				case 4:
-					return BitConverter.ToInt32(buf, 0);
+					return System.BitConverter.ToInt32(buf, 0);
 				case 8:
-					return BitConverter.ToInt64(buf, 0);
+					return System.BitConverter.ToInt64(buf, 0);
 				default:
 					throw new InvalidDataException($"Invalid file size descriptor ({size})");
 			};
 		}
+#else
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private static long ReadSize(short size, Span<byte> buf)
+		{
+			switch (size)
+			{
+				case 1:
+					return buf[0];
+				case 2:
+					return BitConverter.ToInt16(buf);
+				case 4:
+					return BitConverter.ToInt32(buf);
+				case 8:
+					return BitConverter.ToInt64(buf);
+				default:
+					throw new InvalidDataException($"Invalid file size descriptor ({size})");
+			};
+		}
+#endif
 	}
 }

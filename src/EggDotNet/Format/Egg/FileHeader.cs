@@ -1,10 +1,14 @@
-﻿using EggDotNet.Exceptions;
-using EggDotNet.Extensions;
+﻿using EggDotNet.InternalExtensions;
+using System;
 using System.IO;
+
+#if NETSTANDARD2_0
+using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
+#endif
 
 namespace EggDotNet.Format.Egg
 {
-	internal sealed class FileHeader
+    internal sealed class FileHeader
 	{
 		public const int FILE_HEADER_MAGIC = 0x0A8590E3;
 
@@ -22,15 +26,18 @@ namespace EggDotNet.Format.Egg
 
 		public static FileHeader Parse(Stream stream)
 		{
-			if (!stream.ReadInt(out int fileId))
+#if NETSTANDARD2_1_OR_GREATER
+			Span<byte> headerBuffer = stackalloc byte[12];
+#else
+			var headerBuffer = new byte[12];
+#endif
+			if (stream.Read(headerBuffer) != 12)
 			{
-				throw new InvalidDataException("Failed reading ID from file header");
+				throw new InvalidDataException("Failed reading file entry header");
 			}
-			
-			if (!stream.ReadLong(out long fileLength))
-			{
-				throw new InvalidDataException("Failed reading file length from file header");
-			}
+
+			var fileId = BitConverter.ToInt32(headerBuffer.Slice(0, 4));
+			var fileLength = BitConverter.ToInt64(headerBuffer.Slice(4, 8));
 
 			return new FileHeader(fileId, fileLength);
 		}

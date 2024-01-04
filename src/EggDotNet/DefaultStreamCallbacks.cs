@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using static EggDotNet.Callbacks;
 
 namespace EggDotNet
 {
 	internal static class DefaultStreamCallbacks
 	{
-		public static Func<Stream, IEnumerable<Stream>> DefaultFileStreamCallback = (st) =>
+		public static SplitFileReceiverCallback DefaultFileStreamCallback = (st) =>
 		{
 			if (st is FileStream fst)
 			{
@@ -26,19 +27,15 @@ namespace EggDotNet
 			throw new InvalidOperationException("DefaultFileStream can only be used with FileStream");
 		};
 
-		public static Func<string> DefaultPasswordCallback = () =>
+		public static FileDecryptPasswordCallback DefaultPasswordCallback = (string filename, PasswordCallbackOptions callbackOptions) =>
 		{
-			Console.WriteLine("Please enter archive password: ");
+			Console.WriteLine($"Please enter password for {filename} (return to quit): ");
 
-			var password = string.Empty;
-			while (string.IsNullOrWhiteSpace(password))
-			{
-				password = Console.ReadLine();
-			}
-			return password;
+			callbackOptions.Password = Console.ReadLine();
+			callbackOptions.Retry = true;
 		};
 
-		public static Func<Stream, IEnumerable<Stream>> GetStreamCallback(Stream st)
+		public static SplitFileReceiverCallback GetStreamCallback(Stream st)
 		{
 			if (st is FileStream)
 			{
@@ -48,7 +45,7 @@ namespace EggDotNet
 			return null;
 		}
 
-		public static Func<string> GetPasswordCallback()
+		public static FileDecryptPasswordCallback GetPasswordCallback()
 		{
 			return DefaultPasswordCallback;
 		}

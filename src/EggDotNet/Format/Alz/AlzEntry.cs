@@ -1,59 +1,71 @@
-﻿using EggDotNet.Extensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 
+#if NETSTANDARD2_0
+using EggDotNet.Extensions;
+using EggDotNet.InternalExtensions;
+using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
+#endif
+
 namespace EggDotNet.Format.Alz
 {
-	internal sealed class AlzEntry : IEggFileEntry
+    internal sealed class AlzEntry : EggFileEntryBase
 	{
-		public int Id { get; private set; }
-		public string Name { get; private set; }
-		public long Position { get; private set; }
+		private readonly int _id;
+		private readonly FileHeader FileHeader;
 
-		public long UncompressedSize { get; private set; }
+		private AlzEntry(FileHeader header, int id)
+		{
+			_id = id;
+			FileHeader = header;
+		}
 
-		public long CompressedSize { get; private set; }
+		public override int Id => _id;
+		public override string Name => FileHeader.Name;
+		public override long Position => FileHeader.StartPosition;
 
-		public uint Crc32 { get; private set; }
+		public override long UncompressedSize => FileHeader.UncompressedSize;
 
-		public CompressionMethod CompressionMethod { get; private set; }
+		public override long CompressedSize => FileHeader.CompressedSize;
 
-		public bool IsEncrypted => false;
+		public override uint Crc32 => FileHeader.Crc32;
 
-		public long ExternalAttributes => 0;
+		public override CompressionMethod CompressionMethod => FileHeader.CompressionMethod;
+
+		public override bool IsEncrypted => false;
+
+		public override long ExternalAttributes => 0;
 
 #if NETSTANDARD2_1_OR_GREATER
 #nullable enable
-		public DateTime? LastWriteTime { get; private set; }
+		public override DateTime? LastWriteTime => FileHeader.LastWriteTime;
 
-		public string? Comment => throw new NotImplementedException();
+		public override string? Comment => string.Empty; //TODO
 #else
-		public DateTime LastWriteTime { get; private set; }
+		public override DateTime LastWriteTime => FileHeader.LastWriteTime;
 
-		public string Comment => throw new NotImplementedException();
+		public override string Comment => string.Empty; //TODO
 #endif
 		public static List<AlzEntry> ParseEntries(Stream stream)
 		{
 			var entries = new List<AlzEntry>();
 
-			while (stream.ReadInt(out int nextHeader))
+#if NETSTANDARD2_1_OR_GREATER
+			Span<byte> nextHeaderBuf = stackalloc byte[Global.HEADER_SIZE];
+#else
+			var nextHeaderBuf = new byte[Global.HEADER_SIZE];
+#endif
+
+			while (stream.Read(nextHeaderBuf) == Global.HEADER_SIZE)
 			{
-				var entry = new AlzEntry();
+				var nextHeader = BitConverter.ToInt32(nextHeaderBuf);
 
 				if (nextHeader == FileHeader.ALZ_FILE_HEADER_START_MAGIC)
 				{
-					var fileHeader = FileHeader.Parse(stream);
-					entry.Id = entries.Count;
-					entry.CompressedSize = fileHeader.CompressedSize;
-					entry.UncompressedSize = fileHeader.UncompressedSize;
-					entry.CompressionMethod = fileHeader.CompressionMethod;
-					entry.Name = fileHeader.Name;
-					entry.Position = fileHeader.StartPosition;
-					entry.Crc32 = fileHeader.Crc32;
-					entry.LastWriteTime = fileHeader.LastWriteTime;
-					entries.Add(entry);
+					var entry = new AlzEntry(FileHeader.Parse(stream), entries.Count);
 					stream.Seek(entry.CompressedSize, SeekOrigin.Current);
+					entries.Add(entry);
 				}
 				else if (nextHeader == FileHeader.ALZ_FILE_HEADER_END_MAGIC)
 				{

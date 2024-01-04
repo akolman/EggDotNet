@@ -1,9 +1,14 @@
-﻿using EggDotNet.Extensions;
+﻿using EggDotNet.InternalExtensions;
+using System;
 using System.IO;
+
+#if NETSTANDARD2_0
+using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
+#endif
 
 namespace EggDotNet.Format.Egg
 {
-	internal sealed class EncryptHeader
+    internal sealed class EncryptHeader
 	{
 		public const int EGG_ENCRYPT_HEADER_MAGIC = 0x08D1470F;
 
@@ -14,6 +19,15 @@ namespace EggDotNet.Format.Egg
 
 		public byte[] Param2 { get; private set; }
 
+#if NETSTANDARD2_1_OR_GREATER
+		public EncryptHeader(EncryptionMethod encryptionMethod, short size, Span<byte> aesHeader, Span<byte> aesFooter)
+		{
+			EncryptionMethod = encryptionMethod;
+			Size = size;
+			Param1 = aesHeader.ToArray();
+			Param2 = aesFooter.ToArray();
+		}
+#else
 		public EncryptHeader(EncryptionMethod encryptionMethod, short size, byte[] aesHeader, byte[] aesFooter)
 		{
 			EncryptionMethod = encryptionMethod;
@@ -21,49 +35,60 @@ namespace EggDotNet.Format.Egg
 			Param1 = aesHeader;
 			Param2 = aesFooter;
 		}
+#endif
+
 
 		public static EncryptHeader Parse(Stream stream)
 		{
-			if (stream.ReadByte() == -1)
-			{
+#if NETSTANDARD2_1_OR_GREATER
+			Span<byte> encryptHeaderBuffer = stackalloc byte[3];
+#else
+			var encryptHeaderBuffer = new byte[3];
+#endif
 
+			if (stream.Read(encryptHeaderBuffer) != 3)
+			{
+				Console.Error.WriteLine("Could not read encrypt header size");
+				return null;
 			}
 
-			if (!stream.ReadShort(out short size))
-			{
+			var size = BitConverter.ToInt16(encryptHeaderBuffer.Slice(1, 2));
 
+#if NETSTANDARD2_1_OR_GREATER
+			Span<byte> encDataBuffer = stackalloc byte[size];
+#else
+			var encDataBuffer = new byte[size];
+#endif
+			if (stream.Read(encDataBuffer) != size)
+			{
+				Console.Error.WriteLine("Could not read encryption header");
+				return null;
 			}
 
-			if (!stream.ReadByte(out var encMethodVal))
-			{
+			var encMethod = (EncryptionMethod)encDataBuffer[0];
 
-			}
-
-			var encMethod = (EncryptionMethod)encMethodVal;
 			if (encMethod == EncryptionMethod.AES128)
 			{
-				stream.ReadN(10, out byte[] aesHeader);
-				stream.ReadN(10, out byte[] aesFooter);
+				var aesHeader = encDataBuffer.Slice(1, 10);
+				var aesFooter = encDataBuffer.Slice(11, 10);
 				return new EncryptHeader(encMethod, size, aesHeader, aesFooter);
 			}
 			else if(encMethod == EncryptionMethod.AES256)
 			{
-				stream.ReadN(18, out byte[] aesHeader);
-				stream.ReadN(10, out byte[] aesFooter);
+				var aesHeader = encDataBuffer.Slice(1, 18);
+				var aesFooter = encDataBuffer.Slice(19, 10);
 				return new EncryptHeader(encMethod, size, aesHeader, aesFooter);
 			}
 			else if (encMethod == EncryptionMethod.Standard)
 			{
-				stream.ReadN(12, out byte[]  standardHeader);
-				stream.ReadN(4, out byte[] pwData);
+				var standardHeader = encDataBuffer.Slice(1, 12);
+				var pwData = encDataBuffer.Slice(13, 4);
 				return new EncryptHeader(encMethod, size, standardHeader, pwData);
 			}
 			else
 			{
 				throw new System.NotImplementedException("Not implemented");
 			}
-
 		}
-
 	}
 }

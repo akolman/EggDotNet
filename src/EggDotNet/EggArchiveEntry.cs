@@ -14,9 +14,9 @@ namespace EggDotNet
 	/// </summary>
 	public sealed class EggArchiveEntry
 	{
-		private IEggFileFormat _format => Archive.format;
+		private EggFileFormatBase _format => Archive.format;
 
-		internal readonly IEggFileEntry entry;
+		internal readonly EggFileEntryBase entry;
 		internal long PositionInStream => entry.Position;
 		
 		/// <summary>
@@ -72,12 +72,21 @@ namespace EggDotNet
 		/// </summary>
 		public CompressionMethod CompressionMethod => entry.CompressionMethod;
 
+#if NETSTANDARD2_1_OR_GREATER
 		/// <summary>
 		/// Gets the last write time of the file.
 		/// </summary>
-#if NETSTANDARD2_1_OR_GREATER
+		/// <remarks>
+		/// If no mod date is present, value will be null.
+		/// </remarks>
 		public DateTime? LastWriteTime => entry.LastWriteTime;
 #else
+		/// <summary>
+		/// Gets the last write time of the file.
+		/// </summary>
+		/// <remarks>
+		/// If no mod date is present, value will be default value (min value).
+		/// </remarks>
 		public DateTime LastWriteTime => entry.LastWriteTime;
 #endif
 
@@ -92,13 +101,9 @@ namespace EggDotNet
 		/// <summary>
 		/// Gets the comment of the file.
 		/// </summary>
-#if NETSTANDARD2_1_OR_GREATER
-		public string? Comment => entry.Comment;
-#else
 		public string Comment => entry.Comment ?? string.Empty;
-#endif
 
-		internal EggArchiveEntry(IEggFileEntry entry, EggArchive archive)
+		internal EggArchiveEntry(EggFileEntryBase entry, EggArchive archive)
 		{
 			Archive = archive;
 			this.entry = entry;

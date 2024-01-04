@@ -6,25 +6,26 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using static EggDotNet.Callbacks;
 
 namespace EggDotNet.Format.Egg
 {
 #pragma warning disable CA1852
-	internal class EggFormat : IEggFileFormat
+	internal class EggFormat : EggFileFormatBase
 	{
-		private readonly Func<Stream, IEnumerable<Stream>> _streamCallback;
-		private readonly Func<string> _pwCallback;
+		private readonly SplitFileReceiverCallback _streamCallback;
+		private readonly FileDecryptPasswordCallback _pwCallback;
 		private readonly List<EggVolume> _volumes = new List<EggVolume>(8);
 		private List<EggEntry> _entriesCache;
 		private bool disposedValue;
 
-		internal EggFormat(Func<Stream, IEnumerable<Stream>> streamCallback, Func<string> pwCallback)
+		internal EggFormat(SplitFileReceiverCallback streamCallback, FileDecryptPasswordCallback pwCallback)
 		{
 			_streamCallback = streamCallback;
 			_pwCallback = pwCallback;
 		}
 
-		public void ParseHeaders(Stream stream, bool ownStream)
+		public override void ParseHeaders(Stream stream, bool ownStream)
 		{
 			var initialVolume = EggVolume.Parse(stream, ownStream);
 			_volumes.Add(initialVolume);
@@ -35,7 +36,7 @@ namespace EggDotNet.Format.Egg
 			}
 		}
 
-		public List<EggArchiveEntry> Scan(EggArchive archive)
+		public override List<EggArchiveEntry> Scan(EggArchive archive)
 		{
 			using (var st = PrepareStream())
 			{
@@ -50,7 +51,7 @@ namespace EggDotNet.Format.Egg
 			}
 		}
 
-		public Stream GetStreamForEntry(EggArchiveEntry entry)
+		public override Stream GetStreamForEntry(EggArchiveEntry entry)
 		{
 			var st = PrepareStream();
 			Stream subSt = new SubStream(st, entry.PositionInStream, entry.PositionInStream + entry.CompressedLength);
@@ -92,7 +93,7 @@ namespace EggDotNet.Format.Egg
 
 			if (_volumes.Count == 1)
 			{
-				return new FakeDisposingStream(_volumes.Single().GetStream());
+				return new EggStream(_volumes.Single().GetStream());
 			}
 			else
 			{
@@ -100,7 +101,7 @@ namespace EggDotNet.Format.Egg
 			}
 		}
 
-		private CollectiveStream PrepareSplitStream()
+		private CollectiveEggStream PrepareSplitStream()
 		{
 			var subStreams = new List<SubStream>(_volumes.Count);
 			var curVol = _volumes.Single(v => v.Header.SplitHeader.PreviousFileId == 0);
@@ -114,35 +115,45 @@ namespace EggDotNet.Format.Egg
 				subStreams.Add(new SubStream(curSt, curVol.Header.HeaderEndPosition));
 			}
 
-			return new CollectiveStream(subStreams);
+			return new CollectiveEggStream(subStreams);
 		}
 
 		private Stream GetDecryptionStream(Stream subSt, EggEntry eggEntry)
 		{
 			var pwCb = _pwCallback ?? DefaultStreamCallbacks.GetPasswordCallback();
 
+			IStreamDecryptionProvider s;
+			if (eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.Standard)
+			{
+				s = new ZipStreamDecryptionProvider(eggEntry.EncryptHeader.Param1, eggEntry.EncryptHeader.Param2);
+			}
+			else if (eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.AES128
+				|| eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.AES256)
+			{
+				var width = eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.AES256 ? 256 : 128;
+				s = new AesStreamDecryptionProvider(width, eggEntry.EncryptHeader.Param1, eggEntry.EncryptHeader.Param2);
+			}
+			else
+			{
+				throw new NotImplementedException("Encryption method not supported");
+			}
+
 			while (true)
 			{
-				var pw = pwCb.Invoke();
-				IStreamDecryptionProvider s;
-				if (eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.Standard)
+				var pwOptions = new PasswordCallbackOptions();
+				pwCb.Invoke(eggEntry.Name, pwOptions);
+				if (string.IsNullOrWhiteSpace(pwOptions.Password))
 				{
-					s = new ZipStreamDecryptionProvider(eggEntry.EncryptHeader.Param1, eggEntry.EncryptHeader.Param2, pw);
-				}
-				else if (eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.AES128 
-					|| eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.AES256)
-				{
-					var width = eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.AES256 ? 256 : 128;
-					s = new AesStreamDecryptionProvider(width, eggEntry.EncryptHeader.Param1, eggEntry.EncryptHeader.Param2, pw);
-				}
-				else
-				{
-					throw new NotImplementedException("Encryption method not supported");
+					throw new DecryptFailedException();
 				}
 
-				if (s.PasswordValid)
+				if (s.AttachAndValidatePassword(pwOptions.Password))
 				{
 					return s.GetDecryptionStream(subSt);
+				}
+				else if(!pwOptions.Retry)
+				{
+					throw new DecryptFailedException();
 				}
 			}
 		}
@@ -190,7 +201,7 @@ namespace EggDotNet.Format.Egg
 			}
 		}
 
-		public void Dispose()
+		public override void Dispose()
 		{
 			// Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
 			Dispose(disposing: true);

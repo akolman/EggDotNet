@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Security.Cryptography;
 using EggDotNet.Exceptions;
 
@@ -48,7 +49,7 @@ namespace EggDotNet.Tests
 
 	public class UnitTest1 : IDisposable
 	{
-		private static readonly string TEST_FILES_DIR = "../../../test_files/";
+		private const string TEST_FILES_DIR = "../../../test_files/";
 
 		public static readonly Dictionary<string, TestFileInfo> TestFileInfos = new()
 		{
@@ -119,10 +120,27 @@ namespace EggDotNet.Tests
 		}
 
 		[Fact]
+		public void Test_ZipEnc()
+		{
+			using var fs = new FileStream(GetTestPath("lorem_long_zipEnc.egg"), FileMode.Open, FileAccess.Read);
+			using var archive = new EggArchive(fs, false, null, (filename, options) => { options.Password = "password12345!"; options.Retry = false; });
+			Assert.Equal("Lorem long text encrypted with ZIP", archive.Comment);
+			ValidateAllEggEntries(archive);
+			var aes256Entry = archive.GetEntry("lorem_ipsum_long.txt");
+			Assert.Equal("This file is encrypted using ZIP.", aes256Entry!.Comment);
+			using var entryStream = aes256Entry.Open();
+			using var sr = new StreamReader(entryStream);
+			var loremLongText = sr.ReadToEnd();
+			Assert.Equal(15_238, loremLongText.Length);
+			Assert.StartsWith("Lorem ipsum dolor sit amet", loremLongText);
+			Assert.EndsWith("sed faucibus orci ligula eu nisi.", loremLongText);
+		}
+
+		[Fact]
 		public void Test_Aes128()
 		{
 			using var fs = new FileStream(GetTestPath("lorem_long_aes128.egg"), FileMode.Open, FileAccess.Read);
-			using var archive = new EggArchive(fs, false, null, () => "password12345!");
+			using var archive = new EggArchive(fs, false, null, (filename, options) => { options.Password = "password12345!"; options.Retry = false; });
 			Assert.Equal("Lorem long text encrypted with AES128", archive.Comment);
 			ValidateAllEggEntries(archive);
 			var aes256Entry = archive.GetEntry("lorem_ipsum_long.txt");
@@ -139,7 +157,7 @@ namespace EggDotNet.Tests
 		public void Test_Aes256()
 		{
 			using var fs = new FileStream(GetTestPath("lorem_long_aes256.egg"), FileMode.Open, FileAccess.Read);
-			using var archive = new EggArchive(fs, false, null, () => "password12345!");
+			using var archive = new EggArchive(fs, false, null, (filename, options) => { options.Password = "password12345!"; options.Retry = false; });
 			Assert.Equal("Lorem long text encrypted with AES256", archive.Comment);
 			ValidateAllEggEntries(archive);
 			var aes256Entry = archive.GetEntry("lorem_ipsum_long.txt");
@@ -157,6 +175,19 @@ namespace EggDotNet.Tests
 		{
 			using var archive = OpenTestEgg("defaults.alz");
 			ValidateAllEggEntries(archive);
+		}
+
+		[Fact]
+		public void Test_Decrypt_Fails_With_Exception()
+		{
+			using var fs = new FileStream(GetTestPath("lorem_long_aes256.egg"), FileMode.Open, FileAccess.Read);
+			using var archive = new EggArchive(fs, false, null, (filename, options) => { options.Password = "badpassword"; options.Retry = false; });
+			var ent = archive.Entries.First();
+			Assert.True(ent.IsEncrypted);
+			Assert.ThrowsAny<DecryptFailedException>(() =>
+			{
+				using var entSt = ent.Open();
+			});
 		}
 
 		[Fact]
