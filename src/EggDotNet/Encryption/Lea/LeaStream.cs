@@ -40,6 +40,14 @@ namespace EggDotNet.Encryption.Lea
 			{
 				_crypto.TransformBlock(readBuf, 0, readLen, buffer, 0);
 			}
+			else
+			{
+				for(var i=0; i < count - 16; i+=16)
+				{
+					_crypto.TransformBlock(readBuf, i, readLen, buffer, i);
+				}
+
+			}
 
 
 			return readLen;
