@@ -5,7 +5,7 @@ using System.Text;
 
 namespace EggDotNet.Encryption.Lea.Imp
 {
-	internal class CTRModeLeaTransformer : ECBModeLeaTransformer
+	internal sealed class CTRModeLeaTransformer : LeaCryptoTransform
 	{
 		private byte[] _iv;
 		private byte[] _ctr;

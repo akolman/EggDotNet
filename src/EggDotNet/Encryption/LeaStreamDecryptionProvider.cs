@@ -2,15 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using EggDotNet.Encryption.Lea.Imp;
-using EggDotNet.Format.Alz;
 using System.Linq;
 using System.Security.Cryptography;
 
 namespace EggDotNet.Encryption
 {
-	internal class LeaStreamDecryptionProvider : IStreamDecryptionProvider
+	internal sealed class LeaStreamDecryptionProvider : IStreamDecryptionProvider
 	{
 #pragma warning disable IDE0052 // Remove unread private members
 		private readonly byte[] _footer;
@@ -28,9 +25,14 @@ namespace EggDotNet.Encryption
 
 		public bool AttachAndValidatePassword(string password)
 		{
-			var lea = new Lea.Imp.Lea(256, password, _header.Take(16).ToArray());
-			_cryptoTransform = lea.CreateDecryptor("CTR", lea.Key, new byte[16]);
-			return true;
+			var lea = new Lea.Imp.Lea(256, password, _header);
+			if (lea.PasswordValid)
+			{
+				_cryptoTransform = lea.CreateDecryptor(lea.Key, new byte[16]);
+				return true;
+			}
+			lea.Dispose();
+			return false;
 		}
 
 		public Stream GetDecryptionStream(Stream stream)

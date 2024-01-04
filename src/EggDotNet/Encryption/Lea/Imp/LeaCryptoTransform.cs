@@ -5,7 +5,7 @@ using System.Text;
 
 namespace EggDotNet.Encryption.Lea.Imp
 {
-	public abstract class LeaCryptoTransform : ICryptoTransform
+	internal abstract class LeaCryptoTransform : ICryptoTransform
 	{
 		protected const int BLOCK_SIZE_BYTES = 16;
 		private static uint[] delta = new uint[] { 0xc3efe9db, 0x44626b02, 0x79e27c8a, 0x78df30ec, 0x715ea49e, 0xc785da0a, 0xe04ef22a, 0xe5c40957 };

@@ -4,12 +4,15 @@ using System.Security.Cryptography;
 
 namespace EggDotNet.Encryption.Lea.Imp
 {
-
-
-	internal class Lea : SymmetricAlgorithm
+	internal sealed class Lea : SymmetricAlgorithm
 	{
+		private byte[] _salt;
+		private byte[] _keyBytes;
+		private byte[] _MacInitializationVector;
+		private byte[] _generatedPv;
+		private byte[] _storedPv;
 
-		public override int BlockSize { get; set; }
+		public override int BlockSize { get; set; } = 128;
 
 		public override byte[] IV
 		{
@@ -35,55 +38,30 @@ namespace EggDotNet.Encryption.Lea.Imp
 			}
 		}
 
+		public bool PasswordValid => Enumerable.SequenceEqual(_generatedPv, _storedPv);
+
 		public override int KeySize { get; set; }
 
 		public override CipherMode Mode { get; set; }
 
-		private byte[] _salt;
-		private byte[] _keyBytes;
-		private byte[] _MacInitializationVector;
-		private byte[] _generatedPv;
-
-		public Lea()
-		{
-
-		}
-
 		public Lea(int keySizeBits, string password, byte[] salt)
 		{
-			_salt = salt;
+			_salt = salt.Take(16).ToArray();
 
-			System.Security.Cryptography.Rfc2898DeriveBytes rfc2898 =
-					new System.Security.Cryptography.Rfc2898DeriveBytes(password, _salt, 1000);
+#pragma warning disable CA5379 // Ensure Key Derivation Function algorithm is sufficiently strong
+			var rfc2898 = new Rfc2898DeriveBytes(password, _salt, 1000);
+#pragma warning restore CA5379 // Ensure Key Derivation Function algorithm is sufficiently strong
 
 			_keyBytes = rfc2898.GetBytes(keySizeBits / 8); // 16 or 24 or 32 ???
 			_MacInitializationVector = rfc2898.GetBytes(32).Take(16).ToArray();
 			_generatedPv = rfc2898.GetBytes(2);
-
+			_storedPv = salt.Skip(16).Take(2).ToArray();
 			//_cryptoGenerated = true;
 		}
 
 		public override ICryptoTransform CreateDecryptor(byte[] rgbKey, byte[] rgbIV)
 		{
-			if (Mode == CipherMode.ECB)
-			{
-				return new ECBModeLeaTransformer(CryptoStreamMode.Read, rgbKey);
-			}
-			throw new NotImplementedException();
-		}
-
-		public ICryptoTransform CreateDecryptor(string mode, byte[] rgbKey, byte[] rgbIV)
-		{
-			if (mode == "CTR")
-			{
-				return new CTRModeLeaTransformer(CryptoStreamMode.Write, rgbKey, rgbIV);
-			}
-			else if (mode == "ECB")
-			{
-				return new ECBModeLeaTransformer(CryptoStreamMode.Read, rgbKey);
-			}
-
-			throw new NotImplementedException();
+			return new CTRModeLeaTransformer(CryptoStreamMode.Write, rgbKey, rgbIV);
 		}
 
 		public override ICryptoTransform CreateEncryptor(byte[] rgbKey, byte[] rgbIV)

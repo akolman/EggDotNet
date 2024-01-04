@@ -6,7 +6,7 @@ using System.Text;
 
 namespace EggDotNet.Encryption.Lea
 {
-	internal class LeaStream : System.IO.Stream
+	internal sealed class LeaStream : System.IO.Stream
 	{
 		public override bool CanRead => true;
 
