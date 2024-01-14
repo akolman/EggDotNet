@@ -7,7 +7,7 @@ namespace EggDotNet.Encryption.Lea.Imp
 {
 	internal abstract class LeaCryptoTransform : ICryptoTransform
 	{
-		protected const int BLOCK_SIZE_BYTES = 16;
+		public const int BLOCK_SIZE_BYTES = 16;
 		private static uint[] delta = new uint[] { 0xc3efe9db, 0x44626b02, 0x79e27c8a, 0x78df30ec, 0x715ea49e, 0xc785da0a, 0xe04ef22a, 0xe5c40957 };
 
 		private readonly uint[] _block = new uint[BLOCK_SIZE_BYTES / 4];
@@ -45,9 +45,18 @@ namespace EggDotNet.Encryption.Lea.Imp
 			}
 		}
 
-		public byte[] TransformFinalBlock(byte[] inputBuffer, int inputOffset, int inputCount)
+		public virtual byte[] TransformFinalBlock(byte[] inputBuffer, int inputOffset, int inputCount)
 		{
-			throw new NotImplementedException();
+			var output = new byte[BLOCK_SIZE_BYTES];
+			if (_mode == CryptoStreamMode.Read)
+			{
+				DecryptBlock(inputBuffer, inputOffset, output, 0);
+			}
+			else
+			{
+				EncryptBlock(inputBuffer, inputOffset, output, 0);
+			}
+			return output;
 		}
 
 		protected static void XOR(byte[] lhs, int lhsOff, byte[] rhs, int rhsOff, int len)

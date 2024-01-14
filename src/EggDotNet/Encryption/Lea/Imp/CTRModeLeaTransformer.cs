@@ -20,6 +20,7 @@ namespace EggDotNet.Encryption.Lea.Imp
 			Array.Copy(_iv, _ctr, BLOCK_SIZE_BYTES);
 		}
 
+
 		public override int TransformBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
 		{
 			var len = base.TransformBlock(_ctr, 0, inputCount, _block, 0);
@@ -31,6 +32,13 @@ namespace EggDotNet.Encryption.Lea.Imp
 			return len;
 		}
 
+		public override byte[] TransformFinalBlock(byte[] inputBuffer, int inputOffset, int inputCount)
+		{
+			var output = base.TransformFinalBlock(inputBuffer, inputOffset, inputCount);
+			addCounter();
+			XOR(output, 0, inputBuffer, inputOffset, _block, 0, output.Length);
+			return output;
+		}
 
 		private void addCounter()
 		{

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EggDotNet.Encryption.Lea.Imp;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
@@ -36,22 +37,20 @@ namespace EggDotNet.Encryption.Lea
 		{
 			var readBuf = new byte[count];
 			var readLen = _stream.Read(readBuf, offset, count);
-			if (readLen < 16)
+			if (readLen <= LeaCryptoTransform.BLOCK_SIZE_BYTES)
 			{
-				_crypto.TransformBlock(readBuf, 0, readLen, buffer, 0);
+				_crypto.TransformFinalBlock(buffer, 0, readLen);
 			}
 			else
 			{
-				for(var i=0; i < count - 16; i+=16)
+				for(var i=0; i <= count - LeaCryptoTransform.BLOCK_SIZE_BYTES; i+= LeaCryptoTransform.BLOCK_SIZE_BYTES)
 				{
 					_crypto.TransformBlock(readBuf, i, readLen, buffer, i);
 				}
 
 			}
 
-
 			return readLen;
-			//_crypto.TransformBlock
 		}
 
 		public override long Seek(long offset, SeekOrigin origin)

@@ -187,9 +187,7 @@ namespace EggDotNet.Tests
 			using var fs = new FileStream(GetTestPath("lorem_long_store_lea256.egg"), FileMode.Open, FileAccess.Read);
 			using var archive = new EggArchive(fs, false, null, (filename, options) => { options.Password = "password12345!"; options.Retry = false; });
 			var ent = archive.Entries.First();
-			var entSt = ent.Open();
-			var sr = new StreamReader(entSt);
-			var text = sr.ReadToEnd();
+			Assert.True(ent.ChecksumValid());
 		}
 
 		[Fact]
