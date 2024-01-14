@@ -133,6 +133,12 @@ namespace EggDotNet.Format.Egg
 				var width = eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.AES256 ? 256 : 128;
 				s = new AesStreamDecryptionProvider(width, eggEntry.EncryptHeader.Param1, eggEntry.EncryptHeader.Param2);
 			}
+			else if (eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.LEA128
+				|| eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.LEA256)
+			{
+				var width = eggEntry.EncryptHeader.EncryptionMethod == EncryptionMethod.LEA256 ? 256 : 128;
+				s = new LeaStreamDecryptionProvider(width, eggEntry.EncryptHeader.Param1, eggEntry.EncryptHeader.Param2);
+			}
 			else
 			{
 				throw new NotImplementedException("Encryption method not supported");

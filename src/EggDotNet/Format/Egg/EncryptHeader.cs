@@ -79,6 +79,18 @@ namespace EggDotNet.Format.Egg
 				var aesFooter = encDataBuffer.Slice(19, 10);
 				return new EncryptHeader(encMethod, size, aesHeader, aesFooter);
 			}
+			else if(encMethod == EncryptionMethod.LEA128)
+			{
+				var leaHeader = encDataBuffer.Slice(1, 10);
+				var leaFooter = encDataBuffer.Slice(11, 10);
+				return new EncryptHeader(encMethod, size, leaHeader, leaFooter);
+			}
+			else if(encMethod == EncryptionMethod.LEA256)
+			{
+				var leaHeader = encDataBuffer.Slice(1, 18);
+				var leaFooter = encDataBuffer.Slice(19, 10);
+				return new EncryptHeader(encMethod, size, leaHeader, leaFooter);
+			}
 			else if (encMethod == EncryptionMethod.Standard)
 			{
 				var standardHeader = encDataBuffer.Slice(1, 12);

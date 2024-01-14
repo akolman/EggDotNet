@@ -49,3 +49,7 @@ Fixes and added features
 +Refactored parsing and scanning logic to use stack allocated Spans for netstandard2.1 instead of byte[].  This appears to yield some performance improvement for netstandard2.1.
 **Breaking change** Updated callbacks to use delegates.  Password callback now receives name of entity being decrypted.  Method docs have been updated.
 +Added additional tests.
+=======================================================================
+0.0.9-beta (2024-1-14)
++Added LEA decryption (128 and 256-bit).  **Experiemental**.  EggDotNet does not currently support HMAC authentication against decryption results.
++Removed "not for production".  At this time all major features (besides AZO decompression) have been implemented.
