@@ -31,6 +31,7 @@ namespace EggDotNet.Encryption.Lea.Imp
 			return len;
 		}
 
+
 		private void addCounter()
 		{
 			for (int i = _ctr.Length - 1; i >= 0; --i)

@@ -19,7 +19,7 @@
 	  <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
 	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
 	  <Deterministic>True</Deterministic>
-	  <PackageTags>egg, compression, alz, deflate, lzma, bzip, alzip, altools</PackageTags>
+	  <PackageTags>egg, compression, alz, deflate, lzma, bzip, alzip, altools, lea</PackageTags>
   </PropertyGroup>
 
 	
