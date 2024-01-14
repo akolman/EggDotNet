@@ -24,4 +24,6 @@ EggFile.ExtractToDirectory("archive.egg", "me/output");
 Pure, safe C# and completely managed with no dependencies.  Compatible with netstandard2.0 and netstandard2.1.
 
 ### Install using NuGet
-`Install-Package EggDotNet`
+```
+Install-Package EggDotNet
+```
