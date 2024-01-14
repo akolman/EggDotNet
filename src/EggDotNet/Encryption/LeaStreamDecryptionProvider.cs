@@ -25,7 +25,7 @@ namespace EggDotNet.Encryption
 
 		public bool AttachAndValidatePassword(string password)
 		{
-			var lea = new Lea.Imp.Lea(256, password, _header);
+			var lea = new Lea.Imp.Lea(_bits, password, _header);
 			if (lea.PasswordValid)
 			{
 				_cryptoTransform = lea.CreateDecryptor(lea.Key, new byte[16]);

@@ -46,16 +46,16 @@ namespace EggDotNet.Encryption.Lea.Imp
 
 		public Lea(int keySizeBits, string password, byte[] salt)
 		{
-			_salt = salt.Take(16).ToArray();
+			_salt = salt.Take(keySizeBits == 256 ? 16 : 8).ToArray();
 
-#pragma warning disable CA5379 // Ensure Key Derivation Function algorithm is sufficiently strong
+#pragma warning disable CA5379
 			var rfc2898 = new Rfc2898DeriveBytes(password, _salt, 1000);
-#pragma warning restore CA5379 // Ensure Key Derivation Function algorithm is sufficiently strong
+#pragma warning restore CA5379
 
 			_keyBytes = rfc2898.GetBytes(keySizeBits / 8); // 16 or 24 or 32 ???
-			_MacInitializationVector = rfc2898.GetBytes(32).Take(16).ToArray();
+			_MacInitializationVector = rfc2898.GetBytes(keySizeBits == 256 ? 32 : 16).Take(keySizeBits == 256 ? 16 : 8).ToArray();
 			_generatedPv = rfc2898.GetBytes(2);
-			_storedPv = salt.Skip(16).Take(2).ToArray();
+			_storedPv = salt.Skip(keySizeBits == 256 ? 16 : 8).Take(2).ToArray();
 			//_cryptoGenerated = true;
 		}
 
