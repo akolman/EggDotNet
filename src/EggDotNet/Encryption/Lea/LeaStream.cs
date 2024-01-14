@@ -47,7 +47,6 @@ namespace EggDotNet.Encryption.Lea
 				{
 					_crypto.TransformBlock(readBuf, i, readLen, buffer, i);
 				}
-
 			}
 			return readLen;
 		}
