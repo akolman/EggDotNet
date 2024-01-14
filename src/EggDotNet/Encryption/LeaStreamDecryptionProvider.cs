@@ -12,8 +12,8 @@ namespace EggDotNet.Encryption
 #pragma warning disable IDE0052 // Remove unread private members
 		private readonly byte[] _footer;
 #pragma warning restore IDE0052 // Remove unread private members
-		private int _bits;
-		private byte[] _header;
+		private readonly int _bits;
+		private readonly byte[] _header;
 		ICryptoTransform _cryptoTransform;
 
 		public LeaStreamDecryptionProvider(int bits, byte[] header, byte[] footer)

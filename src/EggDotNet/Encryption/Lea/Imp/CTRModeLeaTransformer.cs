@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace EggDotNet.Encryption.Lea.Imp
 {
 	internal sealed class CTRModeLeaTransformer : LeaCryptoTransform
 	{
-		private byte[] _iv;
-		private byte[] _ctr;
-		private byte[] _block;
+		private readonly byte[] _iv;
+		private readonly byte[] _ctr;
+		private readonly byte[] _block;
 
 		public CTRModeLeaTransformer(CryptoStreamMode mode, byte[] key, byte[] iv)
 			: base(mode, key)
@@ -25,10 +23,7 @@ namespace EggDotNet.Encryption.Lea.Imp
 		{
 			var len = base.TransformBlock(_ctr, 0, inputCount, _block, 0);
 			addCounter();
-
 			XOR(outputBuffer, outputOffset, inputBuffer, inputOffset, _block, 0, len);
-
-
 			return len;
 		}
 

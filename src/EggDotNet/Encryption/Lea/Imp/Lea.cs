@@ -6,11 +6,11 @@ namespace EggDotNet.Encryption.Lea.Imp
 {
 	internal sealed class Lea : SymmetricAlgorithm
 	{
-		private byte[] _salt;
+		private readonly byte[] _salt;
 		private byte[] _keyBytes;
 		private byte[] _MacInitializationVector;
-		private byte[] _generatedPv;
-		private byte[] _storedPv;
+		private readonly byte[] _generatedPv;
+		private readonly byte[] _storedPv;
 
 		public override int BlockSize { get; set; } = 128;
 
@@ -79,5 +79,4 @@ namespace EggDotNet.Encryption.Lea.Imp
 			throw new NotImplementedException();
 		}
 	}
-
 }

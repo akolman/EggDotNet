@@ -1,14 +1,14 @@
 ﻿using EggDotNet.Encryption.Lea.Imp;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace EggDotNet.Encryption.Lea
 {
-	internal sealed class LeaStream : System.IO.Stream
+	internal sealed class LeaStream : Stream
 	{
+		private bool _disposed;
+
 		public override bool CanRead => true;
 
 		public override bool CanSeek => false;
@@ -49,7 +49,6 @@ namespace EggDotNet.Encryption.Lea
 				}
 
 			}
-
 			return readLen;
 		}
 
@@ -66,6 +65,24 @@ namespace EggDotNet.Encryption.Lea
 		public override void Write(byte[] buffer, int offset, int count)
 		{
 			throw new NotImplementedException();
+		}
+
+#pragma warning disable CA2215
+		protected override void Dispose(bool disposing)
+#pragma warning restore CA2215
+		{
+			if (disposing)
+			{
+				if (!_disposed)
+				{
+					_stream.Dispose();
+					_crypto.Dispose();
+					_stream = null;
+					_crypto = null;
+					_disposed = true;
+				}
+			}
+			//base.Dispose(); //don't call this
 		}
 	}
 }

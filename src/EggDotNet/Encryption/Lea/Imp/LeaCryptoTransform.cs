@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace EggDotNet.Encryption.Lea.Imp
 {
 	internal abstract class LeaCryptoTransform : ICryptoTransform
 	{
 		public const int BLOCK_SIZE_BYTES = 16;
-		private static uint[] delta = new uint[] { 0xc3efe9db, 0x44626b02, 0x79e27c8a, 0x78df30ec, 0x715ea49e, 0xc785da0a, 0xe04ef22a, 0xe5c40957 };
+		private readonly uint[] delta = new uint[] { 0xc3efe9db, 0x44626b02, 0x79e27c8a, 0x78df30ec, 0x715ea49e, 0xc785da0a, 0xe04ef22a, 0xe5c40957 };
 
 		private readonly uint[] _block = new uint[BLOCK_SIZE_BYTES / 4];
 		private uint[,] _roundKeys;
@@ -24,14 +22,13 @@ namespace EggDotNet.Encryption.Lea.Imp
 
 		public int OutputBlockSize => BLOCK_SIZE_BYTES;
 
-		private CryptoStreamMode _mode;
+		private readonly CryptoStreamMode _mode;
 
 		public LeaCryptoTransform(CryptoStreamMode mode, byte[] key)
 		{
 			_mode = mode;
 			GenerateRoundKeys(key);
 		}
-
 
 		public virtual int TransformBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
 		{
@@ -242,21 +239,11 @@ namespace EggDotNet.Encryption.Lea.Imp
 			{
 				if (disposing)
 				{
-					// TODO: dispose managed state (managed objects)
+					_roundKeys = null;
 				}
-
-				// TODO: free unmanaged resources (unmanaged objects) and override finalizer
-				// TODO: set large fields to null
 				disposedValue = true;
 			}
 		}
-
-		// // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-		// ~LeaCryptoTransform()
-		// {
-		//     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-		//     Dispose(disposing: false);
-		// }
 
 		public void Dispose()
 		{
