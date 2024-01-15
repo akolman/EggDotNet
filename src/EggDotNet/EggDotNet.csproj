@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
-	  <Version>0.0.8</Version>
+	  <Version>0.0.9</Version>
 	  <Authors>Andrew Kolman</Authors>
 	  <RepositoryUrl>https://github.com/akolman/EggDotNet</RepositoryUrl>
 	  <RepositoryType>git</RepositoryType>
@@ -19,7 +19,7 @@
 	  <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
 	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
 	  <Deterministic>True</Deterministic>
-	  <PackageTags>egg, compression, alz, deflate, lzma, bzip, alzip, altools</PackageTags>
+	  <PackageTags>egg, compression, alz, deflate, lzma, bzip, alzip, altools, lea</PackageTags>
   </PropertyGroup>
 
 	
