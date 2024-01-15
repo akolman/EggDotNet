@@ -53,3 +53,5 @@ Fixes and added features
 0.0.9-beta (2024-1-15)
 +Added LEA decryption (128 and 256-bit).  **Experimental**.  EggDotNet does not currently support HMAC authentication against decryption results.
 +Removed "not for production" message.  At this time all major features (besides AZO decompression and SOLID archives) have been implemented.
+=======================================================================
+0.1.0-rc1 (2024-?)
