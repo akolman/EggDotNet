@@ -78,8 +78,8 @@ namespace EggDotNet.Encryption.Lea
 					_crypto.Dispose();
 					_stream = null;
 					_crypto = null;
-					_disposed = true;
 				}
+				_disposed = true;
 			}
 			//base.Dispose(); //don't call this
 		}

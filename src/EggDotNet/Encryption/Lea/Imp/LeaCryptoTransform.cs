@@ -8,7 +8,7 @@ namespace EggDotNet.Encryption.Lea.Imp
 		public const int BLOCK_SIZE_BYTES = 16;
 		private readonly uint[] delta = new uint[] { 0xc3efe9db, 0x44626b02, 0x79e27c8a, 0x78df30ec, 0x715ea49e, 0xc785da0a, 0xe04ef22a, 0xe5c40957 };
 
-		private readonly uint[] _block = new uint[BLOCK_SIZE_BYTES / 4];
+		private uint[] _block = new uint[BLOCK_SIZE_BYTES / 4];
 		private uint[,] _roundKeys;
 		private int rounds;
 
@@ -235,11 +235,15 @@ namespace EggDotNet.Encryption.Lea.Imp
 
 		protected virtual void Dispose(bool disposing)
 		{
-			if (!disposedValue)
+			if (disposing)
 			{
-				if (disposing)
+				if (!disposedValue)
 				{
+					Array.Clear(_roundKeys, 0, _roundKeys.Length);
+					Array.Clear(_block, 0, _block.Length);
+
 					_roundKeys = null;
+					_block = null;
 				}
 				disposedValue = true;
 			}

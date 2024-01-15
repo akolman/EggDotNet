@@ -5,9 +5,10 @@ namespace EggDotNet.Encryption.Lea.Imp
 {
 	internal sealed class CTRModeLeaTransformer : LeaCryptoTransform
 	{
-		private readonly byte[] _iv;
-		private readonly byte[] _ctr;
-		private readonly byte[] _block;
+		private bool _disposed;
+		private byte[] _iv;
+		private byte[] _ctr;
+		private byte[] _block;
 
 		public CTRModeLeaTransformer(CryptoStreamMode mode, byte[] key, byte[] iv)
 			: base(mode, key)
@@ -44,6 +45,27 @@ namespace EggDotNet.Encryption.Lea.Imp
 					break;
 				}
 			}
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				if (!_disposed)
+				{
+					Array.Clear(_iv, 0, _iv.Length);
+					Array.Clear(_ctr, 0, _ctr.Length);
+					Array.Clear(_block, 0, _block.Length);
+
+					_iv = null;
+					_ctr = null;
+					_block = null;
+				}
+
+				_disposed = true;
+			}
+
+			base.Dispose(disposing);
 		}
 	}
 }

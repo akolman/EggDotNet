@@ -6,11 +6,13 @@ namespace EggDotNet.Encryption.Lea.Imp
 {
 	internal sealed class Lea : SymmetricAlgorithm
 	{
-		private readonly byte[] _salt;
+		private bool disposed;
+
+		private byte[] _salt;
 		private byte[] _keyBytes;
 		private byte[] _MacInitializationVector;
-		private readonly byte[] _generatedPv;
-		private readonly byte[] _storedPv;
+		private byte[] _generatedPv;
+		private byte[] _storedPv;
 
 		public override int BlockSize { get; set; } = 128;
 
@@ -77,6 +79,30 @@ namespace EggDotNet.Encryption.Lea.Imp
 		public override void GenerateKey()
 		{
 			throw new NotImplementedException();
+		}
+
+#pragma warning disable CA2215
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				if (!disposed)
+				{
+					Array.Clear(_salt, 0, _salt.Length);
+					Array.Clear(_MacInitializationVector,0 , _MacInitializationVector.Length);
+					Array.Clear(_keyBytes, 0, _keyBytes.Length);
+					Array.Clear(_generatedPv, 0, _generatedPv.Length);
+					Array.Clear(_storedPv, 0, _storedPv.Length);
+
+					_salt = null;
+					_MacInitializationVector = null;
+					_keyBytes = null;
+					_generatedPv = null;
+					_storedPv = null;
+				}
+
+				disposed = false;
+			}
 		}
 	}
 }

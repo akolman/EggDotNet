@@ -25,14 +25,15 @@ namespace EggDotNet.Encryption
 
 		public bool AttachAndValidatePassword(string password)
 		{
-			var lea = new Lea.Imp.Lea(_bits, password, _header);
-			if (lea.PasswordValid)
+			using (var lea = new Lea.Imp.Lea(_bits, password, _header))
 			{
-				_cryptoTransform = lea.CreateDecryptor(lea.Key, new byte[16]);
-				return true;
+				if (lea.PasswordValid)
+				{
+					_cryptoTransform = lea.CreateDecryptor(lea.Key, new byte[16]);
+					return true;
+				}
+				return false;
 			}
-			lea.Dispose();
-			return false;
 		}
 
 		public Stream GetDecryptionStream(Stream stream)
