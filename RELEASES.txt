@@ -55,3 +55,5 @@ Fixes and added features
 +Removed "not for production" message.  At this time all major features (besides AZO decompression and SOLID archives) have been implemented.
 =======================================================================
 0.1.0-rc1 (2024-?)
++EggArchive now throws ObjectDisposedException when accessing it after disposal
++Added tests to validate disposal.
