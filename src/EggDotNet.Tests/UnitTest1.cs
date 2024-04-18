@@ -285,6 +285,27 @@ namespace EggDotNet.Tests
 			});
 		}
 
+		[Fact]
+		public void Validate_Egg_File_Disposal()
+		{
+			using var eggFileStream = new FileStream(GetTestPath("defaults_normal.egg"), FileMode.Open, FileAccess.Read, FileShare.Read); 
+			using var archive = new EggArchive(eggFileStream, true);
+			var firstEntry = archive.Entries.First();
+			archive.Dispose();
+			Assert.Throws<ObjectDisposedException>(() => eggFileStream.Position);
+			Assert.Throws<ObjectDisposedException>(() => archive.GetEntry(1));
+		}
+
+		[Fact]
+		public void Validate_Egg_File_Not_Disposed_Disposal()
+		{
+			using var eggFileStream = new FileStream(GetTestPath("defaults_normal.egg"), FileMode.Open, FileAccess.Read, FileShare.Read);
+			using var archive = new EggArchive(eggFileStream, false);
+			archive.Dispose();
+			_ = eggFileStream.Position;
+			Assert.Throws<ObjectDisposedException>(() => archive.GetEntry(1));
+		}
+
 		private static byte[] CrcToBytes(uint crc) => BitConverter.GetBytes(crc);
 
 		private static long GetDataSize(EggArchiveEntry entry)

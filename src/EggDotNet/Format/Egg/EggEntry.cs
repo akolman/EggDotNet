@@ -110,7 +110,7 @@ namespace EggDotNet.Format.Egg
 						if (insideFileheader)
 							entry.CommentHeader = comment;
 						else
-							archive.Comment = comment.CommentText;
+							archive.SetArchiveComment(comment.CommentText);
 						break;
 					case FileHeader.FILE_END_HEADER:
 						foundEnd = true;

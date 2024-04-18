@@ -20,6 +20,8 @@ namespace EggDotNet
 	{
 		private bool disposedValue;
 
+		private string _comment = string.Empty;
+
 		private readonly List<EggArchiveEntry> _entries;
 		
 		internal readonly EggFileFormatBase format;
@@ -28,12 +30,12 @@ namespace EggDotNet
 		/// Gets the archive-level comment text.
 		/// </summary>
 
-		public string Comment { get; internal set; } = string.Empty;
+		public string Comment => GetCommentInternal();
 
 		/// <summary>
 		/// Gets a collection of all <see cref="EggArchiveEntry"/> entries in this EggArchive.
 		/// </summary>
-		public ReadOnlyCollection<EggArchiveEntry> Entries => _entries.AsReadOnly();
+		public ReadOnlyCollection<EggArchiveEntry> Entries => GetEntriesInternal();
 
 		/// <summary>
 		/// Constructs a new EggArchive using a source stream.
@@ -100,6 +102,7 @@ namespace EggDotNet
 		public EggArchiveEntry GetEntry(string entryName)
 #endif
 		{
+			CheckDisposed();
 			return _entries.SingleOrDefault(e => e.FullName != null && e.FullName.Equals(entryName, StringComparison.OrdinalIgnoreCase));
 		}
 
@@ -114,6 +117,7 @@ namespace EggDotNet
 		public EggArchiveEntry GetEntry(int id)
 #endif
 		{
+			CheckDisposed();
 			return _entries.SingleOrDefault(e => e.Id.Equals(id));
 		}
 
@@ -135,6 +139,31 @@ namespace EggDotNet
 				}
 
 				disposedValue = true;
+			}
+		}
+
+		internal void SetArchiveComment(string comment)
+		{
+			_comment = comment;
+		}
+
+		private ReadOnlyCollection<EggArchiveEntry> GetEntriesInternal()
+		{
+			CheckDisposed();
+			return _entries.AsReadOnly();
+		}
+
+		private string GetCommentInternal()
+		{
+			CheckDisposed();
+			return _comment;
+		}
+
+		private void CheckDisposed()
+		{
+			if (disposedValue)
+			{
+				throw new ObjectDisposedException($"Cannot access disposed {typeof(EggArchive)} instance");
 			}
 		}
 	}
