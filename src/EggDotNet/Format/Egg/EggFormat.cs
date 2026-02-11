@@ -182,7 +182,8 @@ namespace EggDotNet.Format.Egg
 					compressor = new LzmaCompressionProvider(entry.CompressedSize, entry.UncompressedSize);
 					break;
 				case CompressionMethod.Azo:
-					throw new NotImplementedException("AZO not implemented");
+					compressor = new AzoCompressionProvider(entry.UncompressedSize);
+					break;
 				default:
 					throw new UnknownCompressionException((byte)entry.CompressionMethod);
 
