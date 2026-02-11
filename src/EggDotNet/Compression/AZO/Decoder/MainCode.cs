@@ -15,9 +15,9 @@ namespace EggDotNet.Compression.AZO.Decoder
 		const uint BLOCK_SIZE_SIZE = 4;
 		const uint BLOCK_HEAD_SIZE = BLOCK_SIZE_SIZE * 3;
 
-		private bool _init = false;
-		private bool _setSizeInfo = false;
-		private bool _finish = false;
+		private bool _init;
+		private bool _setSizeInfo;
+		private bool _finish;
 
 		private uint blockSize;
 		private uint compressSize;
@@ -122,7 +122,6 @@ namespace EggDotNet.Compression.AZO.Decoder
 		public int Code(Stream inStream, DecompressedBufferCache outBuff, int readSize = 4096)
 		{
 			int totalRead = 0;
-			int pos = 0;
 			while (true)
 			{
 				if (!_init)
@@ -177,6 +176,7 @@ namespace EggDotNet.Compression.AZO.Decoder
 				{
 					var buf = new byte[compressSize];
 					var readCount = inStream.Read(buf, 0, (int)compressSize);
+					_ = readCount;
 					var obuf = new byte[blockSize];
 					int ret = ReadBlock(buf, compressSize, obuf, blockSize);
 					totalRead += (int)blockSize;

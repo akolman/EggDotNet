@@ -27,7 +27,7 @@ namespace EggDotNet
 			throw new InvalidOperationException("DefaultFileStream can only be used with FileStream");
 		};
 
-		public static FileDecryptPasswordCallback DefaultPasswordCallback = (string filename, PasswordCallbackOptions callbackOptions) =>
+		public static FileDecryptPasswordCallback DefaultPasswordCallback = (filename, callbackOptions) =>
 		{
 			Console.WriteLine($"Please enter password for {filename} (return to quit): ");
 

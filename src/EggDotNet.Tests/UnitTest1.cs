@@ -238,22 +238,21 @@ namespace EggDotNet.Tests
 			}
 		}
 
-		private static void progressFunc(EggArchiveEntry e, long s, long t)
-		{
-			
-		}
-
 		private class ProgressTracker
 		{
 			public bool FoundEnd = false;
 
 			public void TrackStart(EggArchiveEntry e, long s, long t)
 			{
-
+				_ = e;
+				_ = FoundEnd;
+				_ = s;
+				_ = t;
 			}
 
 			public void TrackEnd(EggArchiveEntry e, long s, long t)
 			{
+				_ = e;
 				if (s == t)
 					FoundEnd = true;
 			}
