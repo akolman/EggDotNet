@@ -49,5 +49,21 @@ namespace EggDotNet
 		/// <param name="entryName">The name of the entry to decrypt.</param>
 		/// <param name="passwordOptions">An object which the caller should set with password and whether to retry.</param>
 		public delegate void FileDecryptPasswordCallback(string entryName, PasswordCallbackOptions passwordOptions);
+
+		/// <summary>
+		/// Callback delegate used to indicate start of extraction for an EggArchiveEntry.
+		/// </summary>
+		/// <param name="entry">The Egg Entry to be extracted.</param>
+		/// <param name="bytesWritten">Total bytes extracted so far.</param>
+		/// <param name="bytesToWrite">Total bytes to extract.</param>
+		public delegate void EggFileEntryDecompressStart(EggArchiveEntry entry, long bytesWritten, long bytesToWrite);
+
+		/// <summary>
+		/// Callback delegate used to indicate end of extraction for an EggArchiveEntry.
+		/// </summary>
+		/// <param name="entry">The Egg Entry that was extracted.</param>
+		/// <param name="bytesWritten">Total bytes extracted so far.</param>
+		/// <param name="bytesToWrite">Total bytes to extract.</param>
+		public delegate void EggFileEntryDecompressEnd(EggArchiveEntry entry, long bytesWritten, long bytesToWrite);
 	}
 }

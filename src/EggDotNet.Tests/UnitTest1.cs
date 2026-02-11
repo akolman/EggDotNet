@@ -238,6 +238,35 @@ namespace EggDotNet.Tests
 			}
 		}
 
+		private static void progressFunc(EggArchiveEntry e, long s, long t)
+		{
+			
+		}
+
+		private class ProgressTracker
+		{
+			public bool FoundEnd = false;
+
+			public void TrackStart(EggArchiveEntry e, long s, long t)
+			{
+
+			}
+
+			public void TrackEnd(EggArchiveEntry e, long s, long t)
+			{
+				if (s == t)
+					FoundEnd = true;
+			}
+		}
+
+		[Fact]
+		public void Test_ExtCallbacks()
+		{
+			var p = new ProgressTracker();
+			EggFile.ExtractToDirectory(GetTestPath("defaults.egg"), "./", p.TrackStart, p.TrackEnd);
+			Assert.True(p.FoundEnd);
+		}
+
 		[Fact]
 		public void Test_Alz_Defaults()
 		{
