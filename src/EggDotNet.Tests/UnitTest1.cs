@@ -1,7 +1,8 @@
+using EggDotNet.Exceptions;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Net.NetworkInformation;
 using System.Security.Cryptography;
-using EggDotNet.Exceptions;
 
 namespace EggDotNet.Tests
 {
@@ -206,6 +207,35 @@ namespace EggDotNet.Tests
 			using var archive = new EggArchive(fs, false, null, (filename, options) => { options.Password = "password12345"; options.Retry = false; });
 			var ent = archive.Entries.First();
 			Assert.Throws<DecryptFailedException>(() => ent.ChecksumValid());
+		}
+
+		[Fact]
+		public void Test_NumbersAzo()
+		{
+			using var fs = new FileStream(GetTestPath("azonumbers.egg"), FileMode.Open, FileAccess.Read);
+			using var archive = new EggArchive(fs);
+			var ent = archive.Entries.Single();
+			Assert.True(ent.ChecksumValid());
+		}
+
+		[Fact]
+		public void Test_ShortAzo()
+		{
+			using var fs = new FileStream(GetTestPath("azoshort_txt.egg"), FileMode.Open, FileAccess.Read);
+			using var archive = new EggArchive(fs);
+			var ent = archive.Entries.Single();
+			Assert.True(ent.ChecksumValid());
+		}
+
+		[Fact]
+		public void Test_MultiAzo()
+		{
+			using var fs = new FileStream(GetTestPath("azomulti.egg"), FileMode.Open, FileAccess.Read);
+			using var archive = new EggArchive(fs);
+			foreach(var entry in archive.Entries)
+			{
+				Assert.True(entry.ChecksumValid(), $"Checksum failed for file {entry.Name}");
+			}
 		}
 
 		[Fact]
