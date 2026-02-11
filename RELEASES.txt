@@ -56,3 +56,4 @@ Fixes and added features
 =======================================================================
 0.1.0-beta (?)
 +Added suppor for AZO decompression.  **Experimental**.
++Added progress update functionality to EggFile methods.
