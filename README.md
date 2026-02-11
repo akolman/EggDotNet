@@ -1,6 +1,6 @@
 # EggDotNet ![pipeline badge](https://github.com/akolman/EggDotNet/actions/workflows/ci.yml/badge.svg)
 
-## A decompression library for the Egg file format.
+## A decompression library for the Egg file format (unegg).
 Supports both ALZ and EGG formats, with limitations (see wiki) as well as encrypted and split archives.
 
 ### What is Egg?

@@ -7,7 +7,7 @@
 	  <RepositoryUrl>https://github.com/akolman/EggDotNet</RepositoryUrl>
 	  <RepositoryType>git</RepositoryType>
 	  <Title>EggDotNet</Title>
-	  <Description>An EGG file format extraction/decompression library for .NET (framework and modern).</Description>
+	  <Description>An EGG file format extraction/decompression library (unegg) for .NET (framework and modern).</Description>
 	  <PackageIcon>eggdotnet.png</PackageIcon>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
 	  <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
