@@ -238,6 +238,33 @@ namespace EggDotNet.Tests
 			}
 		}
 
+		[Fact]
+		public void Test_Split()
+		{
+			using var fs = new FileStream(GetTestPath("number.vol1.egg"), FileMode.Open, FileAccess.Read);
+			using var archive = new EggArchive(fs);
+			var ent = archive.Entries.Single();
+			Assert.True(ent.ChecksumValid());
+		}
+
+		[Fact]
+		public void Test_Split_Junk_Disposed()
+		{
+			using var fs = new FileStream(GetTestPath("number.vol1.egg"), FileMode.Open, FileAccess.Read);
+			var rtn = new List<Stream>();
+			var goodStream = new FileStream(GetTestPath("number.vol2.egg"), FileMode.Open, FileAccess.Read);
+			var junkStream = new FileStream(GetTestPath("defaults.egg"), FileMode.Open, FileAccess.Read);
+			rtn.Add(goodStream);
+			rtn.Add(junkStream);
+			using var archive = new EggArchive(fs, (s) =>
+			{
+				return rtn;
+			});
+			var ent = archive.Entries.Single();
+			Assert.True(ent.ChecksumValid());
+			Assert.Throws<ObjectDisposedException>(() => junkStream.Position);
+		}
+
 		private class ProgressTracker
 		{
 			public bool FoundEnd = false;
