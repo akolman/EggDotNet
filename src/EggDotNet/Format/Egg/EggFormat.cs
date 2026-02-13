@@ -95,12 +95,13 @@ namespace EggDotNet.Format.Egg
 			var curVal = initialVolume;
 			while (curVal.Header.SplitHeader.NextFileId != 0)
 			{
-				curVal = tempVolumes.First(v => v.Header.HeaderId == curVal.Header.SplitHeader.NextFileId);
-				_volumes.Add(curVal); //TODO: Handle missing volume error
+				curVal = tempVolumes.FirstOrDefault(v => v.Header.HeaderId == curVal.Header.SplitHeader.NextFileId)
+					?? throw new MissingVolumeException(curVal.Header.SplitHeader.NextFileId);
+				_volumes.Add(curVal);
 				tempVolumes.Remove(curVal);
 			}
 
-			if (ownStream) tempVolumes.ForEach(v => v.Dispose());
+			tempVolumes.ForEach(v => v.Dispose());
 		}
 
 		private Stream PrepareStream()

@@ -323,6 +323,19 @@ namespace EggDotNet.Tests
 			Assert.Throws<ObjectDisposedException>(() => goodStream.Position);
 		}
 
+		[Fact]
+		public void Test_Split_Throws_Volume_NotFound()
+		{
+			using var fs = new FileStream(GetTestPath("number.vol1.egg"), FileMode.Open, FileAccess.Read);
+			Assert.Throws<MissingVolumeException>(() =>
+			{
+				using var archive = new EggArchive(fs, true, (s) =>
+				{
+					return new List<Stream>();
+				});
+			});
+		}
+
 		private class ProgressTracker
 		{
 			public bool FoundEnd = false;
