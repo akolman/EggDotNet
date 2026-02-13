@@ -265,6 +265,44 @@ namespace EggDotNet.Tests
 			Assert.Throws<ObjectDisposedException>(() => junkStream.Position);
 		}
 
+		[Fact]
+		public void Test_Split_Used_Disposed()
+		{
+			using var fs = new FileStream(GetTestPath("number.vol1.egg"), FileMode.Open, FileAccess.Read);
+			var rtn = new List<Stream>();
+			var goodStream = new FileStream(GetTestPath("number.vol2.egg"), FileMode.Open, FileAccess.Read);
+			rtn.Add(goodStream);
+			using var archive = new EggArchive(fs, true, (s) =>
+			{
+				return rtn;
+			});
+			var ent = archive.Entries.Single();
+			Assert.True(ent.ChecksumValid());
+			var a = goodStream.Position;
+			archive.Dispose();
+			Assert.Throws<ObjectDisposedException>(() => goodStream.Position);
+		}
+
+		[Fact]
+		public void Test_Split_Used_CallerOwned_NotDisposed()
+		{
+			using var fs = new FileStream(GetTestPath("number.vol1.egg"), FileMode.Open, FileAccess.Read);
+			var rtn = new List<Stream>();
+			var goodStream = new FileStream(GetTestPath("number.vol2.egg"), FileMode.Open, FileAccess.Read);
+			rtn.Add(goodStream);
+			using var archive = new EggArchive(fs, false, (s) =>
+			{
+				return rtn;
+			});
+			var ent = archive.Entries.Single();
+			Assert.True(ent.ChecksumValid());
+			var a = goodStream.Position;
+			archive.Dispose();
+			var b = goodStream.Position;
+			goodStream.Dispose();
+			Assert.Throws<ObjectDisposedException>(() => goodStream.Position);
+		}
+
 		private class ProgressTracker
 		{
 			public bool FoundEnd = false;

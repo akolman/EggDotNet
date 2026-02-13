@@ -32,7 +32,7 @@ namespace EggDotNet.Format.Egg
 
 			if (initialVolume.IsSplit)
 			{
-				FetchAndParseSplitVolumes(stream);
+				FetchAndParseSplitVolumes(stream, ownStream);
 			}
 		}
 
@@ -64,7 +64,7 @@ namespace EggDotNet.Format.Egg
 			return GetDecompressionStream(subSt, eggEntry);
 		}
 
-		private void FetchAndParseSplitVolumes(Stream stream)
+		private void FetchAndParseSplitVolumes(Stream stream, bool ownStream = false)
 		{
 			if (_streamCallback == null)
 			{
@@ -82,7 +82,7 @@ namespace EggDotNet.Format.Egg
 				try
 				{
 					extStream.Seek(4, SeekOrigin.Begin);
-					var extVolume = EggVolume.Parse(extStream, true);
+					var extVolume = EggVolume.Parse(extStream, ownStream);
 					tempVolumes.Add(extVolume);
 				}
 				catch(Exception e)
