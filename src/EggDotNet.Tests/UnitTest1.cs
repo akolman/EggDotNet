@@ -239,6 +239,132 @@ namespace EggDotNet.Tests
 		}
 
 		[Fact]
+		public void Test_Split()
+		{
+			using var fs = new FileStream(GetTestPath("number.vol1.egg"), FileMode.Open, FileAccess.Read);
+			using var archive = new EggArchive(fs);
+			var ent = archive.Entries.Single();
+			Assert.True(ent.ChecksumValid());
+		}
+
+		[Fact]
+		public void Test_Split_Junk_Disposed()
+		{
+			using var fs = new FileStream(GetTestPath("number.vol1.egg"), FileMode.Open, FileAccess.Read);
+			var rtn = new List<Stream>();
+			var goodStream = new FileStream(GetTestPath("number.vol2.egg"), FileMode.Open, FileAccess.Read);
+			var junkStream = new FileStream(GetTestPath("defaults.egg"), FileMode.Open, FileAccess.Read);
+			rtn.Add(goodStream);
+			rtn.Add(junkStream);
+			using var archive = new EggArchive(fs, true, (s) =>
+			{
+				return rtn;
+			});
+			var ent = archive.Entries.Single();
+			Assert.True(ent.ChecksumValid());
+			Assert.Throws<ObjectDisposedException>(() => junkStream.Position);
+		}
+
+		[Fact]
+		public void Test_Split_Junk_NotDisposed()
+		{
+			using var fs = new FileStream(GetTestPath("number.vol1.egg"), FileMode.Open, FileAccess.Read);
+			var rtn = new List<Stream>();
+			var goodStream = new FileStream(GetTestPath("number.vol2.egg"), FileMode.Open, FileAccess.Read);
+			var junkStream = new FileStream(GetTestPath("defaults.egg"), FileMode.Open, FileAccess.Read);
+			rtn.Add(goodStream);
+			rtn.Add(junkStream);
+			using var archive = new EggArchive(fs, false, (s) =>
+			{
+				return rtn;
+			});
+			var ent = archive.Entries.Single();
+			Assert.True(ent.ChecksumValid());
+			var a = junkStream.Position;
+			junkStream.Dispose();
+			Assert.Throws<ObjectDisposedException>(() => junkStream.Position);
+		}
+
+		[Fact]
+		public void Test_Split_Used_Disposed()
+		{
+			using var fs = new FileStream(GetTestPath("number.vol1.egg"), FileMode.Open, FileAccess.Read);
+			var rtn = new List<Stream>();
+			var goodStream = new FileStream(GetTestPath("number.vol2.egg"), FileMode.Open, FileAccess.Read);
+			rtn.Add(goodStream);
+			using var archive = new EggArchive(fs, true, (s) =>
+			{
+				return rtn;
+			});
+			var ent = archive.Entries.Single();
+			Assert.True(ent.ChecksumValid());
+			var a = goodStream.Position;
+			archive.Dispose();
+			Assert.Throws<ObjectDisposedException>(() => goodStream.Position);
+		}
+
+		[Fact]
+		public void Test_Split_Used_CallerOwned_NotDisposed()
+		{
+			using var fs = new FileStream(GetTestPath("number.vol1.egg"), FileMode.Open, FileAccess.Read);
+			var rtn = new List<Stream>();
+			var goodStream = new FileStream(GetTestPath("number.vol2.egg"), FileMode.Open, FileAccess.Read);
+			rtn.Add(goodStream);
+			using var archive = new EggArchive(fs, false, (s) =>
+			{
+				return rtn;
+			});
+			var ent = archive.Entries.Single();
+			Assert.True(ent.ChecksumValid());
+			var a = goodStream.Position;
+			archive.Dispose();
+			var b = goodStream.Position;
+			goodStream.Dispose();
+			Assert.Throws<ObjectDisposedException>(() => goodStream.Position);
+		}
+
+		[Fact]
+		public void Test_Split_Throws_Volume_NotFound()
+		{
+			using var fs = new FileStream(GetTestPath("number.vol1.egg"), FileMode.Open, FileAccess.Read);
+			Assert.Throws<MissingVolumeException>(() =>
+			{
+				using var archive = new EggArchive(fs, true, (s) =>
+				{
+					return new List<Stream>();
+				});
+			});
+		}
+
+		private class ProgressTracker
+		{
+			public bool FoundEnd = false;
+
+			public void TrackStart(EggArchiveEntry e, long s, long t)
+			{
+				_ = e;
+				_ = FoundEnd;
+				_ = s;
+				_ = t;
+			}
+
+			public void TrackEnd(EggArchiveEntry e, long s, long t)
+			{
+				_ = e;
+				if (s == t)
+					FoundEnd = true;
+			}
+		}
+
+		[Fact]
+		public void Test_ExtCallbacks()
+		{
+			var p = new ProgressTracker();
+			EggFile.ExtractToDirectory(GetTestPath("defaults.egg"), "./", p.TrackStart, p.TrackEnd);
+			Assert.True(p.FoundEnd);
+		}
+
+		[Fact]
 		public void Test_Alz_Defaults()
 		{
 			using var archive = OpenTestEgg("defaults.alz");

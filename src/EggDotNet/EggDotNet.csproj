@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
-	  <Version>0.0.9</Version>
+	  <Version>0.1.0</Version>
 	  <Authors>Andrew Kolman</Authors>
 	  <RepositoryUrl>https://github.com/akolman/EggDotNet</RepositoryUrl>
 	  <RepositoryType>git</RepositoryType>

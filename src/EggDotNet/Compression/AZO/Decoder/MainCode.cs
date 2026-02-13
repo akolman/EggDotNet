@@ -15,9 +15,9 @@ namespace EggDotNet.Compression.AZO.Decoder
 		const uint BLOCK_SIZE_SIZE = 4;
 		const uint BLOCK_HEAD_SIZE = BLOCK_SIZE_SIZE * 3;
 
-		private bool _init = false;
-		private bool _setSizeInfo = false;
-		private bool _finish = false;
+		private bool _init;
+		private bool _setSizeInfo;
+		private bool _finish;
 
 		private uint blockSize;
 		private uint compressSize;
@@ -122,7 +122,6 @@ namespace EggDotNet.Compression.AZO.Decoder
 		public int Code(Stream inStream, DecompressedBufferCache outBuff, int readSize = 4096)
 		{
 			int totalRead = 0;
-			int pos = 0;
 			while (true)
 			{
 				if (!_init)
@@ -164,7 +163,7 @@ namespace EggDotNet.Compression.AZO.Decoder
 					var checkSize = (uint)BitConverter.ToInt32(checkSizeBuffer, 0);
 					if (blockSize < compressSize || (blockSize ^ compressSize) != checkSize)
 					{
-						throw new DecompressionDataException("AZO checksum failure");
+						throw new DecompressionDataException("AZO block size checksum failure");
 					}
 				}
 
@@ -177,6 +176,7 @@ namespace EggDotNet.Compression.AZO.Decoder
 				{
 					var buf = new byte[compressSize];
 					var readCount = inStream.Read(buf, 0, (int)compressSize);
+					_ = readCount;
 					var obuf = new byte[blockSize];
 					int ret = ReadBlock(buf, compressSize, obuf, blockSize);
 					totalRead += (int)blockSize;
@@ -212,11 +212,11 @@ namespace EggDotNet.Compression.AZO.Decoder
 				if (insize == outsize)
 				{
 					Array.Copy(inBuf, outBuf, insize);
-					return 0;
+					return AZOOption.AZO_OK;
 				}
 				else
 				{
-					return -4; //TODO: find and define codes
+					return AZOOption.AZO_DATA_ERROR;
 				}
 			}
 			else
@@ -224,6 +224,10 @@ namespace EggDotNet.Compression.AZO.Decoder
 				EntropyCode entropy = new EntropyCode(inBuf, insize);
 				BlockCode block = new BlockCode(outBuf, (int)outsize);
 				int ret = block.Code(entropy);
+				if (entropy.GetSize() != insize)
+				{
+					return AZOOption.AZO_DATA_ERROR;
+				}
 				return ret;
 			}
 		}

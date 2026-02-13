@@ -73,7 +73,7 @@ namespace EggDotNet.Format.Egg
 				}
 				catch(System.Exception ex)
 				{
-					throw new UnsupportedLocalException(locale, ex); 
+					throw new UnsupportedLocaleException(locale, ex); 
 				}
 			}
 

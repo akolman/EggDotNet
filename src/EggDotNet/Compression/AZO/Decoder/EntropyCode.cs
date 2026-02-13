@@ -104,5 +104,10 @@
 			Rescale();
 			return v >= cumCount;
 		}
+
+		public uint GetSize()
+		{
+			return (bit.GetReadSize() + 7) / 8;
+		}
 	}
 }

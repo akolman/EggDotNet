@@ -32,7 +32,7 @@ namespace EggDotNet.Format.Egg
 
 			if (initialVolume.IsSplit)
 			{
-				FetchAndParseSplitVolumes(stream);
+				FetchAndParseSplitVolumes(stream, ownStream);
 			}
 		}
 
@@ -64,27 +64,44 @@ namespace EggDotNet.Format.Egg
 			return GetDecompressionStream(subSt, eggEntry);
 		}
 
-		private void FetchAndParseSplitVolumes(Stream stream)
+		private void FetchAndParseSplitVolumes(Stream stream, bool ownStream = false)
 		{
 			if (_streamCallback == null)
 			{
 				throw new InvalidOperationException("Stream callback not set");
 			}
 
-			var initialVolume = _volumes.Single();
+			var initialVolume = _volumes.Single(); /*Must be only 1 upon start*/
 
 			var streams = _streamCallback.Invoke(stream);
 
+			var tempVolumes = new List<EggVolume>(streams.Count());
+
 			foreach (var extStream in streams)
 			{
-				extStream.Seek(4, SeekOrigin.Begin);
-				var extVolume = EggVolume.Parse(extStream, true);
-				if (extVolume.Header.HeaderId != initialVolume.Header.HeaderId
-					&& !_volumes.Any(v => v.Header.HeaderId == extVolume.Header.HeaderId))
+				try
 				{
-					_volumes.Add(extVolume);
+					extStream.Seek(4, SeekOrigin.Begin);
+					var extVolume = EggVolume.Parse(extStream, ownStream);
+					tempVolumes.Add(extVolume);
+				}
+				catch(Exception e)
+				{
+					_ = e; /*volume was not an egg archive*/
+					if (ownStream) extStream.Dispose();
 				}
 			}
+
+			var curVal = initialVolume;
+			while (curVal.Header.SplitHeader.NextFileId != 0)
+			{
+				curVal = tempVolumes.FirstOrDefault(v => v.Header.HeaderId == curVal.Header.SplitHeader.NextFileId)
+					?? throw new MissingVolumeException(curVal.Header.SplitHeader.NextFileId);
+				_volumes.Add(curVal);
+				tempVolumes.Remove(curVal);
+			}
+
+			tempVolumes.ForEach(v => v.Dispose());
 		}
 
 		private Stream PrepareStream()
@@ -104,7 +121,7 @@ namespace EggDotNet.Format.Egg
 		private CollectiveEggStream PrepareSplitStream()
 		{
 			var subStreams = new List<SubStream>(_volumes.Count);
-			var curVol = _volumes.Single(v => v.Header.SplitHeader.PreviousFileId == 0);
+			var curVol = _volumes.Single(v => v.Header.SplitHeader != null && v.Header.SplitHeader.PreviousFileId == 0);
 			var curSt = curVol.GetStream();
 			subStreams.Add(new SubStream(curSt, curVol.Header.HeaderEndPosition));
 

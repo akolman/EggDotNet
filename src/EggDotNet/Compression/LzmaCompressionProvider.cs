@@ -19,7 +19,7 @@ namespace EggDotNet.Compression
 		{
 			stream.Seek(4, SeekOrigin.Begin);
 			byte[] props = new byte[5];
-			stream.Read(props, 0, 5);
+			_ = stream.Read(props, 0, 5);
 			return new LzmaStream(props, stream, _compSize - 9, _uncompSize);
 		}
 	}

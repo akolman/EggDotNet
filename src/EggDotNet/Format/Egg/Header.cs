@@ -51,11 +51,11 @@ namespace EggDotNet.Format.Egg
 			Debug.Assert(stream.Position == 4);
 
 #if NETSTANDARD2_1_OR_GREATER
-			Span<byte> buffer = stackalloc byte[HEADER_SIZE_BYTES];
+			Span<byte> buffer = stackalloc byte[HEADER_SIZE_BYTES - 4];
 #else
-			var buffer = new byte[HEADER_SIZE_BYTES];
+			var buffer = new byte[HEADER_SIZE_BYTES - 4];
 #endif
-			if (stream.Read(buffer) != HEADER_SIZE_BYTES)
+			if (stream.Read(buffer) != HEADER_SIZE_BYTES - 4)
 			{
 				throw new InvalidDataException("Failed reading EGG header");
 			}
@@ -63,12 +63,12 @@ namespace EggDotNet.Format.Egg
 			var version = BitConverter.ToInt16(buffer.Slice(0, 2));
 			var headerId = BitConverter.ToInt32(buffer.Slice(2, 4));
 			var reserved = BitConverter.ToInt32(buffer.Slice(6, 4));
-			var next = BitConverter.ToInt32(buffer.Slice(10, 4));
+			//var next = BitConverter.ToInt32(buffer.Slice(10, 4));
 
 			SplitHeader splitHeader = null;
 			SolidHeader solidHeader = null;
-			if (next != EGG_HEADER_END_MAGIC)
-			{
+			//if (next != EGG_HEADER_END_MAGIC)
+			//{
 #if NETSTANDARD2_1_OR_GREATER
 				Span<byte> extFieldBuffer = stackalloc byte[Global.HEADER_SIZE];
 #else
@@ -94,7 +94,7 @@ namespace EggDotNet.Format.Egg
 
 					}
 				}
-			}
+			//}
 
 			return new Header(version, headerId, reserved, stream.Position, splitHeader, solidHeader);
 		}
