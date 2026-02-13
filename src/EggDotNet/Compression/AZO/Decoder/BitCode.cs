@@ -95,5 +95,7 @@ namespace EggDotNet.Compression.AZO.Decoder
 
 			return true;
 		}
+
+		public uint GetReadSize() => readSize;
 	}
 }

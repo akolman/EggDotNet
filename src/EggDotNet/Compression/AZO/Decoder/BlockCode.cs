@@ -1,4 +1,6 @@
-﻿namespace EggDotNet.Compression.AZO.Decoder
+﻿using EggDotNet.Compression.AZO.Common;
+
+namespace EggDotNet.Compression.AZO.Decoder
 {
 	internal class BlockCode
 	{
@@ -58,14 +60,14 @@
 		public int Code(EntropyCode entropy)
 		{
 			entropy.Initialize();
-			int ret = 0;
+			int ret = AZOOption.AZO_OK;
 			buf[0] = alphaProb.Code(entropy, 0, 0);
 			for (var i = 1; i < bufsize;)
 			{
 				uint retLen = GetCode(entropy, (uint)i);
 				if (retLen == 0)
 				{
-					ret = -4;
+					ret = AZOOption.AZO_DATA_ERROR;
 					break;
 				}
 

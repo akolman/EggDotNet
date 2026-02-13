@@ -35,5 +35,9 @@
 		public const int N = SCALE_FACTOR;
 
 		public const int EXTRACT_CHUNK = 1024 * 4;
+
+		public const int AZO_DATA_ERROR = -4;
+
+		public const int AZO_OK = 0;
 	}
 }
