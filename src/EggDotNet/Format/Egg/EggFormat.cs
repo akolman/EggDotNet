@@ -88,7 +88,7 @@ namespace EggDotNet.Format.Egg
 				catch(Exception e)
 				{
 					_ = e; /*volume was not an egg archive*/
-					extStream.Dispose();
+					if (ownStream) extStream.Dispose();
 				}
 			}
 
@@ -100,7 +100,7 @@ namespace EggDotNet.Format.Egg
 				tempVolumes.Remove(curVal);
 			}
 
-			tempVolumes.ForEach(v => v.Dispose());
+			if (ownStream) tempVolumes.ForEach(v => v.Dispose());
 		}
 
 		private Stream PrepareStream()

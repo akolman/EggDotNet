@@ -256,12 +256,32 @@ namespace EggDotNet.Tests
 			var junkStream = new FileStream(GetTestPath("defaults.egg"), FileMode.Open, FileAccess.Read);
 			rtn.Add(goodStream);
 			rtn.Add(junkStream);
-			using var archive = new EggArchive(fs, (s) =>
+			using var archive = new EggArchive(fs, true, (s) =>
 			{
 				return rtn;
 			});
 			var ent = archive.Entries.Single();
 			Assert.True(ent.ChecksumValid());
+			Assert.Throws<ObjectDisposedException>(() => junkStream.Position);
+		}
+
+		[Fact]
+		public void Test_Split_Junk_NotDisposed()
+		{
+			using var fs = new FileStream(GetTestPath("number.vol1.egg"), FileMode.Open, FileAccess.Read);
+			var rtn = new List<Stream>();
+			var goodStream = new FileStream(GetTestPath("number.vol2.egg"), FileMode.Open, FileAccess.Read);
+			var junkStream = new FileStream(GetTestPath("defaults.egg"), FileMode.Open, FileAccess.Read);
+			rtn.Add(goodStream);
+			rtn.Add(junkStream);
+			using var archive = new EggArchive(fs, false, (s) =>
+			{
+				return rtn;
+			});
+			var ent = archive.Entries.Single();
+			Assert.True(ent.ChecksumValid());
+			var a = junkStream.Position;
+			junkStream.Dispose();
 			Assert.Throws<ObjectDisposedException>(() => junkStream.Position);
 		}
 
