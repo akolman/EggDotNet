@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="src/EggDotNet.Benchmarks/EggDotNet.Benchmarks.csproj" />
+  <Project Path="src/EggDotNet.Tests/EggDotNet.Tests.csproj" />
+  <Project Path="src/EggDotNet/EggDotNet.csproj" />
+</Solution>
