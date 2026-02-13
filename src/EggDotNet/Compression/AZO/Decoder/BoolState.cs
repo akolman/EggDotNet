@@ -2,7 +2,7 @@
 
 namespace EggDotNet.Compression.AZO.Decoder
 {
-	internal class BoolState
+	internal sealed class BoolState
 	{
 		private readonly int N;
 		private readonly uint ArrayN;

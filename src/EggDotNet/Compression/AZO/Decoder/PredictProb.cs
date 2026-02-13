@@ -2,7 +2,7 @@
 
 namespace EggDotNet.Compression.AZO.Decoder
 {
-	internal class PredictProb
+	internal sealed class PredictProb
 	{
 		private readonly uint Key;
 		private readonly uint N;

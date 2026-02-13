@@ -1,6 +1,6 @@
 ﻿namespace EggDotNet.Compression.AZO.Decoder
 {
-	internal class SymbolCode
+	internal sealed class SymbolCode
 	{
 		private readonly HistoryList history;
 		private readonly EntropyBitProb prob;

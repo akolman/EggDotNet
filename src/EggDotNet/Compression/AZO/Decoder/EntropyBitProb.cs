@@ -2,7 +2,7 @@
 
 namespace EggDotNet.Compression.AZO.Decoder
 {
-	internal class EntropyBitProb
+	internal sealed class EntropyBitProb
 	{
 		private const int TotalBit = 10;
 		private const uint TotalCount = 1 << TotalBit;

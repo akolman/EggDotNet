@@ -2,7 +2,7 @@
 
 namespace EggDotNet.Compression.AZO.Common
 {
-	internal class MathUtilities
+	internal sealed class MathUtilities
 	{
 		public static double Log2(uint x)
 		{

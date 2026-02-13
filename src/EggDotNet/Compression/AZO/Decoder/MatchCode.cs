@@ -2,7 +2,7 @@
 
 namespace EggDotNet.Compression.AZO.Decoder
 {
-	internal class MatchCode
+	internal sealed class MatchCode
 	{
 		private readonly DictionaryTable dictTable;
 		private readonly DistanceCode distProb;

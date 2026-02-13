@@ -2,7 +2,7 @@
 
 namespace EggDotNet.Compression.AZO.Decoder
 {
-	internal class HistoryList
+	internal sealed class HistoryList
 	{
 		private readonly uint N;
 		private readonly uint[] rep;

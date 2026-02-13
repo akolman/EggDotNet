@@ -7,7 +7,7 @@ using System.Text;
 
 namespace EggDotNet.Compression
 {
-	internal class AzoCompressionProvider : IStreamCompressionProvider
+	internal sealed class AzoCompressionProvider : IStreamCompressionProvider
 	{
 		private readonly AZODecoder decoder;
 		private readonly long usize;

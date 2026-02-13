@@ -2,7 +2,7 @@
 
 namespace EggDotNet.Compression.AZO.Decoder
 {
-	internal class DistanceCode
+	internal sealed class DistanceCode
 	{
 		private readonly HistoryList history;
 		private readonly EntropyBitProb prob;

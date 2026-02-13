@@ -3,7 +3,7 @@ using System;
 
 namespace EggDotNet.Compression.AZO.Decoder
 {
-	internal class DictionaryTable
+	internal sealed class DictionaryTable
 	{
 		private const uint N = AZOOption.DICTIONARY_SIZE;
 
