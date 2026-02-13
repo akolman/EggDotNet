@@ -2,7 +2,7 @@
 
 namespace EggDotNet.Compression.AZO.Decoder
 {
-	internal class BitCode
+	internal sealed class BitCode
 	{
 		private const uint TYPE_BIT_SIZE = sizeof(byte) * 8;
 		private const byte TYPE_BIT_MASK = (1 << (int)TYPE_BIT_SIZE) - 1;

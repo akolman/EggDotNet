@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace EggDotNet.Compression.AZO
 {
-	internal class DecompressedBufferCache
+	internal sealed class DecompressedBufferCache
 	{
 		private byte[] buffer;
 		private int pos;

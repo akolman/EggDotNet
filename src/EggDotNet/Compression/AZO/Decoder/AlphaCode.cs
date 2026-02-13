@@ -2,7 +2,7 @@
 
 namespace EggDotNet.Compression.AZO.Decoder
 {
-	internal class AlphaCode
+	internal sealed class AlphaCode
 	{
 		private readonly PredictProb alphaProb;
 

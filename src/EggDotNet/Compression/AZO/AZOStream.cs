@@ -3,7 +3,7 @@ using System.IO;
 
 namespace EggDotNet.Compression.AZO
 {
-	internal class AZOStream : Stream
+	internal sealed class AZOStream : Stream
 	{
 		private readonly Stream compressedStream;
 		private readonly AZODecoder decode;

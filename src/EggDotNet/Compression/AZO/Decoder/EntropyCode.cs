@@ -1,6 +1,6 @@
 ﻿namespace EggDotNet.Compression.AZO.Decoder
 {
-	internal class EntropyCode
+	internal sealed class EntropyCode
 	{
 		private uint low_ = uint.MinValue;
 		private uint up_ = uint.MaxValue;

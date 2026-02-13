@@ -2,7 +2,7 @@
 
 namespace EggDotNet.Compression.AZO.Decoder
 {
-	internal class LengthCode
+	internal sealed class LengthCode
 	{
 		private readonly PredictProb prob;
 

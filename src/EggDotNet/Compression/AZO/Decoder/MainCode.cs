@@ -2,14 +2,12 @@
 using EggDotNet.Exceptions;
 using EggDotNet.InternalExtensions;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace EggDotNet.Compression.AZO.Decoder
 {
-	internal class MainCode
+	internal sealed class MainCode
 	{
 		const uint MAIN_HEAD_SIZE = 2;
 		const uint BLOCK_SIZE_SIZE = 4;

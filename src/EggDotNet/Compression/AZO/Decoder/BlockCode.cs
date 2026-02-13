@@ -2,7 +2,7 @@
 
 namespace EggDotNet.Compression.AZO.Decoder
 {
-	internal class BlockCode
+	internal sealed class BlockCode
 	{
 		private readonly AlphaCode alphaProb;
 		private readonly byte[] buf;

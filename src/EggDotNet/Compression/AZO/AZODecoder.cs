@@ -1,12 +1,9 @@
 ﻿using EggDotNet.Compression.AZO.Decoder;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace EggDotNet.Compression.AZO
 {
-	internal class AZODecoder
+	internal sealed class AZODecoder
 	{
 		private readonly MainCode mainCoder;
 
