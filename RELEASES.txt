@@ -54,6 +54,9 @@ Fixes and added features
 +Added LEA decryption (128 and 256-bit).  **Experimental**.  EggDotNet does not currently support HMAC authentication against decryption results.
 +Removed "not for production" message.  At this time all major features (besides AZO decompression and SOLID archives) have been implemented.
 =======================================================================
-0.1.0-beta (?)
+0.1.0-beta (2025-02-13)
 +Added suppor for AZO decompression.  **Experimental**.
 +Added progress update functionality to EggFile methods.
++Added additional testing
++Resolved issue with split file decompression
++Improved handling of streams provided to split stream-provider.
