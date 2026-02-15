@@ -25,7 +25,7 @@ namespace EggDotNet.Samples.ExtractToDirectory
 
 		static void Main(string[] args)
 		{
-			var sampleRootPath = @"C:\Users\akolman\source\repos\EggDotNet\src\EggDotNet.Samples\SampleFiles";
+			var sampleRootPath = @"../../../../SampleFiles";
 			var archiveName = "defaults.egg";
 			var archivePath = Path.Combine(sampleRootPath, archiveName);
 			var outputPath = @"../../../output";
