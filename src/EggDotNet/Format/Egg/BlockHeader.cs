@@ -10,7 +10,7 @@ using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 
 namespace EggDotNet.Format.Egg
 {
-    internal sealed class BlockHeader
+	internal sealed class BlockHeader
 	{
 		public const int BLOCK_HEADER_MAGIC = 0x02B50C13;
 
@@ -53,6 +53,11 @@ namespace EggDotNet.Format.Egg
 			var crc = BitConverter.ToUInt32((buffer.Slice(10, 4)));
 
 			return new BlockHeader((CompressionMethod)(compressionMethod & 0xFF), compSize, uncompSize, stream.Position, crc);
+		}
+
+		public static BlockHeader CloneEmpty(BlockHeader header)
+		{
+			return new BlockHeader(header.CompressionMethod, header.CompressedSize, 0, 0, 0);
 		}
 	}
 }

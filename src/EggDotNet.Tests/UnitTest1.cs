@@ -248,6 +248,42 @@ namespace EggDotNet.Tests
 		}
 
 		[Fact]
+		public void Test_Solid()
+		{
+			using var fs = new FileStream(GetTestPath("solid.egg"), FileMode.Open, FileAccess.Read);
+			using var archive = new EggArchive(fs);
+			var firstEntry = archive.Entries.First();
+			var lastEntry = archive.Entries.Last();
+			using var firstEntryStream = firstEntry.Open();
+			using var lastEntryStream = lastEntry.Open();
+			using var fsr = new StreamReader(firstEntryStream);
+			using var lsr = new StreamReader(lastEntryStream);
+			var ftext = fsr.ReadToEnd();
+			var ltext = lsr.ReadToEnd();
+			Assert.Equal(ftext, ltext);
+		}
+
+		[Fact]
+		public void Test_Solid_Defaults()
+		{
+			var sha = SHA256.Create();
+			using var egg = OpenTestEgg("solid_defaults.egg");
+			foreach(var entry in egg.Entries)
+			{
+				if (TestFileInfos.TryGetValue(entry.Name!, out var info))
+				{
+					using var est = entry.Open();
+					var entryHash = sha.ComputeHash(est);
+					Assert.Equal(info.Sha256, entryHash);
+				}
+				else
+				{
+					Assert.Fail($"Entry {entry.Name} not found in TestFileInfos");
+				}
+			}
+		}
+
+		[Fact]
 		public void Test_Split_Junk_Disposed()
 		{
 			using var fs = new FileStream(GetTestPath("number.vol1.egg"), FileMode.Open, FileAccess.Read);
