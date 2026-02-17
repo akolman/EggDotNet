@@ -1,10 +1,8 @@
 ﻿using EggDotNet.Configuration;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
-namespace EggDotNet.Utilities
+namespace EggDotNet.InternalExtensions
 {
 	internal static class CacheLocationDeducer
 	{
@@ -36,7 +34,6 @@ namespace EggDotNet.Utilities
 		private static string GetWorkingDirectory() => AppContext.BaseDirectory;
 
 		private static string GetUserTempDirectory() => System.IO.Path.GetTempPath();
-
 
 		private static string GetUserDefinedDirectory()
 		{

@@ -1,8 +1,8 @@
 ﻿using EggDotNet.Compression;
 using EggDotNet.Encryption;
 using EggDotNet.Exceptions;
+using EggDotNet.InternalExtensions;
 using EggDotNet.SpecialStreams;
-using EggDotNet.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
