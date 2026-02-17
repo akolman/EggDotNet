@@ -12,6 +12,7 @@ namespace EggDotNet.Configuration
 	{
 		/// <summary>
 		/// Value representing the number of bytes after which point solid decompression will extract to disk.
+		/// Defaults to 128MB.
 		/// </summary>
 		public static long SolidDiskBufferCutoff = 128_000_000;
 
