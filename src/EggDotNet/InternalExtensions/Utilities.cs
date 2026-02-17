@@ -2,7 +2,7 @@
 
 namespace EggDotNet.InternalExtensions
 {
-    internal static class Utilities
+    internal static class DateUtilities
     {
         private const long EGG_MODDATE_EPOCH_TICKS = 504911232000000000;
 

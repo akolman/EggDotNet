@@ -7,10 +7,12 @@ namespace EggDotNet.Samples.ExtractToDirectory
 	{
 		internal class ProgressReporter
 		{
-			private Stopwatch sw = new Stopwatch();
+			private readonly Stopwatch sw = new();
 
 			internal void ReportStart(EggArchiveEntry entry, long written, long total)
 			{
+				Debug.Assert(total > 0);
+				Debug.Assert(written >= 0);
 				sw.Restart();
 				Console.WriteLine($"Starting extract of {entry.FullName} ({entry.UncompressedLength} bytes)");
 			}
@@ -19,11 +21,11 @@ namespace EggDotNet.Samples.ExtractToDirectory
 			{
 				sw.Stop();
 				double pct = (double)written * 100 / total;
-				Console.WriteLine($"Finished extract of {entry.FullName} in {sw.ElapsedMilliseconds} ms : {pct.ToString("F2")}% complete");
+				Console.WriteLine($"Finished extract of {entry.FullName} in {sw.ElapsedMilliseconds} ms : {pct:F2}% complete");
 			}
 		}
 
-		static void Main(string[] args)
+		static void Main()
 		{
 			var sampleRootPath = @"../../../../SampleFiles";
 			var archiveName = "defaults.egg";
@@ -36,7 +38,7 @@ namespace EggDotNet.Samples.ExtractToDirectory
 			}
 			catch(Exception e) 
 			{
-				Console.Error.WriteLine($"Encountered exception extracting archive {archiveName}: {e.ToString()}");
+				Console.Error.WriteLine($"Encountered exception extracting archive {archiveName}: {e}");
 			}
 		}
 	}

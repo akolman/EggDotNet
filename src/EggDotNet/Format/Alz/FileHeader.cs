@@ -64,7 +64,7 @@ namespace EggDotNet.Format.Alz
 			var filenameLen = BitConverter.ToInt16(fileheaderBuffer.Slice(0, 2));
 			var attributes = fileheaderBuffer[2];
 			_ = attributes; //TODO
-			var moddate = Utilities.FromAlzTime(BitConverter.ToUInt32(fileheaderBuffer.Slice(3, 4)));
+			var moddate = DateUtilities.FromAlzTime(BitConverter.ToUInt32(fileheaderBuffer.Slice(3, 4)));
 			var bitFlags = BitConverter.ToInt16(fileheaderBuffer.Slice(7, 2));
 
 

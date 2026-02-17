@@ -31,7 +31,7 @@ namespace EggDotNet.Format.Egg
 			var lastModTime = BitConverter.ToInt64(winFileBuffer.Slice(3, 8));
 			var attributes = winFileBuffer[11];
 
-			return new WinFileInfo() { LastModified = Utilities.FromEggTime(lastModTime), WindowsFileAttributes = attributes };
+			return new WinFileInfo() { LastModified = DateUtilities.FromEggTime(lastModTime), WindowsFileAttributes = attributes };
 		}
 	}
 }

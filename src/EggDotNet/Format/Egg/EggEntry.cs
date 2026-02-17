@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 #if NETSTANDARD2_0
@@ -55,13 +56,49 @@ namespace EggDotNet.Format.Egg
 
 		public static List<EggEntry> ParseEntries(Stream stream, EggArchive archive)
 		{
-			var entries = new List<EggEntry>();
+			if (archive.format is EggFormat eggFormat && eggFormat.IsSolid)
+			{
+				return ParseSolidEntries(stream, archive);
+			}
+			else
+			{
+				return ParseIndividualEntries(stream, archive);
+			}
+		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private static List<EggEntry> ParseSolidEntries(Stream stream, EggArchive archive)
+		{
+			var entries = new List<EggEntry>();
+			while (true)
+			{
+				var entry = new EggEntry();
+				BuildHeaders(entry, archive, stream, out var foundData);
+
+				if (foundData || stream.Position >= stream.Length) break; //sanity check
+
+				entries.Add(entry);
+			}
+
+			var headerEntry = entries.First();
+			BuildBlocks(headerEntry, stream);
+			foreach (var otherEntry in entries.Skip(1))
+			{
+				otherEntry.BlockHeader = BlockHeader.CloneEmpty(headerEntry.BlockHeader);
+			}
+
+			return entries;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private static List<EggEntry> ParseIndividualEntries(Stream stream, EggArchive archive)
+		{
+			var entries = new List<EggEntry>();
 			while (true)
 			{
 				var entry = new EggEntry();
 
-				BuildHeaders(entry, archive, stream);
+				BuildHeaders(entry, archive, stream, out _);
 
 				if (stream.Position >= stream.Length) break; //sanity check
 
@@ -77,8 +114,9 @@ namespace EggDotNet.Format.Egg
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static void BuildHeaders(EggEntry entry, EggArchive archive, Stream stream)
+		private static void BuildHeaders(EggEntry entry, EggArchive archive, Stream stream, out bool foundData)
 		{
+			foundData = false;
 			var foundEnd = false;
 			var insideFileheader = false;
 #if NETSTANDARD2_1_OR_GREATER
@@ -114,6 +152,11 @@ namespace EggDotNet.Format.Egg
 						break;
 					case FileHeader.FILE_END_HEADER:
 						foundEnd = true;
+						break;
+					case BlockHeader.BLOCK_HEADER_MAGIC:
+						foundEnd = true;
+						foundData = true;
+						stream.Seek(-4, SeekOrigin.Current);
 						break;
 					default:
 						foundEnd = true;
