@@ -1,4 +1,5 @@
 using EggDotNet.Exceptions;
+using EggDotNet.Extensions;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Net.NetworkInformation;
@@ -447,6 +448,34 @@ namespace EggDotNet.Tests
 			using var reader = new StreamReader(lstr);
 			var data = reader.ReadToEnd();
 			Assert.Equal(34446, data.Length);
+		}
+
+		[Fact]
+		public void Test_Posix()
+		{
+			using var fs = new FileStream(GetTestPath("posix.egg"), FileMode.Open, FileAccess.Read);
+			using var archive = new EggArchive(fs);
+			var ent = archive.Entries.Last();
+			var fileAttrs = (PosixFileAttributes)ent.GetExtraAttributes(ExtraAttributeType.FileAttibutes);
+			Assert.True(fileAttrs.HasFlag(PosixFileAttributes.RegularFile));
+		}
+
+		[Fact]
+		public void Test_Posix_Small()
+		{
+			using var fs = new FileStream(GetTestPath("posix_small.egg"), FileMode.Open, FileAccess.Read);
+			using var archive = new EggArchive(fs);
+			var ent = archive.Entries.Single();
+			Assert.Equal(EntryInfoType.Posix, ent.EntryInfoType);
+			var fileAttrs = (PosixFileAttributes)ent.GetExtraAttributes(ExtraAttributeType.FileAttibutes);
+			Assert.True(fileAttrs.HasFlag(PosixFileAttributes.OwnerRead));
+			Assert.True(fileAttrs.HasFlag(PosixFileAttributes.OwnerWrite));
+			var ugidVal = ent.GetExtraAttributes(ExtraAttributeType.UserGroupAttributes);
+			var uid = (int)(ugidVal >> 32);
+			var gid = (int)(ugidVal & 0xFFFFFFFF);
+			Assert.NotEqual(0, uid);
+			Assert.NotEqual(0, gid);
+			var ts = ent.GetExtraAttributes(ExtraAttributeType.DateAttributes);
 		}
 
 		[Fact]

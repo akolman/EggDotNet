@@ -35,6 +35,7 @@ namespace EggDotNet.Format.Alz
 
 		public override bool IsEncrypted => false;
 
+		[Obsolete("Use GetExtraAttributes method")]
 		public override long ExternalAttributes => 0;
 
 #if NETSTANDARD2_1_OR_GREATER
@@ -47,6 +48,9 @@ namespace EggDotNet.Format.Alz
 
 		public override string Comment => string.Empty; //TODO
 #endif
+
+		public override EntryInfoType EntryInfoType => EntryInfoType.None;
+
 		public static List<AlzEntry> ParseEntries(Stream stream)
 		{
 			var entries = new List<AlzEntry>();
@@ -73,6 +77,11 @@ namespace EggDotNet.Format.Alz
 				}
 			}
 			return entries;
+		}
+
+		public override long GetExtraAttributes(ExtraAttributeType attributeType)
+		{
+			return 0;
 		}
 	}
 }

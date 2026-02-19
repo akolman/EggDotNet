@@ -35,11 +35,18 @@ namespace EggDotNet.Extensions
 						File.SetLastWriteTime(path, entry.LastWriteTime);
 					}
 #endif
-					if (entry.ExternalAttributes !=  (long)WindowsFileAttributes.None)
-					{
-						SetWindowsFileAttributes(path, (WindowsFileAttributes)entry.ExternalAttributes);
-					}
+					HandleFileAttributes(entry, path);
 				}
+			}
+		}
+
+		private static void HandleFileAttributes(EggArchiveEntry entry, string path)
+		{
+			var fileAttrs = entry.GetExtraAttributes(ExtraAttributeType.FileAttibutes);
+
+			if (entry.EntryInfoType == EntryInfoType.Windows)
+			{
+				SetWindowsFileAttributes(path, (WindowsFileAttributes)fileAttrs);
 			}
 		}
 

@@ -96,12 +96,18 @@ namespace EggDotNet
 		/// <remarks>See <see cref="WindowsFileAttributes"/>.
 		/// For entries which contain Windows file attributes, the value will be the lowest 4 bytes of the total long value.
 		/// </remarks>
+		[Obsolete("Use GetExtraAttributes method")]
 		public long ExternalAttributes => entry.ExternalAttributes;
 
 		/// <summary>
 		/// Gets the comment of the file.
 		/// </summary>
 		public string Comment => entry.Comment ?? string.Empty;
+
+		/// <summary>
+		/// Gets the EntryInfoType value for this EggArchiveEntry.
+		/// </summary>
+		public EntryInfoType EntryInfoType => entry.EntryInfoType;
 
 		internal EggArchiveEntry(EggFileEntryBase entry, EggArchive archive)
 		{
@@ -116,6 +122,16 @@ namespace EggDotNet
 		public Stream Open()
 		{
 			return _format.GetStreamForEntry(this);
+		}
+
+		/// <summary>
+		/// Gets extra attributes associated with the Entry.
+		/// </summary>
+		/// <param name="attributeType"></param>
+		/// <returns></returns>
+		public long GetExtraAttributes(ExtraAttributeType attributeType)
+		{
+			return entry.GetExtraAttributes(attributeType);
 		}
 
 		/// <summary>
