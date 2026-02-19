@@ -12,7 +12,7 @@ namespace EggDotNet.Format.Egg
 	{
 		public const int WIN_FILE_INFO_MAGIC_HEADER = 0x2C86950B;
 
-		public DateTime LastModified { get; private set; }
+		public long LastModified { get; private set; }
 
 		public int WindowsFileAttributes { get; private set; }
 
@@ -31,7 +31,7 @@ namespace EggDotNet.Format.Egg
 			var lastModTime = BitConverter.ToInt64(winFileBuffer.Slice(3, 8));
 			var attributes = winFileBuffer[11];
 
-			return new WinFileInfo() { LastModified = DateUtilities.FromEggTime(lastModTime), WindowsFileAttributes = attributes };
+			return new WinFileInfo() { LastModified = lastModTime, WindowsFileAttributes = attributes };
 		}
 	}
 }
