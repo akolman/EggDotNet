@@ -60,3 +60,10 @@ Fixes and added features
 +Added additional testing
 +Resolved issue with split file decompression
 +Improved handling of streams provided to split stream-provider.
+=======================================================================
+0.2.0-beta (?)
++Added support for Solid compression.
++Added support for POSIX file metadata.
+-Obsoleted EggArchiveEntry.ExternalAttributes.
++Added EggArchiveEntry.GetExtraAttributes.
++Added samples project to solution.
