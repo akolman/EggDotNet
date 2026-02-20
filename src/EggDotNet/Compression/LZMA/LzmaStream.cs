@@ -1,10 +1,12 @@
 ﻿using EggDotNet.Compression.LZMA.LZ;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
 #pragma warning disable
 namespace EggDotNet.Compression.LZMA
 {
+	[ExcludeFromCodeCoverage]
 	internal class LzmaStream : Stream
 	{
 		private readonly Stream _inputStream;
@@ -87,38 +89,6 @@ namespace EggDotNet.Compression.LZMA
 
 				Properties = new byte[1];
 				_availableBytes = 0;
-			}
-		}
-
-		public LzmaStream(LzmaEncoderProperties properties, bool isLzma2, Stream outputStream)
-			: this(properties, isLzma2, null, outputStream) { }
-
-		public LzmaStream(
-			LzmaEncoderProperties properties,
-			bool isLzma2,
-			Stream presetDictionary,
-			Stream outputStream
-		)
-		{
-			_isLzma2 = isLzma2;
-			_availableBytes = 0;
-			_endReached = true;
-
-			if (isLzma2)
-			{
-				throw new NotImplementedException();
-			}
-
-			//_encoder = new Encoder();
-			///_encoder.SetCoderProperties(properties.PropIDs, properties.Properties);
-			var prop = new byte[5];
-			//_encoder.WriteCoderProperties(prop);
-			Properties = prop;
-
-			//_encoder.SetStreams(null, outputStream, -1, -1);
-			if (presetDictionary != null)
-			{
-				//_encoder.Train(presetDictionary);
 			}
 		}
 

@@ -17,6 +17,11 @@ namespace EggDotNet.SpecialStreams
 
 		public override long Position { get => _stream.Position; set => _stream.Position = value; }
 
+		public EggStream(byte[] buffer)
+		{
+			_stream = new MemoryStream(buffer);
+		}
+
 		public EggStream(Stream stream)
 		{
 			_stream = stream;

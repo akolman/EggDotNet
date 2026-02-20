@@ -9,6 +9,10 @@ namespace EggDotNet.Format
 	/// </summary>
 	internal abstract class EggFileFormatBase : IDisposable
 	{
+		internal abstract bool IsSolid { get; }
+
+		internal abstract bool IsSplit { get; }
+
 		/// <summary>
 		/// Parses the headers from the given Egg stream, and if a split archive, requests the additional volumes.
 		/// Once provided, each volume will be scanned.

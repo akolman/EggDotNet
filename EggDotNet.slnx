@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Samples/">
+    <Project Path="src/EggDotNet.Samples/ExtractToDirectory/EggDotNet.Samples.ExtractToDirectory.csproj" Id="a285e861-bce5-4b7d-b75c-695eaaacc02f" />
+  </Folder>
   <Project Path="src/EggDotNet.Benchmarks/EggDotNet.Benchmarks.csproj" />
   <Project Path="src/EggDotNet.Tests/EggDotNet.Tests.csproj" />
   <Project Path="src/EggDotNet/EggDotNet.csproj" />

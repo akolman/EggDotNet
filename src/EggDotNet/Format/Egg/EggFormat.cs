@@ -1,6 +1,7 @@
 ﻿using EggDotNet.Compression;
 using EggDotNet.Encryption;
 using EggDotNet.Exceptions;
+using EggDotNet.InternalExtensions;
 using EggDotNet.SpecialStreams;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,12 @@ namespace EggDotNet.Format.Egg
 		private readonly FileDecryptPasswordCallback _pwCallback;
 		private readonly List<EggVolume> _volumes = new List<EggVolume>(8);
 		private List<EggEntry> _entriesCache;
+		private SolidStreamManager _solidManager;
 		private bool disposedValue;
+
+		internal override bool IsSolid => _volumes.Any(v => v.IsSolid);
+
+		internal override bool IsSplit => _volumes.Count > 1;
 
 		internal EggFormat(SplitFileReceiverCallback streamCallback, FileDecryptPasswordCallback pwCallback)
 		{
@@ -53,15 +59,46 @@ namespace EggDotNet.Format.Egg
 
 		public override Stream GetStreamForEntry(EggArchiveEntry entry)
 		{
-			var st = PrepareStream();
-			Stream subSt = new SubStream(st, entry.PositionInStream, entry.PositionInStream + entry.CompressedLength);
-			var eggEntry = (EggEntry)entry.entry;
-			if (eggEntry.EncryptHeader != null)
+			if (_solidManager != null || _volumes.First().IsSolid)
 			{
-				subSt = GetDecryptionStream(subSt, eggEntry);
+				if (_solidManager == null)
+				{
+					InitSolidManager(entry);
+				}
+
+				return _solidManager.GetEntryStream(entry);
+			}
+			else
+			{
+				var st = PrepareStream();
+				Stream subSt = new SubStream(st, entry.PositionInStream, entry.PositionInStream + entry.CompressedLength);
+				var eggEntry = (EggEntry)entry.entry;
+				if (eggEntry.EncryptHeader != null)
+				{
+					subSt = GetDecryptionStream(subSt, eggEntry);
+				}
+
+				return GetDecompressionStream(subSt, eggEntry);
+			}
+		}
+
+		private void InitSolidManager(EggArchiveEntry entry)
+		{
+			var firstEntry = entry.Archive.Entries.First();
+			var totalSize = entry.Archive.Entries.Sum(e => e.UncompressedLength);
+			var st = PrepareStream();
+			st.Seek(firstEntry.PositionInStream, SeekOrigin.Begin);
+
+			string tempPath = string.Empty;
+			if (st is FileStream fst)
+			{
+				tempPath = Path.GetDirectoryName(fst.Name);
 			}
 
-			return GetDecompressionStream(subSt, eggEntry);
+			tempPath = CacheLocationDeducer.GetCacheDirectory(tempPath);
+			var decompSt = GetDecompressionStream(st, (EggEntry)firstEntry.entry);
+			_solidManager = new SolidStreamManager(decompSt, totalSize, tempPath);
+			st.Dispose(); /*SolidStreamManager copies so original can be closed*/
 		}
 
 		private void FetchAndParseSplitVolumes(Stream stream, bool ownStream = false)
@@ -220,6 +257,9 @@ namespace EggDotNet.Format.Egg
 						volume.Dispose();
 					}
 				}
+
+				_solidManager?.Dispose();
+				_solidManager = null;
 
 				disposedValue = true;
 			}

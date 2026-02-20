@@ -1,4 +1,5 @@
 using EggDotNet.Exceptions;
+using EggDotNet.Extensions;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Net.NetworkInformation;
@@ -106,6 +107,8 @@ namespace EggDotNet.Tests
 		public void Test_Normal()
 		{
 			using var archive = OpenTestEgg("defaults_normal.egg");
+			Assert.False(archive.IsSolid);
+			Assert.False(archive.IsSplit);
 			Assert.Equal("Sample which includes all basic test files, with Normal setting selected.", archive.Comment);
 			Assert.Equal(6, archive.Entries.Count);
 			ValidateAllEggEntries(archive);
@@ -130,6 +133,24 @@ namespace EggDotNet.Tests
 			var aes256Entry = archive.GetEntry("lorem_ipsum_long.txt");
 			Assert.Equal("This file is encrypted using ZIP.", aes256Entry!.Comment);
 			using var entryStream = aes256Entry.Open();
+			using var sr = new StreamReader(entryStream);
+			var loremLongText = sr.ReadToEnd();
+			Assert.Equal(15_238, loremLongText.Length);
+			Assert.StartsWith("Lorem ipsum dolor sit amet", loremLongText);
+			Assert.EndsWith("sed faucibus orci ligula eu nisi.", loremLongText);
+		}
+
+		[Fact]
+		public void Test_ZipEnc_DefaultPwCallback()
+		{
+			using var fs = new FileStream(GetTestPath("lorem_long_zipEnc.egg"), FileMode.Open, FileAccess.Read);
+			var pwInput = "password12345!" + Environment.NewLine;
+			var srInput = new StringReader(pwInput);
+			Console.SetIn(srInput);
+			using var archive = new EggArchive(fs);
+			Assert.Equal("Lorem long text encrypted with ZIP", archive.Comment);
+			var aes256Entry = archive.GetEntry("lorem_ipsum_long.txt");
+			using var entryStream = aes256Entry!.Open();
 			using var sr = new StreamReader(entryStream);
 			var loremLongText = sr.ReadToEnd();
 			Assert.Equal(15_238, loremLongText.Length);
@@ -243,8 +264,46 @@ namespace EggDotNet.Tests
 		{
 			using var fs = new FileStream(GetTestPath("number.vol1.egg"), FileMode.Open, FileAccess.Read);
 			using var archive = new EggArchive(fs);
+			Assert.True(archive.IsSplit);
 			var ent = archive.Entries.Single();
 			Assert.True(ent.ChecksumValid());
+		}
+
+		[Fact]
+		public void Test_Solid()
+		{
+			using var fs = new FileStream(GetTestPath("solid.egg"), FileMode.Open, FileAccess.Read);
+			using var archive = new EggArchive(fs);
+			Assert.True(archive.IsSolid);
+			var firstEntry = archive.Entries.First();
+			var lastEntry = archive.Entries.Last();
+			using var firstEntryStream = firstEntry.Open();
+			using var lastEntryStream = lastEntry.Open();
+			using var fsr = new StreamReader(firstEntryStream);
+			using var lsr = new StreamReader(lastEntryStream);
+			var ftext = fsr.ReadToEnd();
+			var ltext = lsr.ReadToEnd();
+			Assert.Equal(ftext, ltext);
+		}
+
+		[Fact]
+		public void Test_Solid_Defaults()
+		{
+			var sha = SHA256.Create();
+			using var egg = OpenTestEgg("solid_defaults.egg");
+			foreach(var entry in egg.Entries)
+			{
+				if (TestFileInfos.TryGetValue(entry.Name!, out var info))
+				{
+					using var est = entry.Open();
+					var entryHash = sha.ComputeHash(est);
+					Assert.Equal(info.Sha256, entryHash);
+				}
+				else
+				{
+					Assert.Fail($"Entry {entry.Name} not found in TestFileInfos");
+				}
+			}
 		}
 
 		[Fact]
@@ -411,6 +470,69 @@ namespace EggDotNet.Tests
 			using var reader = new StreamReader(lstr);
 			var data = reader.ReadToEnd();
 			Assert.Equal(34446, data.Length);
+		}
+
+		[Fact]
+		public void Test_Posix()
+		{
+			using var fs = new FileStream(GetTestPath("posix.egg"), FileMode.Open, FileAccess.Read);
+			using var archive = new EggArchive(fs);
+			var ent = archive.Entries.Last();
+			var fileAttrs = (PosixFileAttributes)ent.GetExtraAttributes(ExtraAttributeType.FileAttibutes);
+			Assert.True(fileAttrs.HasFlag(PosixFileAttributes.RegularFile));
+			var lastWrite = ent.LastWriteTime;
+
+#if NETCOREAPP
+			Assert.Equal(2023, lastWrite!.Value.Year);
+#else
+			Assert.Equal(2023, lastWrite.Year);
+#endif
+		}
+
+		[Fact]
+		public void Test_Posix_Small()
+		{
+			using var fs = new FileStream(GetTestPath("posix_small.egg"), FileMode.Open, FileAccess.Read);
+			using var archive = new EggArchive(fs);
+			var ent = archive.Entries.Single();
+			Assert.Equal(EntryInfoType.Posix, ent.EntryInfoType);
+			var fileAttrs = (PosixFileAttributes)ent.GetExtraAttributes(ExtraAttributeType.FileAttibutes);
+			Assert.True(fileAttrs.HasFlag(PosixFileAttributes.OwnerRead));
+			Assert.True(fileAttrs.HasFlag(PosixFileAttributes.OwnerWrite));
+			var ugidVal = ent.GetExtraAttributes(ExtraAttributeType.UserGroupAttributes);
+			var uid = (int)(ugidVal >> 32);
+			var gid = (int)(ugidVal & 0xFFFFFFFF);
+			Assert.NotEqual(0, uid);
+			Assert.NotEqual(0, gid);
+			var ts = ent.GetExtraAttributes(ExtraAttributeType.DateAttributes);
+		}
+
+		[Fact]
+		public void Test_Recursive_Directories()
+		{
+			using var fs = new FileStream(GetTestPath("directories.egg"), FileMode.Open, FileAccess.Read);
+			try
+			{
+				Directory.Delete("dir1", true);
+			}
+			catch(DirectoryNotFoundException)
+			{ }
+			EggFile.ExtractToDirectory(fs, "./");
+			Assert.True(File.Exists("dir1/dir2/dir3/test.txt"));
+		}
+
+		[Fact]
+		public void Test_Extract_To_Stream()
+		{
+			using var fs = new FileStream(GetTestPath("defaults.egg"), FileMode.Open, FileAccess.Read);
+			using var archive = new EggArchive(fs);
+			var entry = archive.GetEntry("lorem_ipsum_short.txt");
+
+			using var ostream = new MemoryStream();
+			entry.ExtractToStream(ostream);
+			Assert.Equal(525, entry!.UncompressedLength);
+			Assert.Equal(525, ostream.Length);
+			Assert.Equal(525, ostream.Position);
 		}
 
 		[Fact]

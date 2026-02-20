@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 
 #pragma warning disable
-
 namespace EggDotNet.Compression.Bzip2
 {
 	/// <summary>
 	/// An input stream that decompresses files in the BZip2 format
 	/// </summary>
+	[ExcludeFromCodeCoverage]
 	internal class BZip2InputStream : Stream
 	{
 		#region Constants

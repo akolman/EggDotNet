@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using EggDotNet.InternalExtensions;
 
 #if NETSTANDARD2_0
 using EggDotNet.Extensions;
-using EggDotNet.InternalExtensions;
+
 using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif
 
@@ -14,7 +16,10 @@ namespace EggDotNet.Format.Egg
     internal sealed class EggEntry : EggFileEntryBase
 	{
 		public FileHeader FileHeader { get; private set; }
+
 		public FilenameHeader FilenameHeader { get; private set; }
+
+		public PosixFileInfo PosixFileInfo { get; private set; }
 
 		public WinFileInfo WinFileInfo { get; private set; }
 
@@ -40,7 +45,8 @@ namespace EggDotNet.Format.Egg
 
 		public override bool IsEncrypted => EncryptHeader != null;
 
-		public override long ExternalAttributes => GetExternalAttributes();
+		[Obsolete("Use GetExtraAttributes method")]
+		public override long ExternalAttributes => GetFileAttributes();
 
 #if NETSTANDARD2_1_OR_GREATER
 #nullable enable
@@ -53,15 +59,71 @@ namespace EggDotNet.Format.Egg
 		public override string Comment => CommentHeader.CommentText;
 #endif
 
+		public override EntryInfoType EntryInfoType => GetEntryInfoType();
+
 		public static List<EggEntry> ParseEntries(Stream stream, EggArchive archive)
 		{
-			var entries = new List<EggEntry>();
+			if (archive.format is EggFormat eggFormat && eggFormat.IsSolid)
+			{
+				return ParseSolidEntries(stream, archive);
+			}
+			else
+			{
+				return ParseIndividualEntries(stream, archive);
+			}
+		}
 
+		public override long GetExtraAttributes(ExtraAttributeType attributeType)
+		{
+			if (attributeType == ExtraAttributeType.FileAttibutes)
+			{
+				return GetFileAttributes();
+			}
+			else if (attributeType == ExtraAttributeType.UserGroupAttributes)
+			{
+				return GetUserGroupAttributes();
+			}
+			else if (attributeType == ExtraAttributeType.DateAttributes)
+			{
+				return GetLastWriteTimeRaw();
+			}
+
+			return 0;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private static List<EggEntry> ParseSolidEntries(Stream stream, EggArchive archive)
+		{
+			var entries = new List<EggEntry>();
+			while (true)
+			{
+				var entry = new EggEntry();
+				BuildHeaders(entry, archive, stream, out var foundData);
+
+				if (foundData || stream.Position >= stream.Length) break; //sanity check
+
+				entries.Add(entry);
+			}
+
+			var headerEntry = entries.First();
+			BuildBlocks(headerEntry, stream);
+			foreach (var otherEntry in entries.Skip(1))
+			{
+				otherEntry.BlockHeader = BlockHeader.CloneEmpty(headerEntry.BlockHeader);
+			}
+
+			return entries;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private static List<EggEntry> ParseIndividualEntries(Stream stream, EggArchive archive)
+		{
+			var entries = new List<EggEntry>();
 			while (true)
 			{
 				var entry = new EggEntry();
 
-				BuildHeaders(entry, archive, stream);
+				BuildHeaders(entry, archive, stream, out _);
 
 				if (stream.Position >= stream.Length) break; //sanity check
 
@@ -77,8 +139,9 @@ namespace EggDotNet.Format.Egg
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static void BuildHeaders(EggEntry entry, EggArchive archive, Stream stream)
+		private static void BuildHeaders(EggEntry entry, EggArchive archive, Stream stream, out bool foundData)
 		{
+			foundData = false;
 			var foundEnd = false;
 			var insideFileheader = false;
 #if NETSTANDARD2_1_OR_GREATER
@@ -102,6 +165,9 @@ namespace EggDotNet.Format.Egg
 					case WinFileInfo.WIN_FILE_INFO_MAGIC_HEADER:
 						entry.WinFileInfo = WinFileInfo.Parse(stream);
 						break;
+					case PosixFileInfo.POSIX_FILE_INFO_MAGIC_HEADER:
+						entry.PosixFileInfo = PosixFileInfo.Parse(stream);
+						break;
 					case EncryptHeader.EGG_ENCRYPT_HEADER_MAGIC:
 						entry.EncryptHeader = EncryptHeader.Parse(stream);
 						break;
@@ -114,6 +180,11 @@ namespace EggDotNet.Format.Egg
 						break;
 					case FileHeader.FILE_END_HEADER:
 						foundEnd = true;
+						break;
+					case BlockHeader.BLOCK_HEADER_MAGIC:
+						foundEnd = true;
+						foundData = true;
+						stream.Seek(-4, SeekOrigin.Current);
 						break;
 					default:
 						foundEnd = true;
@@ -148,33 +219,87 @@ namespace EggDotNet.Format.Egg
 		{
 			if (WinFileInfo != null)
 			{
-				return WinFileInfo.LastModified;
+				return DateUtilities.FromEggTime(GetLastWriteTimeRaw());
+			}
+			else if (PosixFileInfo != null)
+			{
+				return DateUtilities.FromEpoch(GetLastWriteTimeRaw());
 			}
 
 			return null;
 		}
+
 #else
 		private DateTime GetLastWriteTime()
 		{
 			if (WinFileInfo != null)
 			{
-				return WinFileInfo.LastModified;
+				return DateUtilities.FromEggTime(GetLastWriteTimeRaw());
+			}
+			else if (PosixFileInfo != null)
+			{
+				return DateUtilities.FromEpoch(GetLastWriteTimeRaw());
 			}
 
 			return DateTime.MinValue;
 		}
 #endif
 
-		private long GetExternalAttributes()
+		private long GetLastWriteTimeRaw()
+		{
+			if (WinFileInfo != null)
+			{
+				return WinFileInfo.LastModified;
+			}
+			else if (PosixFileInfo != null)
+			{
+				return PosixFileInfo.LastModified;
+			}
+
+			return 0;
+		}
+
+		private long GetFileAttributes()
 		{
 			if (WinFileInfo != null)
 			{
 				return WinFileInfo.WindowsFileAttributes;
 			}
+			else if(PosixFileInfo != null)
+			{
+				return PosixFileInfo.FileMode;
+			}
 			else
 			{
 				return 0;
 			}
+		}
+
+		private long GetUserGroupAttributes()
+		{
+			if (WinFileInfo != null)
+			{
+				return 0;
+			}
+			else if (PosixFileInfo != null)
+			{
+				return ((long)PosixFileInfo.Uid << 32) | (long)(uint)PosixFileInfo.Gid;
+			}
+
+			return 0;
+		}
+
+		private EntryInfoType GetEntryInfoType()
+		{
+			if (WinFileInfo != null)
+			{
+				return EntryInfoType.Windows;
+			}
+			else if (PosixFileInfo != null)
+			{
+				return EntryInfoType.Posix;
+			}
+			return EntryInfoType.None;
 		}
 	}
 }

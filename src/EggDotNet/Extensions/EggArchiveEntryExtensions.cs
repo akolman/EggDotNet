@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Linq;
 
 namespace EggDotNet.Extensions
 {
@@ -16,30 +18,61 @@ namespace EggDotNet.Extensions
 		{
 			using (var entryStream = entry.Open())
 			{
-				var path = Path.Combine(destinationDirectory, entry.FullName);
+				var entryName = entry.FullName;
+				var entryNameParts = entryName.Split('/');
+				if (entryNameParts.Length > 1)
+				{
+					var entryDirectoryParts = entryNameParts.Take(entryNameParts.Length - 1);
+					entryName = entryNameParts.Last();
+					destinationDirectory = Path.Combine(destinationDirectory, Path.Combine(entryDirectoryParts.ToArray()));
+				}
+
+				Directory.CreateDirectory(destinationDirectory);
+
+				var path = Path.Combine(destinationDirectory, entryName);
 
 				using (var foStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
 				{
-					entryStream.CopyTo(foStream);
-					foStream.Flush();
+					entry.ExtractToStream(foStream);
 					foStream.Close();
+				}
 
 #if NETSTANDARD2_1_OR_GREATER
-					if (entry.LastWriteTime.HasValue)
-					{
-						File.SetLastWriteTime(path, entry.LastWriteTime.Value);
-					}
-#else
-					if (entry.LastWriteTime != null)
-					{
-						File.SetLastWriteTime(path, entry.LastWriteTime);
-					}
-#endif
-					if (entry.ExternalAttributes !=  (long)WindowsFileAttributes.None)
-					{
-						SetWindowsFileAttributes(path, (WindowsFileAttributes)entry.ExternalAttributes);
-					}
+				if (entry.LastWriteTime.HasValue)
+				{
+					File.SetLastWriteTime(path, entry.LastWriteTime.Value);
 				}
+#else
+				if (entry.LastWriteTime != null)
+				{
+					File.SetLastWriteTime(path, entry.LastWriteTime);
+				}
+#endif
+				HandleFileAttributes(entry, path);
+			}
+		}
+
+		/// <summary>
+		/// Extracts the EggArchiveEntry to the provided output Stream.  Caller should close Stream.
+		/// </summary>
+		/// <param name="entry">The EggArchiveEntry to extract.</param>
+		/// <param name="outputStream">The Stream to extract to.</param>
+		public static void ExtractToStream(this EggArchiveEntry entry, Stream outputStream)
+		{
+			using (var entryStream = entry.Open())
+			{
+				entryStream.CopyTo(outputStream);
+				outputStream.Flush();
+			}
+		}
+
+		private static void HandleFileAttributes(EggArchiveEntry entry, string path)
+		{
+			var fileAttrs = entry.GetExtraAttributes(ExtraAttributeType.FileAttibutes);
+
+			if (entry.EntryInfoType == EntryInfoType.Windows)
+			{
+				SetWindowsFileAttributes(path, (WindowsFileAttributes)fileAttrs);
 			}
 		}
 
