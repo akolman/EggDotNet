@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Linq;
 
 namespace EggDotNet.Extensions
 {
@@ -16,7 +18,18 @@ namespace EggDotNet.Extensions
 		{
 			using (var entryStream = entry.Open())
 			{
-				var path = Path.Combine(destinationDirectory, entry.FullName);
+				var entryName = entry.FullName;
+				var entryNameParts = entryName.Split('/');
+				if (entryNameParts.Length > 1)
+				{
+					var entryDirectoryParts = entryNameParts.Take(entryNameParts.Length - 1);
+					entryName = entryNameParts.Last();
+					destinationDirectory = Path.Combine(destinationDirectory, Path.Combine(entryDirectoryParts.ToArray()));
+				}
+
+				Directory.CreateDirectory(destinationDirectory);
+
+				var path = Path.Combine(destinationDirectory, entryName);
 
 				using (var foStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
 				{

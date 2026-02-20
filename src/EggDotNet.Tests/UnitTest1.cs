@@ -504,6 +504,15 @@ namespace EggDotNet.Tests
 		}
 
 		[Fact]
+		public void Test_Recursive_Directories()
+		{
+			using var fs = new FileStream(GetTestPath("directories.egg"), FileMode.Open, FileAccess.Read);
+			Directory.Delete("dir1", true);
+			EggFile.ExtractToDirectory(fs, "./");
+			Assert.True(File.Exists("dir1/dir2/dir3/test.txt"));
+		}
+
+		[Fact]
 		public void Test_Global_Comment()
 		{
 			using var archive = EggFile.Open("../../../test_files/globalcomment.egg");
