@@ -33,23 +33,36 @@ namespace EggDotNet.Extensions
 
 				using (var foStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
 				{
-					entryStream.CopyTo(foStream);
-					foStream.Flush();
+					entry.ExtractToStream(foStream);
 					foStream.Close();
+				}
 
 #if NETSTANDARD2_1_OR_GREATER
-					if (entry.LastWriteTime.HasValue)
-					{
-						File.SetLastWriteTime(path, entry.LastWriteTime.Value);
-					}
-#else
-					if (entry.LastWriteTime != null)
-					{
-						File.SetLastWriteTime(path, entry.LastWriteTime);
-					}
-#endif
-					HandleFileAttributes(entry, path);
+				if (entry.LastWriteTime.HasValue)
+				{
+					File.SetLastWriteTime(path, entry.LastWriteTime.Value);
 				}
+#else
+				if (entry.LastWriteTime != null)
+				{
+					File.SetLastWriteTime(path, entry.LastWriteTime);
+				}
+#endif
+				HandleFileAttributes(entry, path);
+			}
+		}
+
+		/// <summary>
+		/// Extracts the EggArchiveEntry to the provided output Stream.  Caller should close Stream.
+		/// </summary>
+		/// <param name="entry">The EggArchiveEntry to extract.</param>
+		/// <param name="outputStream">The Stream to extract to.</param>
+		public static void ExtractToStream(this EggArchiveEntry entry, Stream outputStream)
+		{
+			using (var entryStream = entry.Open())
+			{
+				entryStream.CopyTo(outputStream);
+				outputStream.Flush();
 			}
 		}
 

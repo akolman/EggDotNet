@@ -507,9 +507,28 @@ namespace EggDotNet.Tests
 		public void Test_Recursive_Directories()
 		{
 			using var fs = new FileStream(GetTestPath("directories.egg"), FileMode.Open, FileAccess.Read);
-			Directory.Delete("dir1", true);
+			try
+			{
+				Directory.Delete("dir1", true);
+			}
+			catch(DirectoryNotFoundException)
+			{ }
 			EggFile.ExtractToDirectory(fs, "./");
 			Assert.True(File.Exists("dir1/dir2/dir3/test.txt"));
+		}
+
+		[Fact]
+		public void Test_Extract_To_Stream()
+		{
+			using var fs = new FileStream(GetTestPath("defaults.egg"), FileMode.Open, FileAccess.Read);
+			using var archive = new EggArchive(fs);
+			var entry = archive.GetEntry("lorem_ipsum_short.txt");
+
+			using var ostream = new MemoryStream();
+			entry.ExtractToStream(ostream);
+			Assert.Equal(525, entry!.UncompressedLength);
+			Assert.Equal(525, ostream.Length);
+			Assert.Equal(525, ostream.Position);
 		}
 
 		[Fact]
