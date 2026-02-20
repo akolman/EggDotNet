@@ -20,8 +20,6 @@ namespace EggDotNet.Format.Egg
 				throw new InvalidDataException("Failed reading solid header");
 			}
 
-			Console.Error.WriteLine("SOLID compression not implemented.  May encounter errors.");
-
 			return new SolidHeader();
 		}
 	}
