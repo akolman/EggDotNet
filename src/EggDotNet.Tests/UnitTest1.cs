@@ -148,7 +148,7 @@ namespace EggDotNet.Tests
 			using var archive = new EggArchive(fs);
 			Assert.Equal("Lorem long text encrypted with ZIP", archive.Comment);
 			var aes256Entry = archive.GetEntry("lorem_ipsum_long.txt");
-			using var entryStream = aes256Entry.Open();
+			using var entryStream = aes256Entry!.Open();
 			using var sr = new StreamReader(entryStream);
 			var loremLongText = sr.ReadToEnd();
 			Assert.Equal(15_238, loremLongText.Length);

@@ -11,7 +11,7 @@ using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 
 namespace EggDotNet.Format.Egg
 {
-	internal class PosixFileInfo
+	internal sealed class PosixFileInfo
 	{
 		public const int POSIX_FILE_INFO_MAGIC_HEADER = 0x1EE922E5;
 

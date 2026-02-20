@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace EggDotNet.Format.Egg
 {
-	internal class SolidStreamManager : IDisposable
+	internal sealed class SolidStreamManager : IDisposable
 	{
 		private readonly bool UseDisk;
 		private readonly Stream tempStream;
@@ -45,9 +45,10 @@ namespace EggDotNet.Format.Egg
 			return new SubStream(tempStream, startPointFound, startPointFound + entry.UncompressedLength);
 		}
 
-		protected virtual void Dispose(bool disposing)
+
+		private void Dispose(bool disposing)
 		{
-			if (!disposedValue)
+			if (disposing && !disposedValue)
 			{
 				if (tempStream != null)
 				{
