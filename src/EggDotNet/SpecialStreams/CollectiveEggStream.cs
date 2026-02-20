@@ -33,6 +33,7 @@ namespace EggDotNet.SpecialStreams
 			}
 		}
 
+		/*
 		public CollectiveEggStream(List<Stream> streams)
 		{
 			var posTemps = new List<long>(streams.Count);
@@ -52,7 +53,7 @@ namespace EggDotNet.SpecialStreams
 			totalLength = len;
 			_currentStreamIndex = 0;
 
-		}
+		}*/
 
 		public CollectiveEggStream(List<SubStream> streams)
 		{
