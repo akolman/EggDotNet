@@ -12,6 +12,10 @@ namespace EggDotNet.Format.Alz
 		private List<AlzEntry> _entriesCache;
 		private bool disposedValue;
 
+		internal override bool IsSolid => false;
+
+		internal override bool IsSplit => false;
+
 		public override Stream GetStreamForEntry(EggArchiveEntry entry)
 		{
 			var st = PrepareStream();

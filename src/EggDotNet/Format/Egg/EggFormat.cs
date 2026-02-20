@@ -21,7 +21,9 @@ namespace EggDotNet.Format.Egg
 		private SolidStreamManager _solidManager;
 		private bool disposedValue;
 
-		internal bool IsSolid => _volumes.First().IsSolid;
+		internal override bool IsSolid => _volumes.Any(v => v.IsSolid);
+
+		internal override bool IsSplit => _volumes.Count > 1;
 
 		internal EggFormat(SplitFileReceiverCallback streamCallback, FileDecryptPasswordCallback pwCallback)
 		{

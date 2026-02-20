@@ -107,6 +107,8 @@ namespace EggDotNet.Tests
 		public void Test_Normal()
 		{
 			using var archive = OpenTestEgg("defaults_normal.egg");
+			Assert.False(archive.IsSolid);
+			Assert.False(archive.IsSplit);
 			Assert.Equal("Sample which includes all basic test files, with Normal setting selected.", archive.Comment);
 			Assert.Equal(6, archive.Entries.Count);
 			ValidateAllEggEntries(archive);
@@ -262,6 +264,7 @@ namespace EggDotNet.Tests
 		{
 			using var fs = new FileStream(GetTestPath("number.vol1.egg"), FileMode.Open, FileAccess.Read);
 			using var archive = new EggArchive(fs);
+			Assert.True(archive.IsSplit);
 			var ent = archive.Entries.Single();
 			Assert.True(ent.ChecksumValid());
 		}
@@ -271,6 +274,7 @@ namespace EggDotNet.Tests
 		{
 			using var fs = new FileStream(GetTestPath("solid.egg"), FileMode.Open, FileAccess.Read);
 			using var archive = new EggArchive(fs);
+			Assert.True(archive.IsSolid);
 			var firstEntry = archive.Entries.First();
 			var lastEntry = archive.Entries.Last();
 			using var firstEntryStream = firstEntry.Open();

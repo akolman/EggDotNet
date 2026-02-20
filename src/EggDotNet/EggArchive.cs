@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using static EggDotNet.Callbacks;
+using EggDotNet.Format.Egg;
 
 
 #if NETSTANDARD2_1_OR_GREATER
@@ -34,6 +35,16 @@ namespace EggDotNet
 		/// Gets a collection of all <see cref="EggArchiveEntry"/> entries in this EggArchive.
 		/// </summary>
 		public ReadOnlyCollection<EggArchiveEntry> Entries => _entries.AsReadOnly();
+
+		/// <summary>
+		/// Gets a status indicating whether the Egg archive uses Solid compression.
+		/// </summary>
+		public bool IsSolid => format.IsSolid;
+
+		/// <summary>
+		/// Gets a status indicating whether the Egg archive uses Split compression.
+		/// </summary>
+		public bool IsSplit => format.IsSplit;
 
 		/// <summary>
 		/// Constructs a new EggArchive using a source stream.
