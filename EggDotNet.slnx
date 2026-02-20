@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/Samples/">
     <Project Path="src/EggDotNet.Samples/ExtractToDirectory/EggDotNet.Samples.ExtractToDirectory.csproj" Id="a285e861-bce5-4b7d-b75c-695eaaacc02f" />
+    <Project Path="src/EggDotNet.Samples/ViewPosixInfo/EggDotNet.Samples.ViewPosixInfo.csproj" Id="1e01d6b0-7e78-4746-905d-75743134da17" />
   </Folder>
   <Project Path="src/EggDotNet.Benchmarks/EggDotNet.Benchmarks.csproj" />
   <Project Path="src/EggDotNet.Tests/EggDotNet.Tests.csproj" />
