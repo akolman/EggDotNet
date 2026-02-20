@@ -139,6 +139,24 @@ namespace EggDotNet.Tests
 		}
 
 		[Fact]
+		public void Test_ZipEnc_DefaultPwCallback()
+		{
+			using var fs = new FileStream(GetTestPath("lorem_long_zipEnc.egg"), FileMode.Open, FileAccess.Read);
+			var pwInput = "password12345!" + Environment.NewLine;
+			var srInput = new StringReader(pwInput);
+			Console.SetIn(srInput);
+			using var archive = new EggArchive(fs);
+			Assert.Equal("Lorem long text encrypted with ZIP", archive.Comment);
+			var aes256Entry = archive.GetEntry("lorem_ipsum_long.txt");
+			using var entryStream = aes256Entry.Open();
+			using var sr = new StreamReader(entryStream);
+			var loremLongText = sr.ReadToEnd();
+			Assert.Equal(15_238, loremLongText.Length);
+			Assert.StartsWith("Lorem ipsum dolor sit amet", loremLongText);
+			Assert.EndsWith("sed faucibus orci ligula eu nisi.", loremLongText);
+		}
+
+		[Fact]
 		public void Test_Aes128()
 		{
 			using var fs = new FileStream(GetTestPath("lorem_long_aes128.egg"), FileMode.Open, FileAccess.Read);
@@ -458,6 +476,13 @@ namespace EggDotNet.Tests
 			var ent = archive.Entries.Last();
 			var fileAttrs = (PosixFileAttributes)ent.GetExtraAttributes(ExtraAttributeType.FileAttibutes);
 			Assert.True(fileAttrs.HasFlag(PosixFileAttributes.RegularFile));
+			var lastWrite = ent.LastWriteTime;
+
+#if NETCOREAPP
+			Assert.Equal(2023, lastWrite!.Value.Year);
+#else
+			Assert.Equal(2023, lastWrite.Year);
+#endif
 		}
 
 		[Fact]

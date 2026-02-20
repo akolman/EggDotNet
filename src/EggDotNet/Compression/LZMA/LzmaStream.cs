@@ -90,38 +90,6 @@ namespace EggDotNet.Compression.LZMA
 			}
 		}
 
-		public LzmaStream(LzmaEncoderProperties properties, bool isLzma2, Stream outputStream)
-			: this(properties, isLzma2, null, outputStream) { }
-
-		public LzmaStream(
-			LzmaEncoderProperties properties,
-			bool isLzma2,
-			Stream presetDictionary,
-			Stream outputStream
-		)
-		{
-			_isLzma2 = isLzma2;
-			_availableBytes = 0;
-			_endReached = true;
-
-			if (isLzma2)
-			{
-				throw new NotImplementedException();
-			}
-
-			//_encoder = new Encoder();
-			///_encoder.SetCoderProperties(properties.PropIDs, properties.Properties);
-			var prop = new byte[5];
-			//_encoder.WriteCoderProperties(prop);
-			Properties = prop;
-
-			//_encoder.SetStreams(null, outputStream, -1, -1);
-			if (presetDictionary != null)
-			{
-				//_encoder.Train(presetDictionary);
-			}
-		}
-
 		public override bool CanRead => true;
 
 		public override bool CanSeek => false;
