@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 #pragma warning disable
 
 namespace EggDotNet.Encryption.Aes
 {
+	[ExcludeFromCodeCoverage]
 	internal class EggAesCrypto
 	{
 		internal byte[] _Salt;

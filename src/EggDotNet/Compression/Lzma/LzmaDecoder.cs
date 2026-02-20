@@ -1,12 +1,14 @@
-using System;
-using System.IO;
 using EggDotNet.Compression.LZMA.LZ;
 using EggDotNet.Compression.LZMA.RangeCoder;
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 
 #pragma warning disable CA1805
 #pragma warning disable
 namespace EggDotNet.Compression.LZMA
 {
+	[ExcludeFromCodeCoverage]
 	internal class Decoder : ICoder, ISetDecoderProperties // ,System.IO.Stream
 	{
 		private class LenDecoder

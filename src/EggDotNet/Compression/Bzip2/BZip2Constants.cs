@@ -1,12 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace EggDotNet.Compression.Bzip2
 {
+
 	/// <summary>
 	/// Defines internal values for both compression and decompression
 	/// </summary>
+	[ExcludeFromCodeCoverage]
 	internal static class BZip2Constants
 	{
 		/// <summary>

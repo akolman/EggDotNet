@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Security.Cryptography;
 
@@ -6,6 +7,7 @@ using System.Security.Cryptography;
 
 namespace EggDotNet.Encryption.Aes
 {
+	[ExcludeFromCodeCoverage]
 	internal class EggAesCipherStream : Stream
 	{
 		private readonly EggAesCrypto _params;

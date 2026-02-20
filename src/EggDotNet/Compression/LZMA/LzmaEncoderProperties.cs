@@ -1,8 +1,9 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace EggDotNet.Compression.LZMA
 {
-
+	[ExcludeFromCodeCoverage]
 	internal sealed class LzmaEncoderProperties
 	{
 		public static LzmaEncoderProperties Default { get; } = new LzmaEncoderProperties();

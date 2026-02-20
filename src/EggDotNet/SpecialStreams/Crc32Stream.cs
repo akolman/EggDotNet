@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -49,7 +50,7 @@ namespace EggDotNet.SpecialStreams
 		public Crc32Stream(Stream stream)
 			: this(stream, DefaultPolynomial, DefaultSeed) { }
 
-		public Crc32Stream(Stream stream, uint polynomial, uint seed)
+		internal Crc32Stream(Stream stream, uint polynomial, uint seed)
 		{
 			this.stream = stream;
 			table = InitializeTable(polynomial);
@@ -77,7 +78,7 @@ namespace EggDotNet.SpecialStreams
 		public override void SetLength(long value) => throw new NotSupportedException();
 
 
-
+		[ExcludeFromCodeCoverage] /*unused*/
 		public override void Write(byte[] buffer, int offset, int count)
 		{
 			stream.Write(buffer, offset, count);
@@ -106,6 +107,7 @@ namespace EggDotNet.SpecialStreams
 
 		public uint Crc => ~hash;
 
+		[ExcludeFromCodeCoverage] /*we only use the default polynomial*/
 		private static uint[] InitializeTable(uint polynomial)
 		{
 			if (polynomial == DefaultPolynomial)

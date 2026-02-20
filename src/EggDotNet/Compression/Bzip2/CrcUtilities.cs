@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace EggDotNet.Compression.Bzip2
 {
+	[ExcludeFromCodeCoverage]
 	internal static class CrcUtilities
 	{
 		/// <summary>

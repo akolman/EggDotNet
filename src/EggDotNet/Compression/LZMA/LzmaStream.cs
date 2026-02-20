@@ -1,10 +1,12 @@
 ﻿using EggDotNet.Compression.LZMA.LZ;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
 #pragma warning disable
 namespace EggDotNet.Compression.LZMA
 {
+	[ExcludeFromCodeCoverage]
 	internal class LzmaStream : Stream
 	{
 		private readonly Stream _inputStream;
