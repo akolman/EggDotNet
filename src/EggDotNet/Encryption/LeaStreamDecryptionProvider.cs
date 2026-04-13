@@ -9,37 +9,37 @@ namespace EggDotNet.Encryption
 {
 	internal sealed class LeaStreamDecryptionProvider : IStreamDecryptionProvider
 	{
-private readonly byte[] _footer;
-private readonly int _bits;
-private readonly byte[] _header;
-ICryptoTransform _cryptoTransform;
-private byte[] _macIv;
+		private readonly byte[] _footer;
+		private readonly int _bits;
+		private readonly byte[] _header;
+		ICryptoTransform _cryptoTransform;
+		private byte[] _macIv;
 
-public LeaStreamDecryptionProvider(int bits, byte[] header, byte[] footer)
-{
-	_footer = footer;
-	_bits = bits;
-	_header = header;
-}
+		public LeaStreamDecryptionProvider(int bits, byte[] header, byte[] footer)
+		{
+			_footer = footer;
+			_bits = bits;
+			_header = header;
+		}
 
-public bool AttachAndValidatePassword(string password)
-{
-	using (var lea = new Lea.Imp.Lea(_bits, password, _header))
-	{
-		if (lea.PasswordValid)
+		public bool AttachAndValidatePassword(string password)
+		{
+			using (var lea = new Lea.Imp.Lea(_bits, password, _header))
 			{
-				_cryptoTransform = lea.CreateDecryptor(lea.Key, new byte[16]);
-				_macIv = (byte[])lea.MacKey.Clone();
-				return true;
+				if (lea.PasswordValid)
+				{
+					_cryptoTransform = lea.CreateDecryptor(lea.Key, new byte[16]);
+					_macIv = (byte[])lea.MacKey.Clone();
+					return true;
+				}
+				return false;
 			}
-		return false;
-	}
-}
+		}
 
-public Stream GetDecryptionStream(Stream stream)
-{
-	var st = new LeaStream(stream, _cryptoTransform, _macIv, _footer);
-	return st;
-}
+		public Stream GetDecryptionStream(Stream stream)
+		{
+			var st = new LeaStream(stream, _cryptoTransform, _macIv, _footer);
+			return st;
+		}
 	}
 }

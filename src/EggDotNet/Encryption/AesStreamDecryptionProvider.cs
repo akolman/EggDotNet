@@ -10,7 +10,7 @@ namespace EggDotNet.Encryption
 {
 	internal class AesStreamDecryptionProvider : IStreamDecryptionProvider
 	{
-private readonly byte[] _footer;
+		private readonly byte[] _footer;
 		private int _bits;
 		private byte[] _header;
 		private EggAesCrypto _crypto;
