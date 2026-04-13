@@ -175,6 +175,9 @@ namespace EggDotNet.Format.Egg
 						else
 							archive.Comment = comment.CommentText;
 						break;
+					case DummyHeader.DUMMY_HEADER_MAGIC:
+						_ = DummyHeader.Parse(stream);
+						break;
 					case FileHeader.FILE_END_HEADER:
 						foundEnd = true;
 						break;
