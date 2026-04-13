@@ -45,9 +45,6 @@ namespace EggDotNet.Format.Egg
 
 		public override bool IsEncrypted => EncryptHeader != null;
 
-		[Obsolete("Use GetExtraAttributes method")]
-		public override long ExternalAttributes => GetFileAttributes();
-
 #if NETSTANDARD2_1_OR_GREATER
 #nullable enable
 		public override DateTime? LastWriteTime => GetLastWriteTime();

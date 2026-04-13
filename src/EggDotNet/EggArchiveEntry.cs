@@ -91,15 +91,6 @@ namespace EggDotNet
 #endif
 
 		/// <summary>
-		/// Gets the external attributes for the entry.
-		/// </summary>
-		/// <remarks>See <see cref="WindowsFileAttributes"/>.
-		/// For entries which contain Windows file attributes, the value will be the lowest 4 bytes of the total long value.
-		/// </remarks>
-		[Obsolete("Use GetExtraAttributes method")]
-		public long ExternalAttributes => entry.ExternalAttributes;
-
-		/// <summary>
 		/// Gets the comment of the file.
 		/// </summary>
 		public string Comment => entry.Comment ?? string.Empty;

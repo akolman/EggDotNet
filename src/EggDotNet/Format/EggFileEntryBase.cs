@@ -20,9 +20,6 @@ namespace EggDotNet.Format
 
 		public abstract long Position { get; }
 
-		[Obsolete("Use GetExtraAttributes method")]
-		public abstract long ExternalAttributes { get; }
-
 #if NETSTANDARD2_1_OR_GREATER
 #nullable enable
 		public abstract DateTime? LastWriteTime { get; }
