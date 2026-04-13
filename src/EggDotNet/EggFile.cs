@@ -43,7 +43,7 @@ namespace EggDotNet
 		}
 
 		/// <summary>
-		/// 
+		/// Extracts an EGG archive from a source Stream to a destination directory, calling the provided callbacks upon start and completion of each entry.
 		/// </summary>
 		/// <param name="sourceStream">The source EGG stream.</param>
 		/// <param name="destinationDirectory">The desination directory path to place files.</param>

@@ -1,5 +1,4 @@
-﻿using EggDotNet.SpecialStreams;
-using System.IO;
+﻿using System.IO;
 
 namespace EggDotNet.Compression
 {

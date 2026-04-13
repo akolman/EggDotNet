@@ -8,7 +8,7 @@ using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 
 namespace EggDotNet.Format.Egg
 {
-    internal sealed class EncryptHeader
+	internal sealed class EncryptHeader
 	{
 		public const int EGG_ENCRYPT_HEADER_MAGIC = 0x08D1470F;
 
@@ -36,7 +36,6 @@ namespace EggDotNet.Format.Egg
 			Param2 = aesFooter;
 		}
 #endif
-
 
 		public static EncryptHeader Parse(Stream stream)
 		{

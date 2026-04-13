@@ -64,7 +64,6 @@ namespace EggDotNet.Encryption.Lea.Imp
 #pragma warning restore CA5379
 
 			_storedPv = salt.Skip(keySizeBits == 256 ? 16 : 8).Take(2).ToArray();
-			//_cryptoGenerated = true;
 		}
 
 		public override ICryptoTransform CreateDecryptor(byte[] rgbKey, byte[] rgbIV)
@@ -95,7 +94,7 @@ namespace EggDotNet.Encryption.Lea.Imp
 				if (!disposed)
 				{
 					Array.Clear(_salt, 0, _salt.Length);
-					Array.Clear(_MacInitializationVector,0 , _MacInitializationVector.Length);
+					Array.Clear(_MacInitializationVector, 0, _MacInitializationVector.Length);
 					Array.Clear(_keyBytes, 0, _keyBytes.Length);
 					Array.Clear(_macKey, 0, _macKey.Length);
 					Array.Clear(_generatedPv, 0, _generatedPv.Length);

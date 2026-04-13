@@ -1,8 +1,5 @@
 ﻿using EggDotNet.Encryption.Lea;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
 
 namespace EggDotNet.Encryption
@@ -12,7 +9,7 @@ namespace EggDotNet.Encryption
 		private readonly byte[] _footer;
 		private readonly int _bits;
 		private readonly byte[] _header;
-		ICryptoTransform _cryptoTransform;
+		private ICryptoTransform _cryptoTransform;
 		private byte[] _macIv;
 
 		public LeaStreamDecryptionProvider(int bits, byte[] header, byte[] footer)
@@ -38,8 +35,7 @@ namespace EggDotNet.Encryption
 
 		public Stream GetDecryptionStream(Stream stream)
 		{
-			var st = new LeaStream(stream, _cryptoTransform, _macIv, _footer);
-			return st;
+			return new LeaStream(stream, _cryptoTransform, _macIv, _footer);
 		}
 	}
 }

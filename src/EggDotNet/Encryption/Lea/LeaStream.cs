@@ -9,23 +9,12 @@ namespace EggDotNet.Encryption.Lea
 {
 	internal sealed class LeaStream : Stream
 	{
-		private bool _disposed;
-		private bool _finalBlock;
-
-		public override bool CanRead => true;
-
-		public override bool CanSeek => false;
-
-		public override bool CanWrite => false;
-
-		public override long Length => throw new NotImplementedException();
-
-		public override long Position { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
 		private Stream _stream;
 		private ICryptoTransform _crypto;
 		private HMACSHA1 _mac;
 		private readonly byte[] _expectedMac;
+		private bool _disposed;
+		private bool _finalBlock;
 
 		public LeaStream(Stream stream, ICryptoTransform cryptoTransform, byte[] macIv = null, byte[] expectedMac = null)
 		{
@@ -38,10 +27,11 @@ namespace EggDotNet.Encryption.Lea
 			}
 		}
 
-		public override void Flush()
-		{
-			throw new NotImplementedException();
-		}
+		public override bool CanRead => true;
+		public override bool CanSeek => false;
+		public override bool CanWrite => false;
+		public override long Length => throw new NotSupportedException();
+		public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
 
 		public override int Read(byte[] buffer, int offset, int count)
 		{
@@ -60,7 +50,7 @@ namespace EggDotNet.Encryption.Lea
 			else
 			{
 				_mac?.TransformBlock(readBuf, 0, readLen, null, 0);
-				for(var i=0; i <= count - LeaCryptoTransform.BLOCK_SIZE_BYTES; i+= LeaCryptoTransform.BLOCK_SIZE_BYTES)
+				for (var i = 0; i <= count - LeaCryptoTransform.BLOCK_SIZE_BYTES; i += LeaCryptoTransform.BLOCK_SIZE_BYTES)
 				{
 					_crypto.TransformBlock(readBuf, i, readLen, buffer, i);
 				}
@@ -68,12 +58,33 @@ namespace EggDotNet.Encryption.Lea
 			return readLen;
 		}
 
+		public override void Flush() => throw new NotSupportedException();
+		public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+		public override void SetLength(long value) => throw new NotSupportedException();
+		public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+
+#pragma warning disable CA2215
+		protected override void Dispose(bool disposing)
+#pragma warning restore CA2215
+		{
+			if (disposing && !_disposed)
+			{
+				_stream.Dispose();
+				_crypto.Dispose();
+				_mac?.Dispose();
+				_stream = null;
+				_crypto = null;
+				_mac = null;
+				_disposed = true;
+			}
+		}
+
 		private void VerifyMac()
 		{
 			if (_mac == null || _expectedMac == null)
 				return;
 
-			byte[] computed = new byte[10];
+			var computed = new byte[10];
 			Array.Copy(_mac.Hash, 0, computed, 0, 10);
 
 			if (computed.Length != _expectedMac.Length)
@@ -85,41 +96,6 @@ namespace EggDotNet.Encryption.Lea
 
 			if (diff != 0)
 				throw new InvalidDataException("The MAC does not match.");
-		}
-
-		public override long Seek(long offset, SeekOrigin origin)
-		{
-			throw new NotImplementedException();
-		}
-
-		public override void SetLength(long value)
-		{
-			throw new NotImplementedException();
-		}
-
-		public override void Write(byte[] buffer, int offset, int count)
-		{
-			throw new NotImplementedException();
-		}
-
-#pragma warning disable CA2215
-		protected override void Dispose(bool disposing)
-#pragma warning restore CA2215
-		{
-			if (disposing)
-			{
-				if (!_disposed)
-				{
-					_stream.Dispose();
-					_crypto.Dispose();
-					_mac?.Dispose();
-					_stream = null;
-					_crypto = null;
-					_mac = null;
-				}
-				_disposed = true;
-			}
-			//base.Dispose(); //don't call this
 		}
 	}
 }
