@@ -1,21 +1,16 @@
 ﻿using EggDotNet.Encryption.Aes;
-using System;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
-
-#pragma warning disable 
 
 namespace EggDotNet.Encryption
 {
-	internal class AesStreamDecryptionProvider : IStreamDecryptionProvider
+	internal sealed class AesStreamDecryptionProvider : IStreamDecryptionProvider
 	{
-#pragma warning disable IDE0052 // Remove unread private members
 		private readonly byte[] _footer;
-#pragma warning restore IDE0052 // Remove unread private members
-		private int _bits;
-		private byte[] _header;
+		private readonly int _bits;
+		private readonly byte[] _header;
 		private EggAesCrypto _crypto;
+
 		public AesStreamDecryptionProvider(int bits, byte[] header, byte[] footer)
 		{
 			_footer = footer;
@@ -36,16 +31,13 @@ namespace EggDotNet.Encryption
 				_crypto = EggAesCrypto.ReadFromStream(password, _bits, _header.Take(8).ToArray(), _header.Skip(8).Take(2).ToArray());
 			}
 
-			return _crypto.PasswordValid;	
+			return _crypto.PasswordValid;
 		}
 
 		public Stream GetDecryptionStream(Stream stream)
 		{
 			stream.Seek(0, SeekOrigin.Begin);
-
-			var decrypt = new EggAesCipherStream(stream, _crypto, stream.Length, CryptoMode.Decrypt);
-
-			return decrypt;
+			return new EggAesCipherStream(stream, _crypto, stream.Length, CryptoMode.Decrypt, _footer);
 		}
 	}
 }

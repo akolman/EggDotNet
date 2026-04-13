@@ -122,9 +122,8 @@ namespace EggDotNet.Format.Egg
 					var extVolume = EggVolume.Parse(extStream, ownStream);
 					tempVolumes.Add(extVolume);
 				}
-				catch(Exception e)
+				catch
 				{
-					_ = e; /*volume was not an egg archive*/
 					if (ownStream) extStream.Dispose();
 				}
 			}
@@ -240,7 +239,6 @@ namespace EggDotNet.Format.Egg
 					break;
 				default:
 					throw new UnknownCompressionException((byte)entry.CompressionMethod);
-
 			}
 
 			return compressor.GetDecompressStream(stream);

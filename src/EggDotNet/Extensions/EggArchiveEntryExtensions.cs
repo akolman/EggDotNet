@@ -14,6 +14,7 @@ namespace EggDotNet.Extensions
 		/// </summary>
 		/// <param name="entry">The source entry.</param>
 		/// <param name="destinationDirectory">The destination directory to extract the entry into.</param>
+		/// <exception cref="IOException">Thrown when the entry path would escape the destination directory.</exception>
 		public static void ExtractToDirectory(this EggArchiveEntry entry, string destinationDirectory)
 		{
 			using (var entryStream = entry.Open())
@@ -30,6 +31,14 @@ namespace EggDotNet.Extensions
 				Directory.CreateDirectory(destinationDirectory);
 
 				var path = Path.Combine(destinationDirectory, entryName);
+				
+				/*path traversal check*/
+				var fullDestination = Path.GetFullPath(destinationDirectory);
+				var fullPath = Path.GetFullPath(path);
+				if (!fullPath.StartsWith(fullDestination, StringComparison.Ordinal))
+				{
+					throw new IOException($"Entry path escapes the destination directory: {entry.FullName}");
+				}
 
 				using (var foStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
 				{

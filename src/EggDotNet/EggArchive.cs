@@ -1,11 +1,11 @@
 ﻿using EggDotNet.Format;
+using EggDotNet.Format.Egg;
 using System;
-using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using static EggDotNet.Callbacks;
-using EggDotNet.Format.Egg;
 
 
 #if NETSTANDARD2_1_OR_GREATER

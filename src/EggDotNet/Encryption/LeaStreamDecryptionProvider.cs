@@ -1,20 +1,16 @@
 ﻿using EggDotNet.Encryption.Lea;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
 
 namespace EggDotNet.Encryption
 {
 	internal sealed class LeaStreamDecryptionProvider : IStreamDecryptionProvider
 	{
-#pragma warning disable IDE0052 // Remove unread private members
 		private readonly byte[] _footer;
-#pragma warning restore IDE0052 // Remove unread private members
 		private readonly int _bits;
 		private readonly byte[] _header;
-		ICryptoTransform _cryptoTransform;
+		private ICryptoTransform _cryptoTransform;
+		private byte[] _macIv;
 
 		public LeaStreamDecryptionProvider(int bits, byte[] header, byte[] footer)
 		{
@@ -30,6 +26,7 @@ namespace EggDotNet.Encryption
 				if (lea.PasswordValid)
 				{
 					_cryptoTransform = lea.CreateDecryptor(lea.Key, new byte[16]);
+					_macIv = (byte[])lea.MacKey.Clone();
 					return true;
 				}
 				return false;
@@ -38,8 +35,7 @@ namespace EggDotNet.Encryption
 
 		public Stream GetDecryptionStream(Stream stream)
 		{
-			var st = new LeaStream(stream, _cryptoTransform);
-			return st;
+			return new LeaStream(stream, _cryptoTransform, _macIv, _footer);
 		}
 	}
 }

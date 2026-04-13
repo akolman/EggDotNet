@@ -31,10 +31,12 @@ namespace EggDotNet.Encryption.Aes
 		private readonly byte[] _PendingWriteBlock;
 		private int _pendingCount;
 		private readonly byte[] _iobuf;
+		private readonly byte[] _expectedMac;
 
-		internal EggAesCipherStream(System.IO.Stream s, EggAesCrypto cryptoParams, long length, CryptoMode mode)
+		internal EggAesCipherStream(System.IO.Stream s, EggAesCrypto cryptoParams, long length, CryptoMode mode, byte[] expectedMac = null)
 			: base()
 		{
+			_expectedMac = expectedMac;
 			_params = cryptoParams;
 			_s = s;
 			_mode = mode;
@@ -202,6 +204,21 @@ namespace EggDotNet.Encryption.Aes
 			ReadTransformBlocks(buffer, offset, bytesToRead);
 
 			_totalBytesXferred += n;
+
+			if (_finalBlock && _expectedMac != null)
+			{
+				var computed = FinalAuthentication;
+				if (computed.Length != _expectedMac.Length)
+					throw new System.IO.InvalidDataException("The MAC does not match.");
+
+				int diff = 0;
+				for (int i = 0; i < computed.Length; i++)
+					diff |= computed[i] ^ _expectedMac[i];
+
+				if (diff != 0)
+					throw new System.IO.InvalidDataException("The MAC does not match.");
+			}
+
 			return n;
 		}
 
@@ -322,9 +339,5 @@ namespace EggDotNet.Encryption.Aes
 		{
 			throw new NotImplementedException();
 		}
-
-#pragma warning disable IDE0052 // Remove unread private members
-		private readonly object _outputLock = new Object();
-#pragma warning restore IDE0052 // Remove unread private members
 	}
 }

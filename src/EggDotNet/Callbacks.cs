@@ -25,7 +25,6 @@ namespace EggDotNet
 
 			internal PasswordCallbackOptions()
 			{
-
 			}
 		}
 
