@@ -94,7 +94,11 @@ namespace EggDotNet.Format.Alz
 				header.UncompressedSize = ReadSize(rfs, fileInfoBuffer.Slice(6 + rfs, rfs));
 			}
 
-var filenameBuffer = new byte[filenameLen];
+#if NETSTANDARD2_1_OR_GREATER
+			Span<byte> filenameBuffer = stackalloc byte[filenameLen];
+#else
+			var filenameBuffer = new byte[filenameLen];
+#endif
 
 			if (stream.Read(filenameBuffer) != filenameLen)
 			{
