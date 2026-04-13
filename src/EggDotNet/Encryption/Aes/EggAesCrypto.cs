@@ -131,25 +131,5 @@ namespace EggDotNet.Encryption.Aes
 		}
 
 		public byte[] CalculatedMac;
-
-		public void ReadAndVerifyMac(System.IO.Stream s)
-		{
-			// read integrityCheckVector.
-			// caller must ensure that the file pointer is in the right spot!
-			_StoredMac = new byte[10];  // aka "authentication code"
-			s.Read(_StoredMac, 0, _StoredMac.Length);
-
-			int diff = _StoredMac.Length ^ CalculatedMac.Length;
-			for (int i = 0; i < _StoredMac.Length && i < CalculatedMac.Length; i++)
-			{
-				diff |= _StoredMac[i] ^ CalculatedMac[i];
-			}
-
-			if (diff != 0)
-				throw new System.Exception("The MAC does not match.");
-		}
-
 	}
-
-
 }
