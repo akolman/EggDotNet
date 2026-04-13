@@ -3,7 +3,7 @@
 	/// <summary>
 	/// Represents the encryption method used to encrypt an entry.
 	/// </summary>
-	public enum EncryptionMethod : byte
+	internal enum EncryptionMethod : byte
 	{
 		/// <summary>
 		/// Standard Zip2.0 encryption.
