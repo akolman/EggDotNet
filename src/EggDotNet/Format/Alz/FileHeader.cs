@@ -62,7 +62,7 @@ namespace EggDotNet.Format.Alz
 			}
 
 			var filenameLen = BitConverter.ToInt16(fileheaderBuffer.Slice(0, 2));
-			if (filenameLen < 0)
+			if (filenameLen < 0 || filenameLen > 2 << 7)
 			{
 				throw new InvalidDataException("Invalid filename length");
 			}

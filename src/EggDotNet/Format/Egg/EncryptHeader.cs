@@ -52,6 +52,10 @@ namespace EggDotNet.Format.Egg
 			}
 
 			var size = BitConverter.ToInt16(encryptHeaderBuffer.Slice(1, 2));
+			if (size > 2 << 7)
+			{
+				throw new InvalidDataException("Invalid encryption buffer length");
+			}
 
 #if NETSTANDARD2_1_OR_GREATER
 			Span<byte> encDataBuffer = stackalloc byte[size];

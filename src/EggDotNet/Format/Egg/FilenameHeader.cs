@@ -52,6 +52,10 @@ namespace EggDotNet.Format.Egg
 			}
 
 			var filenameSize = BitConverter.ToInt16(filenameHeaderBuffer.Slice(1, 2));
+			if (filenameSize > 2 << 7) /*protect from stack blowout*/
+			{
+				throw new InvalidDataException("Invalid filename size");
+			}
 
 			if (bitFlag.HasFlag(FilenameFlags.UseAreaCode))
 			{
