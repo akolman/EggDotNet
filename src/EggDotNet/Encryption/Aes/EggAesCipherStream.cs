@@ -339,9 +339,5 @@ namespace EggDotNet.Encryption.Aes
 		{
 			throw new NotImplementedException();
 		}
-
-#pragma warning disable IDE0052 // Remove unread private members
-		private readonly object _outputLock = new Object();
-#pragma warning restore IDE0052 // Remove unread private members
 	}
 }
