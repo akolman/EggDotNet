@@ -10,9 +10,7 @@ namespace EggDotNet.Encryption
 {
 	internal class AesStreamDecryptionProvider : IStreamDecryptionProvider
 	{
-#pragma warning disable IDE0052 // Remove unread private members
-		private readonly byte[] _footer;
-#pragma warning restore IDE0052 // Remove unread private members
+private readonly byte[] _footer;
 		private int _bits;
 		private byte[] _header;
 		private EggAesCrypto _crypto;
@@ -43,7 +41,7 @@ namespace EggDotNet.Encryption
 		{
 			stream.Seek(0, SeekOrigin.Begin);
 
-			var decrypt = new EggAesCipherStream(stream, _crypto, stream.Length, CryptoMode.Decrypt);
+			var decrypt = new EggAesCipherStream(stream, _crypto, stream.Length, CryptoMode.Decrypt, _footer);
 
 			return decrypt;
 		}

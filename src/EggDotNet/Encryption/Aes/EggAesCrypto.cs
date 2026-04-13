@@ -102,12 +102,12 @@ namespace EggDotNet.Encryption.Aes
 
 		private void _GenerateCryptoBytes()
 		{
-			System.Security.Cryptography.Rfc2898DeriveBytes rfc2898 =
-				new System.Security.Cryptography.Rfc2898DeriveBytes(_Password, Salt, Rfc2898KeygenIterations);
-
-			_keyBytes = rfc2898.GetBytes(_KeyStrengthInBytes); // 16 or 24 or 32 ???
-			_MacInitializationVector = rfc2898.GetBytes(_KeyStrengthInBytes);
-			_generatedPv = rfc2898.GetBytes(2);
+			using (var rfc2898 = new System.Security.Cryptography.Rfc2898DeriveBytes(_Password, Salt, Rfc2898KeygenIterations))
+			{
+				_keyBytes = rfc2898.GetBytes(_KeyStrengthInBytes); // 16 or 24 or 32 ???
+				_MacInitializationVector = rfc2898.GetBytes(_KeyStrengthInBytes);
+				_generatedPv = rfc2898.GetBytes(2);
+			}
 
 			_cryptoGenerated = true;
 		}
@@ -134,26 +134,18 @@ namespace EggDotNet.Encryption.Aes
 
 		public void ReadAndVerifyMac(System.IO.Stream s)
 		{
-			bool invalid = false;
-
 			// read integrityCheckVector.
 			// caller must ensure that the file pointer is in the right spot!
 			_StoredMac = new byte[10];  // aka "authentication code"
 			s.Read(_StoredMac, 0, _StoredMac.Length);
 
-			if (_StoredMac.Length != CalculatedMac.Length)
-				invalid = true;
-
-			if (!invalid)
+			int diff = _StoredMac.Length ^ CalculatedMac.Length;
+			for (int i = 0; i < _StoredMac.Length && i < CalculatedMac.Length; i++)
 			{
-				for (int i = 0; i < _StoredMac.Length; i++)
-				{
-					if (_StoredMac[i] != CalculatedMac[i])
-						invalid = true;
-				}
+				diff |= _StoredMac[i] ^ CalculatedMac[i];
 			}
 
-			if (invalid)
+			if (diff != 0)
 				throw new System.Exception("The MAC does not match.");
 		}
 

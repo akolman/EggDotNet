@@ -62,6 +62,11 @@ namespace EggDotNet.Format.Alz
 			}
 
 			var filenameLen = BitConverter.ToInt16(fileheaderBuffer.Slice(0, 2));
+			if (filenameLen < 0)
+			{
+				throw new InvalidDataException("Invalid filename length");
+			}
+
 			var attributes = fileheaderBuffer[2];
 			_ = attributes; //TODO
 			var moddate = DateUtilities.FromAlzTime(BitConverter.ToUInt32(fileheaderBuffer.Slice(3, 4)));
@@ -89,11 +94,7 @@ namespace EggDotNet.Format.Alz
 				header.UncompressedSize = ReadSize(rfs, fileInfoBuffer.Slice(6 + rfs, rfs));
 			}
 
-#if NETSTANDARD2_1_OR_GREATER
-			Span<byte> filenameBuffer = stackalloc byte[filenameLen];
-#else
-			var filenameBuffer = new byte[filenameLen];
-#endif
+var filenameBuffer = new byte[filenameLen];
 
 			if (stream.Read(filenameBuffer) != filenameLen)
 			{

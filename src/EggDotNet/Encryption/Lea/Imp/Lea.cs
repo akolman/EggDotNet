@@ -11,6 +11,7 @@ namespace EggDotNet.Encryption.Lea.Imp
 		private byte[] _salt;
 		private byte[] _keyBytes;
 		private byte[] _MacInitializationVector;
+		private byte[] _macKey;
 		private byte[] _generatedPv;
 		private byte[] _storedPv;
 
@@ -42,6 +43,8 @@ namespace EggDotNet.Encryption.Lea.Imp
 
 		public bool PasswordValid => Enumerable.SequenceEqual(_generatedPv, _storedPv);
 
+		public byte[] MacKey => _macKey;
+
 		public override int KeySize { get; set; }
 
 		public override CipherMode Mode { get; set; }
@@ -51,12 +54,15 @@ namespace EggDotNet.Encryption.Lea.Imp
 			_salt = salt.Take(keySizeBits == 256 ? 16 : 8).ToArray();
 
 #pragma warning disable CA5379
-			var rfc2898 = new Rfc2898DeriveBytes(password, _salt, 1000);
+			using (var rfc2898 = new Rfc2898DeriveBytes(password, _salt, 1000))
+			{
+				_keyBytes = rfc2898.GetBytes(keySizeBits / 8); // 16 or 24 or 32 ???
+				_macKey = rfc2898.GetBytes(keySizeBits == 256 ? 32 : 16);
+				_MacInitializationVector = _macKey.Take(keySizeBits == 256 ? 16 : 8).ToArray();
+				_generatedPv = rfc2898.GetBytes(2);
+			}
 #pragma warning restore CA5379
 
-			_keyBytes = rfc2898.GetBytes(keySizeBits / 8); // 16 or 24 or 32 ???
-			_MacInitializationVector = rfc2898.GetBytes(keySizeBits == 256 ? 32 : 16).Take(keySizeBits == 256 ? 16 : 8).ToArray();
-			_generatedPv = rfc2898.GetBytes(2);
 			_storedPv = salt.Skip(keySizeBits == 256 ? 16 : 8).Take(2).ToArray();
 			//_cryptoGenerated = true;
 		}
@@ -91,17 +97,19 @@ namespace EggDotNet.Encryption.Lea.Imp
 					Array.Clear(_salt, 0, _salt.Length);
 					Array.Clear(_MacInitializationVector,0 , _MacInitializationVector.Length);
 					Array.Clear(_keyBytes, 0, _keyBytes.Length);
+					Array.Clear(_macKey, 0, _macKey.Length);
 					Array.Clear(_generatedPv, 0, _generatedPv.Length);
 					Array.Clear(_storedPv, 0, _storedPv.Length);
 
 					_salt = null;
 					_MacInitializationVector = null;
 					_keyBytes = null;
+					_macKey = null;
 					_generatedPv = null;
 					_storedPv = null;
 				}
 
-				disposed = false;
+				disposed = true;
 			}
 		}
 	}
