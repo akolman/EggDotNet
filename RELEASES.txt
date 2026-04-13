@@ -72,3 +72,12 @@ Fixes and added features
 +Added EggArchiveEntry.ExtractToStream method.
 +Added additional testing.  Code coverage now above 80%.
 +Fixed issue prevent EggFile extraction when entry was in a directory.
+=======================================================================
+0.3.0-beta (2026-04-13)
++Added HMAC verification for AES and LEA decryption.
++Added validation to EggArchiveEntry to prevent directory traversal.
++Added attempted support for dummy header.  Unable to create file so unable to test.
++Misc. disposal and internal cleanup.
++Added lea test.
++Added additional header validation.
+-Removed EggArchiveEntry.ExternalAttributes obsoleted in 0.2.0-beta.

@@ -19,7 +19,6 @@ namespace EggDotNet.Encryption.Lea.Imp
 			Array.Copy(_iv, _ctr, BLOCK_SIZE_BYTES);
 		}
 
-
 		public override int TransformBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
 		{
 			var len = base.TransformBlock(_ctr, 0, inputCount, _block, 0);

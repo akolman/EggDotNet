@@ -62,6 +62,11 @@ namespace EggDotNet.Format.Alz
 			}
 
 			var filenameLen = BitConverter.ToInt16(fileheaderBuffer.Slice(0, 2));
+			if (filenameLen < 0 || filenameLen > 2 << 7)
+			{
+				throw new InvalidDataException("Invalid filename length");
+			}
+
 			var attributes = fileheaderBuffer[2];
 			_ = attributes; //TODO
 			var moddate = DateUtilities.FromAlzTime(BitConverter.ToUInt32(fileheaderBuffer.Slice(3, 4)));

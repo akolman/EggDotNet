@@ -45,9 +45,6 @@ namespace EggDotNet.Format.Egg
 
 		public override bool IsEncrypted => EncryptHeader != null;
 
-		[Obsolete("Use GetExtraAttributes method")]
-		public override long ExternalAttributes => GetFileAttributes();
-
 #if NETSTANDARD2_1_OR_GREATER
 #nullable enable
 		public override DateTime? LastWriteTime => GetLastWriteTime();
@@ -177,6 +174,9 @@ namespace EggDotNet.Format.Egg
 							entry.CommentHeader = comment;
 						else
 							archive.Comment = comment.CommentText;
+						break;
+					case DummyHeader.DUMMY_HEADER_MAGIC:
+						_ = DummyHeader.Parse(stream);
 						break;
 					case FileHeader.FILE_END_HEADER:
 						foundEnd = true;

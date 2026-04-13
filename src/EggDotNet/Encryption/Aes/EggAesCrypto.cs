@@ -1,45 +1,45 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 
-#pragma warning disable
+#pragma warning disable CA5379
 
 namespace EggDotNet.Encryption.Aes
 {
 	[ExcludeFromCodeCoverage]
-	internal class EggAesCrypto
+	internal sealed class EggAesCrypto
 	{
+		private const int Rfc2898KeygenIterations = 1000;
+
 		internal byte[] _Salt;
 		internal byte[] _providedPv;
 		internal byte[] _generatedPv;
 		internal int _KeyStrengthInBits;
 		private byte[] _MacInitializationVector;
-		private byte[] _StoredMac;
 		private byte[] _keyBytes;
-		private Int16 PasswordVerificationStored;
-		private Int16 PasswordVerificationGenerated;
-		private const int Rfc2898KeygenIterations = 1000;
-		private string _Password;
+		private short PasswordVerificationStored;
+		private short PasswordVerificationGenerated;
+		private readonly string _Password;
 		private bool _cryptoGenerated;
 
-		private EggAesCrypto(string password, int KeyStrengthInBits)
+		private EggAesCrypto(string password, int keyStrengthInBits)
 		{
 			_Password = password;
-			_KeyStrengthInBits = KeyStrengthInBits;
+			_KeyStrengthInBits = keyStrengthInBits;
 		}
 
-		public static EggAesCrypto ReadFromStream(string password, int KeyStrengthInBits, byte[] salt, byte[] pwV)
+		public static EggAesCrypto ReadFromStream(string password, int keyStrengthInBits, byte[] salt, byte[] pwV)
 		{
-			EggAesCrypto c = new EggAesCrypto(password, KeyStrengthInBits)
+			var c = new EggAesCrypto(password, keyStrengthInBits)
 			{
 				_Salt = salt,
 				_providedPv = pwV
 			};
 
-			c.PasswordVerificationStored = (Int16)(c._providedPv[0] + c._providedPv[1] * KeyStrengthInBits);
+			c.PasswordVerificationStored = (short)(c._providedPv[0] + c._providedPv[1] * keyStrengthInBits);
 
 			if (password != null)
 			{
-				c.PasswordVerificationGenerated = (Int16)(c.GeneratedPV[0] + c.GeneratedPV[1] * KeyStrengthInBits);
+				c.PasswordVerificationGenerated = (short)(c.GeneratedPV[0] + c.GeneratedPV[1] * keyStrengthInBits);
 			}
 
 			return c;
@@ -56,61 +56,7 @@ namespace EggDotNet.Encryption.Aes
 			}
 		}
 
-		public byte[] Salt
-		{
-			get
-			{
-				return _Salt;
-			}
-		}
-
-		private int _KeyStrengthInBytes
-		{
-			get
-			{
-				return _KeyStrengthInBits / 8;
-
-			}
-		}
-
-		public int SizeOfEncryptionMetadata
-		{
-			get
-			{
-				// 10 bytes after, (n-10) before the compressed data
-				return _KeyStrengthInBytes / 2 + 10 + 2;
-			}
-		}
-
-		public string Password
-		{
-			set
-			{
-				_Password = value;
-				if (_Password != null)
-				{
-					PasswordVerificationGenerated = (Int16)(GeneratedPV[0] + GeneratedPV[1] * 256);
-					if (PasswordVerificationGenerated != PasswordVerificationStored)
-						throw new System.Exception();
-				}
-			}
-			private get
-			{
-				return _Password;
-			}
-		}
-
-		private void _GenerateCryptoBytes()
-		{
-			System.Security.Cryptography.Rfc2898DeriveBytes rfc2898 =
-				new System.Security.Cryptography.Rfc2898DeriveBytes(_Password, Salt, Rfc2898KeygenIterations);
-
-			_keyBytes = rfc2898.GetBytes(_KeyStrengthInBytes); // 16 or 24 or 32 ???
-			_MacInitializationVector = rfc2898.GetBytes(_KeyStrengthInBytes);
-			_generatedPv = rfc2898.GetBytes(2);
-
-			_cryptoGenerated = true;
-		}
+		public byte[] Salt => _Salt;
 
 		public byte[] KeyBytes
 		{
@@ -130,34 +76,20 @@ namespace EggDotNet.Encryption.Aes
 			}
 		}
 
-		public byte[] CalculatedMac;
+		public int SizeOfEncryptionMetadata => _KeyStrengthInBytes / 2 + 10 + 2;
 
-		public void ReadAndVerifyMac(System.IO.Stream s)
+		private int _KeyStrengthInBytes => _KeyStrengthInBits / 8;
+
+		private void _GenerateCryptoBytes()
 		{
-			bool invalid = false;
-
-			// read integrityCheckVector.
-			// caller must ensure that the file pointer is in the right spot!
-			_StoredMac = new byte[10];  // aka "authentication code"
-			s.Read(_StoredMac, 0, _StoredMac.Length);
-
-			if (_StoredMac.Length != CalculatedMac.Length)
-				invalid = true;
-
-			if (!invalid)
+			using (var rfc2898 = new System.Security.Cryptography.Rfc2898DeriveBytes(_Password, Salt, Rfc2898KeygenIterations))
 			{
-				for (int i = 0; i < _StoredMac.Length; i++)
-				{
-					if (_StoredMac[i] != CalculatedMac[i])
-						invalid = true;
-				}
+				_keyBytes = rfc2898.GetBytes(_KeyStrengthInBytes);
+				_MacInitializationVector = rfc2898.GetBytes(_KeyStrengthInBytes);
+				_generatedPv = rfc2898.GetBytes(2);
 			}
 
-			if (invalid)
-				throw new System.Exception("The MAC does not match.");
+			_cryptoGenerated = true;
 		}
-
 	}
-
-
 }

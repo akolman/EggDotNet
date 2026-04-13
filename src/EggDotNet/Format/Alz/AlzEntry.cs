@@ -35,9 +35,6 @@ namespace EggDotNet.Format.Alz
 
 		public override bool IsEncrypted => false;
 
-		[Obsolete("Use GetExtraAttributes method")]
-		public override long ExternalAttributes => 0;
-
 #if NETSTANDARD2_1_OR_GREATER
 #nullable enable
 		public override DateTime? LastWriteTime => FileHeader.LastWriteTime;

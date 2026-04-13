@@ -431,9 +431,22 @@ namespace EggDotNet.Tests
 		}
 
 		[Fact]
-		public void Test_Decrypt_Fails_With_Exception()
+		public void Test_Decrypt_aes_Fails_With_Exception()
 		{
 			using var fs = new FileStream(GetTestPath("lorem_long_aes256.egg"), FileMode.Open, FileAccess.Read);
+			using var archive = new EggArchive(fs, false, null, (filename, options) => { options.Password = "badpassword"; options.Retry = false; });
+			var ent = archive.Entries.First();
+			Assert.True(ent.IsEncrypted);
+			Assert.ThrowsAny<DecryptFailedException>(() =>
+			{
+				using var entSt = ent.Open();
+			});
+		}
+
+		[Fact]
+		public void Test_Decrypt_lea_Fails_With_Exception()
+		{
+			using var fs = new FileStream(GetTestPath("lorem_long_store_lea128.egg"), FileMode.Open, FileAccess.Read);
 			using var archive = new EggArchive(fs, false, null, (filename, options) => { options.Password = "badpassword"; options.Retry = false; });
 			var ent = archive.Entries.First();
 			Assert.True(ent.IsEncrypted);

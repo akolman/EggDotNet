@@ -37,7 +37,5 @@ namespace EggDotNet.Encryption
 			_decrypt.AttachStream(stream);
 			return _decrypt;
 		}
-
-
 	}
 }
