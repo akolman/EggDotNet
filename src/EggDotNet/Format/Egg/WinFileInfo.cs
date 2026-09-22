@@ -2,7 +2,7 @@
 using System;
 using System.IO;
 
-#if NETSTANDARD2_0
+#if LEGACY_DOTNET
 using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif
 
@@ -18,7 +18,7 @@ namespace EggDotNet.Format.Egg
 
 		public static WinFileInfo Parse(Stream stream)
 		{
-#if NETSTANDARD2_1_OR_GREATER
+#if !LEGACY_DOTNET
 			Span<byte> winFileBuffer = stackalloc byte[12];
 #else
 			var winFileBuffer = new byte[12];

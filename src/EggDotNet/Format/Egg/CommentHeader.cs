@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using System.Text;
 
-#if NETSTANDARD2_0
+#if LEGACY_DOTNET
 using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif
 
@@ -22,7 +22,7 @@ namespace EggDotNet.Format.Egg
 
 		public static CommentHeader Parse(Stream stream)
 		{
-#if NETSTANDARD2_1_OR_GREATER
+#if !LEGACY_DOTNET
 			Span<byte> commentHeaderBuffer = stackalloc byte[3];
 #else
 			var commentHeaderBuffer = new byte[3];
@@ -35,7 +35,7 @@ namespace EggDotNet.Format.Egg
 			var attributes = commentHeaderBuffer[0];
 			var commentSize = BitConverter.ToInt16(commentHeaderBuffer.Slice(1, 2));
 
-#if NETSTANDARD2_1_OR_GREATER
+#if !LEGACY_DOTNET
 			Span<byte> commentDataBuffer = (commentSize < 1024) ? stackalloc byte[commentSize] : new byte[commentSize];
 #else
 			var commentDataBuffer = new byte[commentSize];

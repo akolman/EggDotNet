@@ -10,7 +10,7 @@ namespace EggDotNet.Format.Egg
 
 		public static SolidHeader Parse(Stream stream)
 		{
-#if NETSTANDARD2_1_OR_GREATER
+#if !LEGACY_DOTNET
 			Span<byte> buffer = stackalloc byte[3];
 #else
 			var buffer = new byte[3];

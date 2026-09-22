@@ -46,7 +46,7 @@ namespace EggDotNet.Extensions
 					foStream.Close();
 				}
 
-#if NETSTANDARD2_1_OR_GREATER
+#if HAS_NULLABLE
 				if (entry.LastWriteTime.HasValue)
 				{
 					File.SetLastWriteTime(path, entry.LastWriteTime.Value);

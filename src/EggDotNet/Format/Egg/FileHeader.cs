@@ -2,7 +2,7 @@
 using System;
 using System.IO;
 
-#if NETSTANDARD2_0
+#if LEGACY_DOTNET
 using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif
 
@@ -26,7 +26,7 @@ namespace EggDotNet.Format.Egg
 
 		public static FileHeader Parse(Stream stream)
 		{
-#if NETSTANDARD2_1_OR_GREATER
+#if !LEGACY_DOTNET
 			Span<byte> headerBuffer = stackalloc byte[12];
 #else
 			var headerBuffer = new byte[12];

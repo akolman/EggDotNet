@@ -2,7 +2,7 @@
 
 namespace EggDotNet.InternalExtensions
 {
-#if NETSTANDARD2_0
+#if LEGACY_DOTNET
     internal static class BitConverterWrapper
     {
         public static int ToInt32(byte[] buffer)

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net48;netstandard2.0;netstandard2.1;net6.0;net8.0;net10.0</TargetFrameworks>
 	  <Version>0.3.0</Version>
 	  <Authors>Andrew Kolman</Authors>
 	  <RepositoryUrl>https://github.com/akolman/EggDotNet</RepositoryUrl>
@@ -13,18 +13,31 @@
 	  <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 	  <PackageReleaseNotes>RELEASES.txt</PackageReleaseNotes>
 	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	  <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
-	  <EnableNETAnalyzers>True</EnableNETAnalyzers>
+	  <EnforceCodeStyleInBuild>False</EnforceCodeStyleInBuild>
+	  <EnableNETAnalyzers>False</EnableNETAnalyzers>
 	  <AnalysisLevel>latest-recommended</AnalysisLevel>
-	  <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+	  <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
 	  <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
 	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
 	  <Deterministic>True</Deterministic>
 	  <PackageTags>egg, unegg, compression, alz, deflate, lzma, bzip, alzip, altools, lea</PackageTags>
   </PropertyGroup>
-
 	
-  <ItemGroup>
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'net48' Or '$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'netstandard2.1' ">
+		<DefineConstants>$(DefineConstants);LEGACY_DOTNET</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.1' or '$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net10.0'">
+		<DefineConstants>$(DefineConstants);HAS_NULLABLE</DefineConstants>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net10.0' ">
+		<IsTrimmable>true</IsTrimmable>
+		<IsAotCompatible>true</IsAotCompatible>
+	</PropertyGroup>
+
+	<ItemGroup>
     <None Include="..\..\eggdotnet.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>

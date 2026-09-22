@@ -2,7 +2,7 @@
 
 namespace EggDotNet.InternalExtensions
 {
-#if NETSTANDARD2_0
+#if LEGACY_DOTNET
     internal static class ArrayExtensions
     {
         public static T[] Slice<T>(this T[] buffer, int offset, int count)
