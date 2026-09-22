@@ -1,203 +1,317 @@
+﻿#if !LEGACY_DOTNET
+
+using EggDotNet.Compression.LZMA;
 using System;
-using System.Diagnostics.CodeAnalysis;
+using System.Buffers;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace EggDotNet.Compression.LZMA.LZ
+namespace EggDotNet.Compression.LZMA.LZ;
+
+internal partial class OutWindow : IDisposable
 {
-	[ExcludeFromCodeCoverage]
-	internal sealed class OutWindow
+	private byte[] _buffer;
+	private int _windowSize;
+	private int _pos;
+	private int _streamPos;
+	private int _pendingLen;
+	private int _pendingDist;
+	private Stream _stream;
+
+	internal long _total;
+	private long _limit;
+
+	public long Total => _total;
+
+
+    // Fast-path accessors used by the local-variable LZMA decode loop (see
+    // LzmaDecoder.Fast.cs). CodeFast snapshots pos/total/buffer into locals for the whole
+    // decode call instead of going through PutByte/GetByte/CopyBlock (and re-reading the
+    // fields of this object) for every single output byte, mirroring how the reference
+    // 7-Zip C decoder caches dicPos/dic as locals for the duration of one decode call.
+    internal byte[] FastBuffer => _buffer;
+    internal int FastPos
+    {
+        get => _pos;
+        set => _pos = value;
+    }
+    internal long FastTotal
+    {
+        get => _total;
+        set => _total = value;
+    }
+    internal int FastWindowSize => _windowSize;
+    internal long FastLimit => _limit;
+
+    internal void FastFlush() => Flush();
+
+    internal void SetPendingFast(int distance, int len)
+    {
+        _pendingDist = distance;
+        _pendingLen = len;
+    }
+
+
+	public void Create(int windowSize)
 	{
-		private byte[] _buffer;
-		private int _windowSize;
-		private int _pos;
-		private int _streamPos;
-		private int _pendingLen;
-		private int _pendingDist;
-		private Stream _stream;
-
-		public long _total;
-		public long _limit;
-
-		public void Create(int windowSize)
+		if (windowSize <= 0)
 		{
-			if (_windowSize != windowSize)
+			throw new NotImplementedException($"LZMA: invalid dictionary size {windowSize}");
+		}
+		if (_windowSize != windowSize)
+		{
+			if (_buffer is not null)
 			{
-				_buffer = new byte[windowSize];
+				ArrayPool<byte>.Shared.Return(_buffer);
 			}
-			else
-			{
-				_buffer[windowSize - 1] = 0;
-			}
-			_windowSize = windowSize;
+			_buffer = ArrayPool<byte>.Shared.Rent(windowSize);
+		}
+		_buffer[windowSize - 1] = 0;
+		_windowSize = windowSize;
+		_pos = 0;
+		_streamPos = 0;
+		_pendingLen = 0;
+		_total = 0;
+		_limit = 0;
+	}
+
+	public void Dispose()
+	{
+		ReleaseStream();
+		if (_buffer is null)
+		{
+			return;
+		}
+		ArrayPool<byte>.Shared.Return(_buffer);
+		_buffer = null;
+	}
+
+	public void Reset()
+	{
+		ReleaseStream();
+		Create(_windowSize);
+	}
+
+	public void Init(Stream stream)
+	{
+		ReleaseStream();
+		_stream = stream;
+	}
+
+	public void Train(Stream stream)
+	{
+		var len = stream.Length;
+		var size = (len < _windowSize) ? (int)len : _windowSize;
+		stream.Position = len - size;
+		_total = 0;
+		_limit = size;
+		_pos = _windowSize - size;
+		CopyStream(stream, size);
+		if (_pos == _windowSize)
+		{
 			_pos = 0;
-			_streamPos = 0;
-			_pendingLen = 0;
-			_total = 0;
-			_limit = 0;
 		}
+		_streamPos = _pos;
+	}
 
-		public void Reset() => Create(_windowSize);
+	public void ReleaseStream()
+	{
+		Flush();
+		_stream = null;
+	}
 
-		public void Init(Stream stream)
+	private void Flush()
+	{
+		if (_stream is null)
 		{
-			ReleaseStream();
-			_stream = stream;
+			return;
 		}
-
-		public void Train(Stream stream)
+		var size = _pos - _streamPos;
+		if (size == 0)
 		{
-			var len = stream.Length;
-			var size = (len < _windowSize) ? (int)len : _windowSize;
-			stream.Position = len - size;
-			_total = 0;
-			_limit = size;
-			_pos = _windowSize - size;
-			CopyStream(stream, size);
-			if (_pos == _windowSize)
+			return;
+		}
+		_stream.Write(_buffer, _streamPos, size);
+		if (_pos >= _windowSize)
+		{
+			_pos = 0;
+		}
+		_streamPos = _pos;
+	}
+
+	public void CopyPending()
+	{
+		if (_pendingLen < 1)
+		{
+			return;
+		}
+		var rem = _pendingLen;
+		var pos = (_pendingDist < _pos ? _pos : _pos + _windowSize) - _pendingDist - 1;
+		while (rem > 0 && HasSpace)
+		{
+			if (pos >= _windowSize)
 			{
-				_pos = 0;
+				pos = 0;
 			}
-			_streamPos = _pos;
+			PutByte(_buffer[pos++]);
+			rem--;
 		}
+		_pendingLen = rem;
+	}
 
-		public void ReleaseStream()
+	public void CopyBlock(int distance, int len)
+	{
+		var rem = len;
+		var pos = (distance < _pos ? _pos : _pos + _windowSize) - distance - 1;
+		var targetSize = HasSpace ? (int)Math.Min(rem, _limit - _total) : 0;
+		var sizeUntilWindowEnd = Math.Min(_windowSize - _pos, _windowSize - pos);
+		var sizeUntilOverlap = Math.Abs(pos - _pos);
+		var fastSize = Math.Min(Math.Min(sizeUntilWindowEnd, sizeUntilOverlap), targetSize);
+		if (fastSize >= 2)
 		{
-			Flush();
-			_stream = null;
-		}
-
-		public void Flush()
-		{
-			if (_stream is null)
-			{
-				return;
-			}
-			var size = _pos - _streamPos;
-			if (size == 0)
-			{
-				return;
-			}
-			_stream.Write(_buffer, _streamPos, size);
+			_buffer.AsSpan(pos, fastSize).CopyTo(_buffer.AsSpan(_pos, fastSize));
+			_pos += fastSize;
+			pos += fastSize;
+			_total += fastSize;
 			if (_pos >= _windowSize)
 			{
-				_pos = 0;
+				Flush();
 			}
-			_streamPos = _pos;
+			rem -= fastSize;
 		}
-
-		public void CopyBlock(int distance, int len)
+		while (rem > 0 && HasSpace)
 		{
-			var size = len;
-			var pos = _pos - distance - 1;
-			if (pos < 0)
+			if (pos >= _windowSize)
 			{
-				pos += _windowSize;
+				pos = 0;
 			}
-			for (; size > 0 && _pos < _windowSize && _total < _limit; size--)
-			{
-				if (pos >= _windowSize)
-				{
-					pos = 0;
-				}
-				_buffer[_pos++] = _buffer[pos++];
-				_total++;
-				if (_pos >= _windowSize)
-				{
-					Flush();
-				}
-			}
-			_pendingLen = size;
-			_pendingDist = distance;
+			PutByte(_buffer[pos++]);
+			rem--;
 		}
+		_pendingLen = rem;
+		_pendingDist = distance;
+	}
 
-		public void PutByte(byte b)
+	public void PutByte(byte b)
+	{
+		_buffer[_pos++] = b;
+		_total++;
+		if (_pos >= _windowSize)
 		{
-			_buffer[_pos++] = b;
-			_total++;
+			Flush();
+		}
+	}
+
+	public byte GetByte(int distance)
+	{
+		var pos = _pos - distance - 1;
+		if (pos < 0)
+		{
+			pos += _windowSize;
+		}
+		return _buffer[pos];
+	}
+
+	public int CopyStream(Stream stream, int len)
+	{
+		var size = len;
+		while (size > 0 && _pos < _windowSize && _total < _limit)
+		{
+			var curSize = _windowSize - _pos;
+			if (curSize > _limit - _total)
+			{
+				curSize = (int)(_limit - _total);
+			}
+			if (curSize > size)
+			{
+				curSize = size;
+			}
+			var numReadBytes = stream.Read(_buffer, _pos, curSize);
+			if (numReadBytes == 0)
+			{
+				throw new DataErrorException();
+			}
+			size -= numReadBytes;
+			_pos += numReadBytes;
+			_total += numReadBytes;
 			if (_pos >= _windowSize)
 			{
 				Flush();
 			}
 		}
-
-		public byte GetByte(int distance)
-		{
-			var pos = _pos - distance - 1;
-			if (pos < 0)
-			{
-				pos += _windowSize;
-			}
-			return _buffer[pos];
-		}
-
-		public int CopyStream(Stream stream, int len)
-		{
-			var size = len;
-			while (size > 0 && _pos < _windowSize && _total < _limit)
-			{
-				var curSize = _windowSize - _pos;
-				if (curSize > _limit - _total)
-				{
-					curSize = (int)(_limit - _total);
-				}
-				if (curSize > size)
-				{
-					curSize = size;
-				}
-				var numReadBytes = stream.Read(_buffer, _pos, curSize);
-				if (numReadBytes == 0)
-				{
-					throw new DataErrorException();
-				}
-				size -= numReadBytes;
-				_pos += numReadBytes;
-				_total += numReadBytes;
-				if (_pos >= _windowSize)
-				{
-					Flush();
-				}
-			}
-			return len - size;
-		}
-
-		public void SetLimit(long size) => _limit = _total + size;
-
-		public bool HasSpace => _pos < _windowSize && _total < _limit;
-
-		public bool HasPending => _pendingLen > 0;
-
-		public int Read(byte[] buffer, int offset, int count)
-		{
-			if (_streamPos >= _pos)
-			{
-				return 0;
-			}
-
-			var size = _pos - _streamPos;
-			if (size > count)
-			{
-				size = count;
-			}
-			Buffer.BlockCopy(_buffer, _streamPos, buffer, offset, size);
-			_streamPos += size;
-			if (_streamPos >= _windowSize)
-			{
-				_pos = 0;
-				_streamPos = 0;
-			}
-			return size;
-		}
-
-		public void CopyPending()
-		{
-			if (_pendingLen > 0)
-			{
-				CopyBlock(_pendingDist, _pendingLen);
-			}
-		}
-
-		public int AvailableBytes => _pos - _streamPos;
+		return len - size;
 	}
 
-}
+	public void SetLimit(long size) => _limit = _total + size;
 
+	public bool HasSpace => _pos < _windowSize && _total < _limit;
+
+	public bool HasPending => _pendingLen > 0;
+
+	public int Read(byte[] buffer, int offset, int count)
+	{
+		if (_streamPos >= _pos)
+		{
+			return 0;
+		}
+
+		var size = _pos - _streamPos;
+		if (size > count)
+		{
+			size = count;
+		}
+		Buffer.BlockCopy(_buffer, _streamPos, buffer, offset, size);
+		_streamPos += size;
+		if (_streamPos >= _windowSize)
+		{
+			_pos = 0;
+			_streamPos = 0;
+		}
+		return size;
+	}
+
+	public int Read(Memory<byte> buffer, int offset, int count)
+	{
+		if (_streamPos >= _pos)
+		{
+			return 0;
+		}
+
+		var size = _pos - _streamPos;
+		if (size > count)
+		{
+			size = count;
+		}
+		_buffer.AsMemory(_streamPos, size).CopyTo(buffer.Slice(offset, size));
+		_streamPos += size;
+		if (_streamPos >= _windowSize)
+		{
+			_pos = 0;
+			_streamPos = 0;
+		}
+		return size;
+	}
+
+	public int ReadByte()
+	{
+		if (_streamPos >= _pos)
+		{
+			return -1;
+		}
+
+		int value = _buffer[_streamPos];
+
+		_streamPos++;
+		if (_streamPos >= _windowSize)
+		{
+			_pos = 0;
+			_streamPos = 0;
+		}
+
+		return value;
+	}
+
+	public int AvailableBytes => _pos - _streamPos;
+}
+#endif
