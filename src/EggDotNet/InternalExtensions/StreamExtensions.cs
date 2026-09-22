@@ -2,7 +2,7 @@
 
 namespace EggDotNet.InternalExtensions
 {
-#if NETSTANDARD2_0
+#if LEGACY_DOTNET
     internal static class StreamExtensions
     {
         public static int Read(this Stream stream, byte[] buffer)

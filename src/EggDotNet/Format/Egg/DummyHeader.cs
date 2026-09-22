@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Diagnostics.CodeAnalysis;
 
-#if NETSTANDARD2_0
+#if LEGACY_DOTNET
 using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 using EggDotNet.InternalExtensions;
 #endif
@@ -24,7 +24,7 @@ namespace EggDotNet.Format.Egg
 
 		public static DummyHeader Parse(Stream stream)
 		{
-#if NETSTANDARD2_1_OR_GREATER
+#if !LEGACY_DOTNET
 			Span<byte> dummyHeader = stackalloc byte[3];
 #else
 			var dummyHeader = new byte[3];
