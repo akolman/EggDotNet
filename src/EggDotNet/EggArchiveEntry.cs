@@ -3,10 +3,6 @@ using EggDotNet.SpecialStreams;
 using System;
 using System.IO;
 
-#if NETSTANDARD2_1_OR_GREATER
-#nullable enable
-#endif
-
 namespace EggDotNet
 {
 	/// <summary>
@@ -32,7 +28,7 @@ namespace EggDotNet
 		/// <summary>
 		/// Gets the name of the egg entry, not including any directory.
 		/// </summary>
-#if NETSTANDARD2_1_OR_GREATER
+#if NULLABLE
 		public string? Name => Path.GetFileName(FullName);
 #else
 		public string Name => Path.GetFileName(FullName);
@@ -41,7 +37,7 @@ namespace EggDotNet
 		/// <summary>
 		/// Gets the name of the egg entry, including any directory.
 		/// </summary>
-#if NETSTANDARD2_1_OR_GREATER
+#if NULLABLE
 		public string? FullName => entry.Name;
 #else
 		public string FullName => entry.Name;
@@ -72,7 +68,7 @@ namespace EggDotNet
 		/// </summary>
 		public CompressionMethod CompressionMethod => entry.CompressionMethod;
 
-#if NETSTANDARD2_1_OR_GREATER
+#if NULLABLE
 		/// <summary>
 		/// Gets the last write time of the file.
 		/// </summary>

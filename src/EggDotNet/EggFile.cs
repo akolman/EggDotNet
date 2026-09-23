@@ -2,10 +2,6 @@
 using System.IO;
 using System.Linq;
 
-#if NETSTANDARD2_1_OR_GREATER
-#nullable enable
-#endif
-
 namespace EggDotNet
 {
 	/// <summary>
@@ -49,10 +45,10 @@ namespace EggDotNet
 		/// <param name="destinationDirectory">The desination directory path to place files.</param>
 		/// <param name="startCallback">Callback executed at the start of extraction for each entry.</param>
 		/// <param name="endCallback">Callback executed at the end of extraction for each entry.</param>
-#if NETSTANDARD2_0
+#if NULLABLE
+		public static void ExtractToDirectory(Stream sourceStream, string destinationDirectory, Callbacks.EggFileEntryDecompressStart startCallback, Callbacks.EggFileEntryDecompressEnd? endCallback = null)	
+#else
 		public static void ExtractToDirectory(Stream sourceStream, string destinationDirectory, Callbacks.EggFileEntryDecompressStart startCallback, Callbacks.EggFileEntryDecompressEnd endCallback = null)
-#elif NETSTANDARD2_1_OR_GREATER
-		public static void ExtractToDirectory(Stream sourceStream, string destinationDirectory, Callbacks.EggFileEntryDecompressStart startCallback, Callbacks.EggFileEntryDecompressEnd? endCallback = null)
 #endif
 		{
 			using (var eggArchive = new EggArchive(sourceStream, false))
@@ -77,10 +73,10 @@ namespace EggDotNet
 		/// <param name="destinationDirectory">The desination directory path to place files.</param>
 		/// <param name="startCallback">Callback executed at the start of extraction for each entry.</param>
 		/// <param name="endCallback">Callback executed at the end of extraction for each entry.</param>
-#if NETSTANDARD2_0
-		public static void ExtractToDirectory(string sourceArchiveName, string destinationDirectory, Callbacks.EggFileEntryDecompressStart startCallback, Callbacks.EggFileEntryDecompressEnd endCallback = null)
-#elif NETSTANDARD2_1_OR_GREATER
+#if NULLABLE
 		public static void ExtractToDirectory(string sourceArchiveName, string destinationDirectory, Callbacks.EggFileEntryDecompressStart startCallback, Callbacks.EggFileEntryDecompressEnd? endCallback = null)
+#else
+		public static void ExtractToDirectory(string sourceArchiveName, string destinationDirectory, Callbacks.EggFileEntryDecompressStart startCallback, Callbacks.EggFileEntryDecompressEnd endCallback = null)
 #endif
 		{
 			using (var inputStream = new FileStream(sourceArchiveName, FileMode.Open, FileAccess.Read, FileShare.Read))

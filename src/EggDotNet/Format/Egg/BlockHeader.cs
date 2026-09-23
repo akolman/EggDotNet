@@ -4,7 +4,7 @@ using System;
 using System.IO;
 using System.Linq;
 
-#if NETSTANDARD2_0
+#if !USE_SPAN
 using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif
 
@@ -37,7 +37,7 @@ namespace EggDotNet.Format.Egg
 
 		public static BlockHeader Parse(Stream stream)
 		{
-#if NETSTANDARD2_1_OR_GREATER
+#if USE_SPAN
 			Span<byte> buffer = stackalloc byte[18];
 #else
 			var buffer = new byte[18];

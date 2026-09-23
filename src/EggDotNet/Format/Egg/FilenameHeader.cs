@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-#if NETSTANDARD2_0
+#if !USE_SPAN
 using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif
 
@@ -34,7 +34,7 @@ namespace EggDotNet.Format.Egg
 		public static FilenameHeader Parse(Stream stream)
 		{
 			var nameEncoder = Encoding.UTF8;
-#if NETSTANDARD2_1_OR_GREATER
+#if USE_SPAN
 			Span<byte> filenameHeaderBuffer = stackalloc byte[3];
 #else
 			var filenameHeaderBuffer = new byte[3];
@@ -59,7 +59,7 @@ namespace EggDotNet.Format.Egg
 
 			if (bitFlag.HasFlag(FilenameFlags.UseAreaCode))
 			{
-#if NETSTANDARD2_1_OR_GREATER
+#if USE_SPAN
 				Span<byte> localeBuffer = stackalloc byte[2];
 #else
 				var localeBuffer = new byte[2];
@@ -81,7 +81,7 @@ namespace EggDotNet.Format.Egg
 				}
 			}
 
-#if NETSTANDARD2_1_OR_GREATER
+#if USE_SPAN
 			Span<byte> filenameBytes = stackalloc byte[filenameSize];
 #else
 			var filenameBytes = new byte[filenameSize];

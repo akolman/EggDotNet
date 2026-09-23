@@ -5,9 +5,8 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using EggDotNet.InternalExtensions;
 
-#if NETSTANDARD2_0
+#if !USE_SPAN
 using EggDotNet.Extensions;
-
 using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif
 
@@ -45,8 +44,7 @@ namespace EggDotNet.Format.Egg
 
 		public override bool IsEncrypted => EncryptHeader != null;
 
-#if NETSTANDARD2_1_OR_GREATER
-#nullable enable
+#if NULLABLE
 		public override DateTime? LastWriteTime => GetLastWriteTime();
 
 		public override string? Comment => CommentHeader.CommentText;
@@ -141,7 +139,7 @@ namespace EggDotNet.Format.Egg
 			foundData = false;
 			var foundEnd = false;
 			var insideFileheader = false;
-#if NETSTANDARD2_1_OR_GREATER
+#if USE_SPAN
 			Span<byte> buff = stackalloc byte[4];
 #else
 			var buff = new byte[4];
@@ -198,7 +196,7 @@ namespace EggDotNet.Format.Egg
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static void BuildBlocks(EggEntry entry, Stream stream)
 		{
-#if NETSTANDARD2_1_OR_GREATER
+#if USE_SPAN
 			Span<byte> buffer = stackalloc byte[4];
 #else
 			var buffer = new byte[4];
@@ -214,7 +212,7 @@ namespace EggDotNet.Format.Egg
 			}
 		}
 
-#if NETSTANDARD2_1_OR_GREATER
+#if NULLABLE
 		private DateTime? GetLastWriteTime()
 		{
 			if (WinFileInfo != null)

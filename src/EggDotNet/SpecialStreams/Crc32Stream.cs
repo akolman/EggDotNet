@@ -64,7 +64,7 @@ namespace EggDotNet.SpecialStreams
 		public override int Read(byte[] buffer, int offset, int count)
 		{
 			var readCount = stream.Read(buffer, offset, count);
-#if NETSTANDARD2_0
+#if !USE_SPAN
 			hash = CalculateCrc(table, hash, buffer.Skip(offset).Take(readCount).ToArray());
 #else
 			hash = CalculateCrc(table, hash, buffer.AsSpan(offset, readCount));
@@ -82,7 +82,7 @@ namespace EggDotNet.SpecialStreams
 		public override void Write(byte[] buffer, int offset, int count)
 		{
 			stream.Write(buffer, offset, count);
-#if NETSTANDARD2_0
+#if !USE_SPAN
 			hash = CalculateCrc(table, hash, buffer.Skip(offset).Take(count).ToArray());
 #else
 			hash = CalculateCrc(table, hash, buffer.AsSpan(offset, count));
@@ -137,7 +137,7 @@ namespace EggDotNet.SpecialStreams
 			return createTable;
 		}
 
-#if NETSTANDARD2_0
+#if !USE_SPAN
 		private static uint CalculateCrc(uint[] table, uint crc, byte[] buffer)
 		{
 			unchecked
