@@ -64,12 +64,6 @@ namespace EggDotNet.Encryption.Aes
 			byte[] iv = new byte[BLOCK_SIZE_IN_BYTES]; // all zeroes
 
 			_xform = _aesCipher.CreateEncryptor(_params.KeyBytes, iv);
-
-			if (_mode == CryptoMode.Encrypt)
-			{
-				_iobuf = new byte[2048];
-				_PendingWriteBlock = new byte[BLOCK_SIZE_IN_BYTES];
-			}
 		}
 
 		private void XorInPlace(byte[] buffer, int offset, int count)
