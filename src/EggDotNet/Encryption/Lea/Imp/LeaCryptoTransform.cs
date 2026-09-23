@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Security.Cryptography;
 
+#pragma warning disable
+
 namespace EggDotNet.Encryption.Lea.Imp
 {
 	internal abstract class LeaCryptoTransform : ICryptoTransform

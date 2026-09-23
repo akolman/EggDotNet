@@ -5,6 +5,11 @@
 
 using System.Diagnostics.CodeAnalysis;
 
+[assembly: SuppressMessage("Style", "IDE0011", Justification = "It's fine")]
+[assembly: SuppressMessage("Style", "IDE0008", Justification = "It's fine")]
+[assembly: SuppressMessage("Style", "IDE0045", Justification = "It's fine")]
+[assembly: SuppressMessage("Style", "IDE0046", Justification = "It's fine")]
+[assembly: SuppressMessage("Style", "IDE0055", Justification = "It's fine")]
 [assembly: SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
 [assembly: SuppressMessage("Style", "IDE0074:Use compound assignment", Justification = "No netstandard2.0 support")]
 [assembly: SuppressMessage("Style", "IDE0063", Justification = "No netstandard2.0 support")]

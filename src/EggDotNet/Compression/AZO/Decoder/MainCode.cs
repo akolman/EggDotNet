@@ -9,9 +9,9 @@ namespace EggDotNet.Compression.AZO.Decoder
 {
 	internal sealed class MainCode
 	{
-		const uint MAIN_HEAD_SIZE = 2;
-		const uint BLOCK_SIZE_SIZE = 4;
-		const uint BLOCK_HEAD_SIZE = BLOCK_SIZE_SIZE * 3;
+		private const uint MAIN_HEAD_SIZE = 2;
+		private const uint BLOCK_SIZE_SIZE = 4;
+		private const uint BLOCK_HEAD_SIZE = BLOCK_SIZE_SIZE * 3;
 
 		private bool _init;
 		private bool _setSizeInfo;
@@ -141,10 +141,10 @@ namespace EggDotNet.Compression.AZO.Decoder
 
 				if (!_setSizeInfo)
 				{
-					var blockHeadBuf = new byte[BLOCK_SIZE_SIZE * 3];
+					var blockHeadBuf = new byte[BLOCK_HEAD_SIZE];
 					var blockHeadRead = inStream.Read(blockHeadBuf);
 
-					if (blockHeadRead < BLOCK_SIZE_SIZE * 3)
+					if (blockHeadRead < BLOCK_HEAD_SIZE)
 					{
 						throw new DecompressionDataException("Failed reading AZO block");
 					}

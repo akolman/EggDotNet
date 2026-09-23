@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Security.Cryptography;
 
+#pragma warning disable
+
 namespace EggDotNet.Encryption.Lea.Imp
 {
 	internal sealed class Lea : SymmetricAlgorithm

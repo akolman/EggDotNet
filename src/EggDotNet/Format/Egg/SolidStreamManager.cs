@@ -17,16 +17,11 @@ namespace EggDotNet.Format.Egg
 		{
 			var solidFilePath = Path.Combine(tempPath, Guid.NewGuid().ToString());
 			UseDisk = totalSize >= SolidStreamConfiguration.SolidDiskBufferCutoff;
-			if (UseDisk)
-			{
-				tempStream = new FileStream(solidFilePath, FileMode.Create, 
-											FileAccess.ReadWrite, FileShare.None, 
-											4096, FileOptions.DeleteOnClose);
-			}
-			else
-			{
-				tempStream = new MemoryStream(new byte[totalSize]);
-			}
+			tempStream = UseDisk
+				? new FileStream(solidFilePath, FileMode.Create,
+											FileAccess.ReadWrite, FileShare.None,
+											4096, FileOptions.DeleteOnClose)
+				: (Stream)new MemoryStream(new byte[totalSize]);
 
 			baseStream.CopyTo(tempStream);
 			baseStream.Flush();

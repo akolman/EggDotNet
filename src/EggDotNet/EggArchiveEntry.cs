@@ -141,7 +141,7 @@ namespace EggDotNet
 		/// <inheritdoc/>
 		public override string ToString()
 		{
-			if (string.IsNullOrWhiteSpace(entry.Name)) 
+			if (string.IsNullOrWhiteSpace(entry.Name))
 			{
 				return $"{nameof(EggArchiveEntry)} {entry.Id}";
 			}

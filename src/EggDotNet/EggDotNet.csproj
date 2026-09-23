@@ -15,7 +15,7 @@
 	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	  <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
 	  <EnableNETAnalyzers>True</EnableNETAnalyzers>
-	  <AnalysisLevel>latest-recommended</AnalysisLevel>
+	  <AnalysisLevel>latest-minimum</AnalysisLevel>
 	  <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
 	  <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
 	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
