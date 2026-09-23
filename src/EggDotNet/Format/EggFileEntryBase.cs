@@ -20,8 +20,7 @@ namespace EggDotNet.Format
 
 		public abstract long Position { get; }
 
-#if NETSTANDARD2_1_OR_GREATER
-#nullable enable
+#if NULLABLE
 		public abstract DateTime? LastWriteTime { get; }
 
 		public abstract string? Comment { get; }

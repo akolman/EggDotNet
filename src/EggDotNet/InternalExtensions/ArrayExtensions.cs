@@ -1,8 +1,9 @@
-﻿using System;
+﻿#if !USE_SPAN
+using System;
 
 namespace EggDotNet.InternalExtensions
 {
-#if NETSTANDARD2_0
+
     internal static class ArrayExtensions
     {
         public static T[] Slice<T>(this T[] buffer, int offset, int count)
@@ -12,5 +13,5 @@ namespace EggDotNet.InternalExtensions
             return rtn;
         }
     }
-#endif
 }
+#endif
