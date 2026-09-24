@@ -138,7 +138,7 @@ namespace EggDotNet.Format.Alz
 		}
 #else
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static long ReadSize(short size, Span<byte> buf)
+		private static long ReadSize(short size, ReadOnlySpan<byte> buf)
 		{
 			switch (size)
 			{

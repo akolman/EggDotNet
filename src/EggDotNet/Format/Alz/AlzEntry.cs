@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 
 #if !USE_SPAN
-using EggDotNet.Extensions;
 using EggDotNet.InternalExtensions;
 using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif

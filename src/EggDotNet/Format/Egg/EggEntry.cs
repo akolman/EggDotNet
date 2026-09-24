@@ -6,7 +6,6 @@ using System.Runtime.CompilerServices;
 using EggDotNet.InternalExtensions;
 
 #if !USE_SPAN
-using EggDotNet.Extensions;
 using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif
 

@@ -8,13 +8,13 @@ namespace EggDotNet.Compression.AZO.Decoder
 		private const uint N = AZOOption.DICTIONARY_SIZE;
 
 		private readonly Data[] data;
-		private readonly byte[] buffer;
-		private readonly uint bufSize;
+		//private readonly uint bufSize;
 		private readonly BoolState findState;
 		private readonly SymbolCode prob;
 
 		public DictionaryTable(byte[] buf, uint size)
 		{
+			_ = buf; /*why is this here?*/
 			data = new Data[N];
 			for(uint i=0; i< N; ++i)
 			{
@@ -22,8 +22,8 @@ namespace EggDotNet.Compression.AZO.Decoder
 			}
 			findState = new BoolState();
 			prob = new SymbolCode(AZOOption.DICTIONARY_SIZE, AZOOption.DICTIONARY_HISTORY_SIZE);
-			buffer = buf;
-			bufSize = size;
+			//bufSize = size; /*and this*/
+			_ = size;
 		}
 
 		public bool Code(EntropyCode entropy, ref uint pos, ref uint len)

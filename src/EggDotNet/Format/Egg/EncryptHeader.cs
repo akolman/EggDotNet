@@ -1,8 +1,8 @@
-﻿using EggDotNet.InternalExtensions;
-using System;
+﻿using System;
 using System.IO;
 
 #if !USE_SPAN
+using EggDotNet.InternalExtensions;
 using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif
 
@@ -20,7 +20,7 @@ namespace EggDotNet.Format.Egg
 		public byte[] Param2 { get; private set; }
 
 #if USE_SPAN
-		public EncryptHeader(EncryptionMethod encryptionMethod, short size, Span<byte> aesHeader, Span<byte> aesFooter)
+		public EncryptHeader(EncryptionMethod encryptionMethod, short size, ReadOnlySpan<byte> aesHeader, ReadOnlySpan<byte> aesFooter)
 		{
 			EncryptionMethod = encryptionMethod;
 			Size = size;

@@ -79,16 +79,9 @@
 
 		public bool Code(uint cumCount, int totalBit)
 		{
-			uint t;
-			if (low_ == uint.MinValue && up_ == uint.MaxValue)
-			{
-				t = (uint)((int)1 << (int)(32 - totalBit));
-			}
-			else
-			{
-				t = (up_ - low_ + 1) >> (int)totalBit;
-			}
-
+			uint t = low_ == uint.MinValue && up_ == uint.MaxValue 
+				? (uint)((int)1 << (int)(32 - totalBit)) 
+				: (up_ - low_ + 1) >> (int)totalBit;
 			uint v = (tag_ - low_) / t;
 
 			if (v >= cumCount)

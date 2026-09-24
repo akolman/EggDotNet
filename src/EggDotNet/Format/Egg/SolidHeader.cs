@@ -1,6 +1,10 @@
-﻿using EggDotNet.InternalExtensions;
+﻿using System.IO;
+
+#if USE_SPAN
 using System;
-using System.IO;
+#else
+using EggDotNet.InternalExtensions;
+#endif
 
 namespace EggDotNet.Format.Egg
 {
