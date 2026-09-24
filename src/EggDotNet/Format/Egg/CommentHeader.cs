@@ -1,9 +1,9 @@
-﻿using EggDotNet.InternalExtensions;
-using System;
+﻿using System;
 using System.IO;
 using System.Text;
 
 #if !USE_SPAN
+using EggDotNet.InternalExtensions;
 using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif
 

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace EggDotNet.Compression.AZO.Decoder
+﻿namespace EggDotNet.Compression.AZO.Decoder
 {
 	internal sealed class PredictProb
 	{

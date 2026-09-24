@@ -5,6 +5,7 @@ using EggDotNet.InternalExtensions;
 using EggDotNet.SpecialStreams;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using static EggDotNet.Callbacks;
@@ -64,6 +65,7 @@ namespace EggDotNet.Format.Egg
 				if (_solidManager == null)
 				{
 					InitSolidManager(entry);
+					Debug.Assert(_solidManager != null);
 				}
 
 				return _solidManager.GetEntryStream(entry);

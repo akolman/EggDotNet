@@ -19,13 +19,14 @@ namespace EggDotNet.Extensions
 		{
 			using (var entryStream = entry.Open())
 			{
-				var entryName = entry.FullName;
+				var entryName = entry.FullName ?? entry.Id.ToString();
 				var entryNameParts = entryName.Split('/');
 				if (entryNameParts.Length > 1)
 				{
 					var entryDirectoryParts = entryNameParts.Take(entryNameParts.Length - 1);
 					entryName = entryNameParts.Last();
-					destinationDirectory = Path.Combine(destinationDirectory, Path.Combine(entryDirectoryParts.ToArray()));
+					var subDir = Path.Combine(entryDirectoryParts.ToArray());
+					destinationDirectory = Path.Combine(destinationDirectory, subDir);
 				}
 
 				Directory.CreateDirectory(destinationDirectory);

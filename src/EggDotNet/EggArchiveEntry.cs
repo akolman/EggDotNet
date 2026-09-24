@@ -10,7 +10,7 @@ namespace EggDotNet
 	/// </summary>
 	public sealed class EggArchiveEntry
 	{
-		private EggFileFormatBase _format => Archive.format;
+		private EggFileFormatBase format => Archive.format;
 
 		internal readonly EggFileEntryBase entry;
 		internal long PositionInStream => entry.Position;
@@ -108,7 +108,7 @@ namespace EggDotNet
 		/// <returns>A Stream to the entry.</returns>
 		public Stream Open()
 		{
-			return _format.GetStreamForEntry(this);
+			return format.GetStreamForEntry(this);
 		}
 
 		/// <summary>
@@ -127,7 +127,7 @@ namespace EggDotNet
 		/// <returns>True is checksum matches, false if not.</returns>
 		public bool ChecksumValid()
 		{
-			using (var st = _format.GetStreamForEntry(this))
+			using (var st = format.GetStreamForEntry(this))
 			{
 				using (var crc = new Crc32Stream(st))
 				{

@@ -1,5 +1,4 @@
 ﻿using EggDotNet.Format;
-using EggDotNet.Format.Egg;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

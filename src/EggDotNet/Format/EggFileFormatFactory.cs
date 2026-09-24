@@ -1,9 +1,10 @@
 ﻿using EggDotNet.Exceptions;
-using System;
 using System.IO;
 using static EggDotNet.Callbacks;
 
-#if !USE_SPAN
+#if USE_SPAN
+using System;
+#else
 using EggDotNet.InternalExtensions;
 using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif

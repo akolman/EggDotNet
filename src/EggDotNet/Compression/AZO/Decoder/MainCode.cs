@@ -1,9 +1,12 @@
 ﻿using EggDotNet.Compression.AZO.Common;
 using EggDotNet.Exceptions;
-using EggDotNet.InternalExtensions;
 using System;
 using System.IO;
 using System.Linq;
+
+#if !USE_SPAN
+using EggDotNet.InternalExtensions;
+#endif
 
 namespace EggDotNet.Compression.AZO.Decoder
 {
