@@ -81,6 +81,7 @@ namespace EggDotNet.Encryption.Aes
 
 		private void GenerateCryptoBytes()
 		{
+#pragma warning disable
 			using (var rfc2898 = new System.Security.Cryptography.Rfc2898DeriveBytes(_Password, Salt, Rfc2898KeygenIterations))
 			{
 				_keyBytes = rfc2898.GetBytes(KeyStrengthInBytes);

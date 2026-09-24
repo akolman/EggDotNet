@@ -31,7 +31,7 @@ namespace EggDotNet
 		{
 			Console.WriteLine($"Please enter password for {filename} (return to quit): ");
 
-			callbackOptions.Password = Console.ReadLine();
+			callbackOptions.Password = Console.ReadLine() ?? "";
 			callbackOptions.Retry = true;
 		};
 

@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Diagnostics.CodeAnalysis;
 
-#if !USE_SPAN
+#if USE_SPAN
+using System;
+#else
 using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 using EggDotNet.InternalExtensions;
 #endif
@@ -20,6 +20,7 @@ namespace EggDotNet.Format.Egg
 		private DummyHeader(short size)
 		{
 			_size = size;
+			_ = _size;
 		}
 
 		public static DummyHeader Parse(Stream stream)
