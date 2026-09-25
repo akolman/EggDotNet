@@ -8,7 +8,7 @@ namespace EggDotNet.Exceptions
 	public sealed class UnsupportedLocaleException : Exception
 	{
 		internal UnsupportedLocaleException(int localeCode, Exception innerException)
-			: base($"Could not load encoder for locale {localeCode}", innerException)
+			: base($"Could not load encoder for locale {localeCode}.  If you are on NET5 or newer, include 'System.Text.Encoding.CodePages' package and call 'Encoding.RegisterProvider'.", innerException)
 		{
 		}
 	}

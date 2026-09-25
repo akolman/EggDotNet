@@ -21,13 +21,19 @@ namespace EggDotNet.Format.Egg
 			RelativePath = 16
 		}
 
+#if DEBUG
+		internal int codepage;
+#endif
 		public const int FILENAME_HEADER_MAGIC = 0x0A8591AC;
 
 		public string FileNameFull { get; private set; }
 
-		public FilenameHeader(string filename)
+		public FilenameHeader(string filename, Encoding encoder)
 		{
 			FileNameFull = filename;
+#if DEBUG
+			codepage = encoder.CodePage;
+#endif
 		}
 
 		public static FilenameHeader Parse(Stream stream)
@@ -51,10 +57,6 @@ namespace EggDotNet.Format.Egg
 			}
 
 			var filenameSize = BitConverter.ToInt16(filenameHeaderBuffer.Slice(1, 2));
-			if (filenameSize > 2 << 7) /*protect from stack blowout*/
-			{
-				throw new InvalidDataException("Invalid filename size");
-			}
 
 			if (bitFlag.HasFlag(FilenameFlags.UseAreaCode))
 			{
@@ -80,17 +82,13 @@ namespace EggDotNet.Format.Egg
 				}
 			}
 
-#if USE_SPAN
-			Span<byte> filenameBytes = stackalloc byte[filenameSize];
-#else
 			var filenameBytes = new byte[filenameSize];
-#endif
 			if (stream.Read(filenameBytes) != filenameSize)
 			{
 				throw new InvalidDataException("Filename header corrupt");
 			}
 
-			return new FilenameHeader(nameEncoder.GetString(filenameBytes));
+			return new FilenameHeader(nameEncoder.GetString(filenameBytes), nameEncoder);
 		}
 	}
 }
