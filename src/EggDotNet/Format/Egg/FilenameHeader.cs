@@ -18,7 +18,7 @@ namespace EggDotNet.Format.Egg
 			None = 0,
 			Encrypt = 4,
 			UseAreaCode = 8,
-			RelativePath = 16
+			AbsolutePath = 16 /*Documentation seems to be wrong but implementation shows absolute when set*/
 		}
 
 #if DEBUG
@@ -80,6 +80,12 @@ namespace EggDotNet.Format.Egg
 				{
 					throw new UnsupportedLocaleException(locale, ex); 
 				}
+			}
+
+			if (bitFlag.HasFlag(FilenameFlags.AbsolutePath))
+			{
+				var parentIdBytes = new byte[4];
+				_ = stream.Read(parentIdBytes); /*unsure how to implement this as I believe it's unused*/
 			}
 
 			var filenameBytes = new byte[filenameSize];

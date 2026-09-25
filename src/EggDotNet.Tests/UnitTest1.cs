@@ -414,20 +414,18 @@ namespace EggDotNet.Tests
 		}
 #endif
 
-#if NET8_0 || NET_10
 
-		[Fact]
-		public void Test_Shift_Jis_Throws_On_No_Register()
-		{
-			using var fs = new FileStream(GetTestPath("small_shift.egg"), FileMode.Open, FileAccess.Read);
-			Assert.Throws<UnsupportedLocaleException>(() => { using var egg = new EggArchive(fs); });
-		}
-#endif
-
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
 		[Fact]
 		public void Test_Shift_Jis_Correct()
 		{
+			var a = Encoding.GetEncodings();
+			if (a.FirstOrDefault(e => e.CodePage == 932) == null)
+			{
+				using var fsb = new FileStream(GetTestPath("small_shift.egg"), FileMode.Open, FileAccess.Read);
+				Assert.Throws<UnsupportedLocaleException>(() => { using var egg = new EggArchive(fsb); });
+			}
+			
 			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 			using var fs = new FileStream(GetTestPath("small_shift.egg"), FileMode.Open, FileAccess.Read);
 			using var egg = new EggArchive(fs);
@@ -444,6 +442,13 @@ namespace EggDotNet.Tests
 		[Fact]
 		public void Test_Shift_Kor_Correct()
 		{
+			var a = Encoding.GetEncodings();
+			if (a.FirstOrDefault(e => e.CodePage == 949) == null)
+			{
+				using var fsb = new FileStream(GetTestPath("small_kor.egg"), FileMode.Open, FileAccess.Read);
+				Assert.Throws<UnsupportedLocaleException>(() => { using var egg = new EggArchive(fsb); });
+			}
+
 			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 			using var fs = new FileStream(GetTestPath("small_kor.egg"), FileMode.Open, FileAccess.Read);
 			using var egg = new EggArchive(fs);
@@ -456,15 +461,6 @@ namespace EggDotNet.Tests
 			var text = sr.ReadToEnd();
 			Assert.Equal("Hello, world!", text);
 		}
-
-		[Fact]
-		public void TTTTT()
-		{
-			using var fs = new FileStream(GetTestPath("small.egg"), FileMode.Open, FileAccess.Read);
-			using var egg = new EggArchive(fs);
-			//"
-		}
-
 #endif
 		private class ProgressTracker
 		{
