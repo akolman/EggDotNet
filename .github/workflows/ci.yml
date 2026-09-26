@@ -16,6 +16,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Setup Mono
+      uses: mono/setup-mono@v1
+      with:
+        mono-version: 'latest'
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
