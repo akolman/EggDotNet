@@ -1,9 +1,11 @@
 using EggDotNet.Exceptions;
 using EggDotNet.Extensions;
+using EggDotNet.Format.Egg;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Net.NetworkInformation;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace EggDotNet.Tests
 {
@@ -395,6 +397,77 @@ namespace EggDotNet.Tests
 			});
 		}
 
+#if NET48
+		[Fact]
+		public void Test_Shift_Jis_Handles_Shift_Jis()
+		{
+			using var fs = new FileStream(GetTestPath("small_shift.egg"), FileMode.Open, FileAccess.Read);
+			using var egg = new EggArchive(fs);
+			var firstEntry = egg.Entries.First();
+			Assert.Equal("小さい.txt", firstEntry.Name);
+			var f = firstEntry.entry as EggEntry;
+			using var fstream = firstEntry.Open();
+#if !RELEASE
+			Assert.Equal(932, f.FilenameHeader.codepage);
+#endif
+			using var sr = new StreamReader(fstream);
+			var text = sr.ReadToEnd();
+			Assert.Equal("Hello, world!", text);
+		}
+#endif
+
+
+#if NET8_0_OR_GREATER
+		[Fact]
+		public void Test_Shift_Jis_Correct()
+		{
+			var a = Encoding.GetEncodings();
+			if (a.FirstOrDefault(e => e.CodePage == 932) == null)
+			{
+				using var fsb = new FileStream(GetTestPath("small_shift.egg"), FileMode.Open, FileAccess.Read);
+				Assert.Throws<UnsupportedLocaleException>(() => { using var egg = new EggArchive(fsb); });
+			}
+
+			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+			using var fs = new FileStream(GetTestPath("small_shift.egg"), FileMode.Open, FileAccess.Read);
+			using var egg = new EggArchive(fs);
+			var firstEntry = egg.Entries.First();
+			Assert.Equal("小さい.txt", firstEntry.Name);
+			var f = firstEntry.entry as EggEntry;
+			using var fstream = firstEntry.Open();
+#if !RELEASE
+			Assert.Equal(932, f.FilenameHeader.codepage);
+#endif
+			using var sr = new StreamReader(fstream);
+			var text = sr.ReadToEnd();
+			Assert.Equal("Hello, world!", text);
+		}
+
+		[Fact]
+		public void Test_Shift_Kor_Correct()
+		{
+			var a = Encoding.GetEncodings();
+			if (a.FirstOrDefault(e => e.CodePage == 949) == null)
+			{
+				using var fsb = new FileStream(GetTestPath("small_kor.egg"), FileMode.Open, FileAccess.Read);
+				Assert.Throws<UnsupportedLocaleException>(() => { using var egg = new EggArchive(fsb); });
+			}
+
+			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+			using var fs = new FileStream(GetTestPath("small_kor.egg"), FileMode.Open, FileAccess.Read);
+			using var egg = new EggArchive(fs);
+			var firstEntry = egg.Entries.First();
+			Assert.Equal("작은.txt", firstEntry.Name);
+			var f = firstEntry.entry as EggEntry;
+			using var fstream = firstEntry.Open();
+#if !RELEASE
+			Assert.Equal(949, f.FilenameHeader.codepage);
+#endif
+			using var sr = new StreamReader(fstream);
+			var text = sr.ReadToEnd();
+			Assert.Equal("Hello, world!", text);
+		}
+#endif
 		private class ProgressTracker
 		{
 			public bool FoundEnd = false;
@@ -636,13 +709,6 @@ namespace EggDotNet.Tests
 				disposedValue = true;
 			}
 		}
-
-		// // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-		// ~UnitTest1()
-		// {
-		//     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-		//     Dispose(disposing: false);
-		// }
 
 		public void Dispose()
 		{

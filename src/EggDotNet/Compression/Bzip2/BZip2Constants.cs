@@ -1,7 +1,6 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Text;
+﻿using System.Diagnostics.CodeAnalysis;
 
+#pragma warning disable
 namespace EggDotNet.Compression.Bzip2
 {
 
@@ -14,6 +13,7 @@ namespace EggDotNet.Compression.Bzip2
 		/// <summary>
 		/// Random numbers used to randomise repetitive blocks
 		/// </summary>
+
 		public readonly static int[] RandomNumbers = {
 			619, 720, 127, 481, 931, 816, 813, 233, 566, 247,
 			985, 724, 205, 454, 863, 491, 741, 242, 949, 214,

@@ -1,8 +1,8 @@
-﻿using EggDotNet.InternalExtensions;
-using System;
+﻿using System;
 using System.IO;
 
-#if NETSTANDARD2_0
+#if !USE_SPAN
+using EggDotNet.InternalExtensions;
 using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif
 
@@ -19,8 +19,8 @@ namespace EggDotNet.Format.Egg
 
 		public byte[] Param2 { get; private set; }
 
-#if NETSTANDARD2_1_OR_GREATER
-		public EncryptHeader(EncryptionMethod encryptionMethod, short size, Span<byte> aesHeader, Span<byte> aesFooter)
+#if USE_SPAN
+		public EncryptHeader(EncryptionMethod encryptionMethod, short size, ReadOnlySpan<byte> aesHeader, ReadOnlySpan<byte> aesFooter)
 		{
 			EncryptionMethod = encryptionMethod;
 			Size = size;
@@ -39,7 +39,7 @@ namespace EggDotNet.Format.Egg
 
 		public static EncryptHeader Parse(Stream stream)
 		{
-#if NETSTANDARD2_1_OR_GREATER
+#if USE_SPAN
 			Span<byte> encryptHeaderBuffer = stackalloc byte[3];
 #else
 			var encryptHeaderBuffer = new byte[3];
@@ -57,7 +57,7 @@ namespace EggDotNet.Format.Egg
 				throw new InvalidDataException("Invalid encryption buffer length");
 			}
 
-#if NETSTANDARD2_1_OR_GREATER
+#if USE_SPAN
 			Span<byte> encDataBuffer = stackalloc byte[size];
 #else
 			var encDataBuffer = new byte[size];

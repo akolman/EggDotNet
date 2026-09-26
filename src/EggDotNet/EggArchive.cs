@@ -1,16 +1,10 @@
 ﻿using EggDotNet.Format;
-using EggDotNet.Format.Egg;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using static EggDotNet.Callbacks;
-
-
-#if NETSTANDARD2_1_OR_GREATER
-#nullable enable
-#endif
 
 namespace EggDotNet
 {
@@ -87,7 +81,7 @@ namespace EggDotNet
 		/// <param name="streamCallback">A callback that will be called to retrieve volumes of a multi-part archive.</param>
 		/// <param name="passwordCallback">A callback that will be called to retrieve a password used for decryption.</param>
 		/// <exception cref="Exceptions.UnknownEggException"/>
-#if NETSTANDARD2_1_OR_GREATER
+#if NULLABLE
 		public EggArchive(Stream stream, bool ownStream = false, SplitFileReceiverCallback? streamCallback = null, FileDecryptPasswordCallback? passwordCallback = null)
 #else
 		public EggArchive(Stream stream, bool ownStream = false, SplitFileReceiverCallback streamCallback = null, FileDecryptPasswordCallback passwordCallback = null)
@@ -105,7 +99,7 @@ namespace EggDotNet
 		/// </summary>
 		/// <param name="entryName">The name of the entry to fetch, including any directory.</param>
 		/// <returns>The entry specified by Name, null if not found.</returns>
-#if NETSTANDARD2_1_OR_GREATER
+#if NULLABLE
 		public EggArchiveEntry? GetEntry(string entryName)
 #else
 		public EggArchiveEntry GetEntry(string entryName)
@@ -119,7 +113,7 @@ namespace EggDotNet
 		/// </summary>
 		/// <param name="id">The ID of the entry to fetch.</param>
 		/// <returns>The entry specifieid by ID, null if not found.</returns>
-#if NETSTANDARD2_1_OR_GREATER
+#if NULLABLE
 		public EggArchiveEntry? GetEntry(int id)
 #else
 		public EggArchiveEntry GetEntry(int id)

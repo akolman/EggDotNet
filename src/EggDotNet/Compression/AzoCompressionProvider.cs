@@ -1,9 +1,5 @@
 ﻿using EggDotNet.Compression.AZO;
-using EggDotNet.SpecialStreams;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace EggDotNet.Compression
 {

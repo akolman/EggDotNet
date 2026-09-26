@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 
-#if NETSTANDARD2_0
+#if !USE_SPAN
 using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif
 
@@ -50,7 +50,7 @@ namespace EggDotNet.Format.Alz
 		{
 			var header = new FileHeader();
 
-#if NETSTANDARD2_1_OR_GREATER
+#if USE_SPAN
 			Span<byte> fileheaderBuffer = stackalloc byte[9];
 #else
 			var fileheaderBuffer = new byte[9];
@@ -77,7 +77,7 @@ namespace EggDotNet.Format.Alz
 			{
 				var rfs = GetReadFileSize(bitFlags);
 				var fileinfoBufferLen = rfs * 2 + 6;
-#if NETSTANDARD2_1_OR_GREATER
+#if USE_SPAN
 				Span<byte> fileInfoBuffer = stackalloc byte[fileinfoBufferLen];
 #else
 				var fileInfoBuffer = new byte[fileinfoBufferLen];
@@ -94,7 +94,7 @@ namespace EggDotNet.Format.Alz
 				header.UncompressedSize = ReadSize(rfs, fileInfoBuffer.Slice(6 + rfs, rfs));
 			}
 
-#if NETSTANDARD2_1_OR_GREATER
+#if USE_SPAN
 			Span<byte> filenameBuffer = stackalloc byte[filenameLen];
 #else
 			var filenameBuffer = new byte[filenameLen];
@@ -118,7 +118,7 @@ namespace EggDotNet.Format.Alz
 			return (short)a;
 		}
 
-#if NETSTANDARD2_0
+#if !USE_SPAN
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static long ReadSize(short size, byte[] buf)
 		{
@@ -138,7 +138,7 @@ namespace EggDotNet.Format.Alz
 		}
 #else
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static long ReadSize(short size, Span<byte> buf)
+		private static long ReadSize(short size, ReadOnlySpan<byte> buf)
 		{
 			switch (size)
 			{

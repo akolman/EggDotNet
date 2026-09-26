@@ -1,11 +1,10 @@
 ﻿using EggDotNet.Exceptions;
-using EggDotNet.InternalExtensions;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-#if NETSTANDARD2_0
+#if !USE_SPAN
+using EggDotNet.InternalExtensions;
 using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif
 
@@ -19,22 +18,28 @@ namespace EggDotNet.Format.Egg
 			None = 0,
 			Encrypt = 4,
 			UseAreaCode = 8,
-			RelativePath = 16
+			AbsolutePath = 16 /*Documentation seems to be wrong but implementation shows absolute when set*/
 		}
 
+#if DEBUG
+		internal int codepage;
+#endif
 		public const int FILENAME_HEADER_MAGIC = 0x0A8591AC;
 
 		public string FileNameFull { get; private set; }
 
-		public FilenameHeader(string filename)
+		public FilenameHeader(string filename, Encoding encoder)
 		{
 			FileNameFull = filename;
+#if DEBUG
+			codepage = encoder.CodePage;
+#endif
 		}
 
 		public static FilenameHeader Parse(Stream stream)
 		{
 			var nameEncoder = Encoding.UTF8;
-#if NETSTANDARD2_1_OR_GREATER
+#if USE_SPAN
 			Span<byte> filenameHeaderBuffer = stackalloc byte[3];
 #else
 			var filenameHeaderBuffer = new byte[3];
@@ -52,14 +57,10 @@ namespace EggDotNet.Format.Egg
 			}
 
 			var filenameSize = BitConverter.ToInt16(filenameHeaderBuffer.Slice(1, 2));
-			if (filenameSize > 2 << 7) /*protect from stack blowout*/
-			{
-				throw new InvalidDataException("Invalid filename size");
-			}
 
 			if (bitFlag.HasFlag(FilenameFlags.UseAreaCode))
 			{
-#if NETSTANDARD2_1_OR_GREATER
+#if USE_SPAN
 				Span<byte> localeBuffer = stackalloc byte[2];
 #else
 				var localeBuffer = new byte[2];
@@ -81,17 +82,19 @@ namespace EggDotNet.Format.Egg
 				}
 			}
 
-#if NETSTANDARD2_1_OR_GREATER
-			Span<byte> filenameBytes = stackalloc byte[filenameSize];
-#else
+			if (bitFlag.HasFlag(FilenameFlags.AbsolutePath))
+			{
+				var parentIdBytes = new byte[4];
+				_ = stream.Read(parentIdBytes); /*unsure how to implement this as I believe it's unused*/
+			}
+
 			var filenameBytes = new byte[filenameSize];
-#endif
 			if (stream.Read(filenameBytes) != filenameSize)
 			{
 				throw new InvalidDataException("Filename header corrupt");
 			}
 
-			return new FilenameHeader(nameEncoder.GetString(filenameBytes));
+			return new FilenameHeader(nameEncoder.GetString(filenameBytes), nameEncoder);
 		}
 	}
 }

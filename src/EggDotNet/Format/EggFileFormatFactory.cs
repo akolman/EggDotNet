@@ -1,9 +1,10 @@
 ﻿using EggDotNet.Exceptions;
-using System;
 using System.IO;
 using static EggDotNet.Callbacks;
 
-#if NETSTANDARD2_0
+#if USE_SPAN
+using System;
+#else
 using EggDotNet.InternalExtensions;
 using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif
@@ -14,7 +15,7 @@ namespace EggDotNet.Format
 	{
 		public static EggFileFormatBase Create(Stream stream, SplitFileReceiverCallback streamCallback, FileDecryptPasswordCallback pwCallback)
 		{
-#if NETSTANDARD2_1_OR_GREATER
+#if USE_SPAN
 			Span<byte> headerBuffer = stackalloc byte[Global.HEADER_SIZE];
 #else
 			var headerBuffer = new byte[Global.HEADER_SIZE];

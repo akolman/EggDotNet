@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
-	  <Version>0.3.0</Version>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net48;net6.0;net8.0;net10.0</TargetFrameworks>
+	  <Version>0.4.0</Version>
 	  <Authors>Andrew Kolman</Authors>
 	  <RepositoryUrl>https://github.com/akolman/EggDotNet</RepositoryUrl>
 	  <RepositoryType>git</RepositoryType>
@@ -15,16 +15,28 @@
 	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	  <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
 	  <EnableNETAnalyzers>True</EnableNETAnalyzers>
-	  <AnalysisLevel>latest-recommended</AnalysisLevel>
+	  <AnalysisLevel>latest-minimum</AnalysisLevel>
 	  <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
 	  <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
 	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
 	  <Deterministic>True</Deterministic>
-	  <PackageTags>egg, unegg, compression, alz, deflate, lzma, bzip, alzip, altools, lea</PackageTags>
+	  <PackageTags>egg;unegg;compression;alz;deflate;lzma;bzip;alzip;altools;lea</PackageTags>
   </PropertyGroup>
 
-	
-  <ItemGroup>
+	<ItemGroup>
+		<InternalsVisibleTo Include="EggDotNet.Tests" />
+	</ItemGroup>
+		
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' Or '$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net10.0' Or '$(TargetFramework)' == 'net11.0'">
+		<DefineConstants>$(DefineConstants);NULLABLE;USE_SPAN</DefineConstants>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net10.0' Or '$(TargetFramework)' == 'net11.0'">
+		<IsTrimmable>true</IsTrimmable>
+		<IsAotCompatible>true</IsAotCompatible>
+		<PublishAot>true</PublishAot>
+	</PropertyGroup>
+	<ItemGroup>
     <None Include="..\..\eggdotnet.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>

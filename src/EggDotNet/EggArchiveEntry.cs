@@ -3,10 +3,6 @@ using EggDotNet.SpecialStreams;
 using System;
 using System.IO;
 
-#if NETSTANDARD2_1_OR_GREATER
-#nullable enable
-#endif
-
 namespace EggDotNet
 {
 	/// <summary>
@@ -14,7 +10,7 @@ namespace EggDotNet
 	/// </summary>
 	public sealed class EggArchiveEntry
 	{
-		private EggFileFormatBase _format => Archive.format;
+		private EggFileFormatBase format => Archive.format;
 
 		internal readonly EggFileEntryBase entry;
 		internal long PositionInStream => entry.Position;
@@ -32,7 +28,7 @@ namespace EggDotNet
 		/// <summary>
 		/// Gets the name of the egg entry, not including any directory.
 		/// </summary>
-#if NETSTANDARD2_1_OR_GREATER
+#if NULLABLE
 		public string? Name => Path.GetFileName(FullName);
 #else
 		public string Name => Path.GetFileName(FullName);
@@ -41,7 +37,7 @@ namespace EggDotNet
 		/// <summary>
 		/// Gets the name of the egg entry, including any directory.
 		/// </summary>
-#if NETSTANDARD2_1_OR_GREATER
+#if NULLABLE
 		public string? FullName => entry.Name;
 #else
 		public string FullName => entry.Name;
@@ -72,7 +68,7 @@ namespace EggDotNet
 		/// </summary>
 		public CompressionMethod CompressionMethod => entry.CompressionMethod;
 
-#if NETSTANDARD2_1_OR_GREATER
+#if NULLABLE
 		/// <summary>
 		/// Gets the last write time of the file.
 		/// </summary>
@@ -112,7 +108,7 @@ namespace EggDotNet
 		/// <returns>A Stream to the entry.</returns>
 		public Stream Open()
 		{
-			return _format.GetStreamForEntry(this);
+			return format.GetStreamForEntry(this);
 		}
 
 		/// <summary>
@@ -131,7 +127,7 @@ namespace EggDotNet
 		/// <returns>True is checksum matches, false if not.</returns>
 		public bool ChecksumValid()
 		{
-			using (var st = _format.GetStreamForEntry(this))
+			using (var st = format.GetStreamForEntry(this))
 			{
 				using (var crc = new Crc32Stream(st))
 				{
@@ -145,7 +141,7 @@ namespace EggDotNet
 		/// <inheritdoc/>
 		public override string ToString()
 		{
-			if (string.IsNullOrWhiteSpace(entry.Name)) 
+			if (string.IsNullOrWhiteSpace(entry.Name))
 			{
 				return $"{nameof(EggArchiveEntry)} {entry.Id}";
 			}

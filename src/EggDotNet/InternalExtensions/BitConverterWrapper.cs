@@ -1,8 +1,8 @@
-﻿using System;
+﻿#if !USE_SPAN
+using System;
 
 namespace EggDotNet.InternalExtensions
 {
-#if NETSTANDARD2_0
     internal static class BitConverterWrapper
     {
         public static int ToInt32(byte[] buffer)
@@ -25,5 +25,6 @@ namespace EggDotNet.InternalExtensions
             return BitConverter.ToInt64(buffer, 0);
         }
     }
-#endif
+
 }
+#endif

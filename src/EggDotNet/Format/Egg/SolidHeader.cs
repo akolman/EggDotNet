@@ -1,6 +1,10 @@
-﻿using EggDotNet.InternalExtensions;
+﻿using System.IO;
+
+#if USE_SPAN
 using System;
-using System.IO;
+#else
+using EggDotNet.InternalExtensions;
+#endif
 
 namespace EggDotNet.Format.Egg
 {
@@ -10,7 +14,7 @@ namespace EggDotNet.Format.Egg
 
 		public static SolidHeader Parse(Stream stream)
 		{
-#if NETSTANDARD2_1_OR_GREATER
+#if USE_SPAN
 			Span<byte> buffer = stackalloc byte[3];
 #else
 			var buffer = new byte[3];

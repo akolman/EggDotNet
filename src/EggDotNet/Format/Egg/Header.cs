@@ -1,9 +1,9 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 
-#if NETSTANDARD2_0
-using EggDotNet.Extensions;
+#if USE_SPAN
+using System;
+#else
 using EggDotNet.InternalExtensions;
 using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif
@@ -50,7 +50,7 @@ namespace EggDotNet.Format.Egg
 		{
 			Debug.Assert(stream.Position == 4);
 
-#if NETSTANDARD2_1_OR_GREATER
+#if USE_SPAN
 			Span<byte> buffer = stackalloc byte[HEADER_SIZE_BYTES - 4];
 #else
 			var buffer = new byte[HEADER_SIZE_BYTES - 4];
@@ -69,10 +69,10 @@ namespace EggDotNet.Format.Egg
 			SolidHeader solidHeader = null;
 			//if (next != EGG_HEADER_END_MAGIC)
 			//{
-#if NETSTANDARD2_1_OR_GREATER
+#if USE_SPAN
 				Span<byte> extFieldBuffer = stackalloc byte[Global.HEADER_SIZE];
 #else
-				var extFieldBuffer = new byte[Global.HEADER_SIZE];
+			var extFieldBuffer = new byte[Global.HEADER_SIZE];
 #endif
 				var foundEnd = false;
 

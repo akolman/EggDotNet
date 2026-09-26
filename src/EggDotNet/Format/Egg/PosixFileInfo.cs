@@ -1,10 +1,9 @@
-﻿using EggDotNet.InternalExtensions;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 
-#if NETSTANDARD2_0
+#if USE_SPAN
+using System;
+#else
+using EggDotNet.InternalExtensions;
 using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif
 
@@ -25,7 +24,7 @@ namespace EggDotNet.Format.Egg
 
 		public static PosixFileInfo Parse(Stream stream)
 		{
-#if NETSTANDARD2_1_OR_GREATER
+#if USE_SPAN
 			Span<byte> posixFileBuffer = stackalloc byte[23];
 #else
 			var posixFileBuffer = new byte[23];

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 #pragma warning disable CA5379
 
@@ -13,7 +12,7 @@ namespace EggDotNet.Encryption.Aes
 		internal byte[] _Salt;
 		internal byte[] _providedPv;
 		internal byte[] _generatedPv;
-		internal int _KeyStrengthInBits;
+		internal int KeyStrengthInBits;
 		private byte[] _MacInitializationVector;
 		private byte[] _keyBytes;
 		private short PasswordVerificationStored;
@@ -24,7 +23,7 @@ namespace EggDotNet.Encryption.Aes
 		private EggAesCrypto(string password, int keyStrengthInBits)
 		{
 			_Password = password;
-			_KeyStrengthInBits = keyStrengthInBits;
+			KeyStrengthInBits = keyStrengthInBits;
 		}
 
 		public static EggAesCrypto ReadFromStream(string password, int keyStrengthInBits, byte[] salt, byte[] pwV)
@@ -51,7 +50,7 @@ namespace EggDotNet.Encryption.Aes
 		{
 			get
 			{
-				if (!_cryptoGenerated) _GenerateCryptoBytes();
+				if (!_cryptoGenerated) GenerateCryptoBytes();
 				return _generatedPv;
 			}
 		}
@@ -62,7 +61,7 @@ namespace EggDotNet.Encryption.Aes
 		{
 			get
 			{
-				if (!_cryptoGenerated) _GenerateCryptoBytes();
+				if (!_cryptoGenerated) GenerateCryptoBytes();
 				return _keyBytes;
 			}
 		}
@@ -71,21 +70,22 @@ namespace EggDotNet.Encryption.Aes
 		{
 			get
 			{
-				if (!_cryptoGenerated) _GenerateCryptoBytes();
+				if (!_cryptoGenerated) GenerateCryptoBytes();
 				return _MacInitializationVector;
 			}
 		}
 
-		public int SizeOfEncryptionMetadata => _KeyStrengthInBytes / 2 + 10 + 2;
+		public int SizeOfEncryptionMetadata => KeyStrengthInBytes / 2 + 10 + 2;
 
-		private int _KeyStrengthInBytes => _KeyStrengthInBits / 8;
+		private int KeyStrengthInBytes => KeyStrengthInBits / 8;
 
-		private void _GenerateCryptoBytes()
+		private void GenerateCryptoBytes()
 		{
+#pragma warning disable
 			using (var rfc2898 = new System.Security.Cryptography.Rfc2898DeriveBytes(_Password, Salt, Rfc2898KeygenIterations))
 			{
-				_keyBytes = rfc2898.GetBytes(_KeyStrengthInBytes);
-				_MacInitializationVector = rfc2898.GetBytes(_KeyStrengthInBytes);
+				_keyBytes = rfc2898.GetBytes(KeyStrengthInBytes);
+				_MacInitializationVector = rfc2898.GetBytes(KeyStrengthInBytes);
 				_generatedPv = rfc2898.GetBytes(2);
 			}
 

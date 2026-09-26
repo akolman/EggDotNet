@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-#if NETSTANDARD2_0
-using EggDotNet.Extensions;
+#if !USE_SPAN
 using EggDotNet.InternalExtensions;
 using BitConverter = EggDotNet.InternalExtensions.BitConverterWrapper;
 #endif
@@ -35,8 +34,7 @@ namespace EggDotNet.Format.Alz
 
 		public override bool IsEncrypted => false;
 
-#if NETSTANDARD2_1_OR_GREATER
-#nullable enable
+#if NULLABLE
 		public override DateTime? LastWriteTime => FileHeader.LastWriteTime;
 
 		public override string? Comment => string.Empty; //TODO
@@ -52,7 +50,7 @@ namespace EggDotNet.Format.Alz
 		{
 			var entries = new List<AlzEntry>();
 
-#if NETSTANDARD2_1_OR_GREATER
+#if USE_SPAN
 			Span<byte> nextHeaderBuf = stackalloc byte[Global.HEADER_SIZE];
 #else
 			var nextHeaderBuf = new byte[Global.HEADER_SIZE];

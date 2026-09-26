@@ -81,3 +81,10 @@ Fixes and added features
 +Added lea test.
 +Added additional header validation.
 -Removed EggArchiveEntry.ExternalAttributes obsoleted in 0.2.0-beta.
+=======================================================================
+0.4.0-beta (2026-09-26)
++Added net48, net6, net8, and net10 targets.
++Enabled trim and AOT compatibility for net8 and net10 targets.
++Fixed theoretical issue that would occur if 'absolute path' flag set.  This seems to be unusable by ALZip.
++Added tests for non-default codepage handling (e.g. shift-jis).
++Internal code cleanup.
