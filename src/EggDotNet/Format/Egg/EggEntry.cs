@@ -166,7 +166,7 @@ namespace EggDotNet.Format.Egg
 						entry.EncryptHeader = EncryptHeader.Parse(stream);
 						break;
 					case CommentHeader.COMMENT_HEADER_MAGIC:
-						var comment = CommentHeader.Parse(stream); //TODO: should we save CommentHeader like other members?
+						var comment = CommentHeader.Parse(stream);
 						if (insideFileheader)
 							entry.CommentHeader = comment;
 						else

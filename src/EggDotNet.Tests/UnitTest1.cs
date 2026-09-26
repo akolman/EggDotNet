@@ -425,7 +425,7 @@ namespace EggDotNet.Tests
 				using var fsb = new FileStream(GetTestPath("small_shift.egg"), FileMode.Open, FileAccess.Read);
 				Assert.Throws<UnsupportedLocaleException>(() => { using var egg = new EggArchive(fsb); });
 			}
-			
+
 			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 			using var fs = new FileStream(GetTestPath("small_shift.egg"), FileMode.Open, FileAccess.Read);
 			using var egg = new EggArchive(fs);
@@ -703,13 +703,6 @@ namespace EggDotNet.Tests
 				disposedValue = true;
 			}
 		}
-
-		// // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-		// ~UnitTest1()
-		// {
-		//     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-		//     Dispose(disposing: false);
-		// }
 
 		public void Dispose()
 		{
