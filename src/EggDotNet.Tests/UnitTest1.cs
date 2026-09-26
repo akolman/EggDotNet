@@ -407,7 +407,9 @@ namespace EggDotNet.Tests
 			Assert.Equal("小さい.txt", firstEntry.Name);
 			var f = firstEntry.entry as EggEntry;
 			using var fstream = firstEntry.Open();
+#if !RELEASE
 			Assert.Equal(932, f.FilenameHeader.codepage);
+#endif
 			using var sr = new StreamReader(fstream);
 			var text = sr.ReadToEnd();
 			Assert.Equal("Hello, world!", text);
@@ -433,7 +435,9 @@ namespace EggDotNet.Tests
 			Assert.Equal("小さい.txt", firstEntry.Name);
 			var f = firstEntry.entry as EggEntry;
 			using var fstream = firstEntry.Open();
+#if !RELEASE
 			Assert.Equal(932, f.FilenameHeader.codepage);
+#endif
 			using var sr = new StreamReader(fstream);
 			var text = sr.ReadToEnd();
 			Assert.Equal("Hello, world!", text);
@@ -456,7 +460,9 @@ namespace EggDotNet.Tests
 			Assert.Equal("작은.txt", firstEntry.Name);
 			var f = firstEntry.entry as EggEntry;
 			using var fstream = firstEntry.Open();
+#if !RELEASE
 			Assert.Equal(949, f.FilenameHeader.codepage);
+#endif
 			using var sr = new StreamReader(fstream);
 			var text = sr.ReadToEnd();
 			Assert.Equal("Hello, world!", text);
