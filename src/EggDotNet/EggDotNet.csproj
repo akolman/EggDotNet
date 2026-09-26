@@ -16,7 +16,7 @@
 	  <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
 	  <EnableNETAnalyzers>True</EnableNETAnalyzers>
 	  <AnalysisLevel>latest-minimum</AnalysisLevel>
-	  <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+	  <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
 	  <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
 	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
 	  <Deterministic>True</Deterministic>
@@ -34,6 +34,7 @@
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net10.0' Or '$(TargetFramework)' == 'net11.0'">
 		<IsTrimmable>true</IsTrimmable>
 		<IsAotCompatible>true</IsAotCompatible>
+		<PublishAot>true</PublishAot>
 	</PropertyGroup>
 	<ItemGroup>
     <None Include="..\..\eggdotnet.png">

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-#pragma warning disable IDE0036 // Order modifiers
+#pragma warning disable
 namespace EggDotNet.Compression.Bzip2
 {
 
